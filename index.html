@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Raya Train</title>
+<meta name="theme-color" content="#0A0A0A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Raya Train">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' fill='%230A0A0A'/%3E%3Ccircle cx='90' cy='108' r='42' fill='%23D4AF37'/%3E%3Cpath d='M62 84 Q62 44 90 44 Q118 44 118 84' stroke='%23D4AF37' stroke-width='14' fill='none'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0A0A0A; --card:#151515; --card2:#1D1D1D; --line:#2A2A2A;
+  --gold:#D4AF37; --gold-dim:#8a7223; --bone:#EAE6DC; --steel:#9A968C;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{background:var(--ink)}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--ink);color:var(--bone);min-height:100vh;padding-bottom:90px}
+h1,h2,h3,.disp{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.04em}
+header{padding:calc(env(safe-area-inset-top) + 16px) 18px 10px;display:flex;justify-content:space-between;align-items:baseline}
+header h1{font-size:26px;font-weight:700;color:var(--bone)}
+header h1 span{color:var(--gold)}
+#dateline{font-size:12px;color:var(--steel);letter-spacing:.08em;text-transform:uppercase}
+.wrap{padding:0 14px;max-width:560px;margin:0 auto}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+.card h2{font-size:15px;font-weight:600;color:var(--steel);letter-spacing:.12em;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.card h2 .wt{color:var(--gold);font-size:15px;white-space:nowrap}
+.big{font-family:'Barlow Condensed';font-size:34px;font-weight:700;line-height:1}
+.sub{font-size:12px;color:var(--steel);margin-top:2px}
+a.v{color:var(--gold);text-decoration:none;border-bottom:1px dotted var(--gold-dim)}
+a.vb{display:inline-block;font-size:12px;color:var(--gold);text-decoration:none;border:1px solid var(--gold-dim);border-radius:99px;padding:3px 10px;margin:2px 4px 2px 0}
+#banner{border:1px solid var(--gold-dim);background:linear-gradient(160deg,#161306,#151515 55%)}
+#banner .big{color:var(--gold)}
+.setgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:4px}
+.setbtn{aspect-ratio:1;border-radius:10px;border:1px solid var(--line);background:var(--card2);color:var(--steel);
+  font-family:'Barlow Condensed';font-size:17px;font-weight:600;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .12s}
+.setbtn small{font-size:10px;font-family:'Inter';font-weight:500}
+.setbtn.done{background:var(--gold);border-color:var(--gold);color:#0A0A0A}
+.setbtn.heavy{border-color:var(--gold);color:var(--gold)}
+.setbtn.heavy.done{background:var(--gold);color:#0A0A0A;box-shadow:0 0 0 2px var(--gold-dim)}
+.ladder{display:flex;gap:3px;height:8px;margin:10px 0 4px}
+.ladder i{flex:1;border-radius:2px;background:var(--card2);border:1px solid var(--line)}
+.ladder i.f{background:var(--gold);border-color:var(--gold)}
+.ladder-lbl{display:flex;justify-content:space-between;font-size:11px;color:var(--steel)}
+.ladder-lbl b{color:var(--gold);font-weight:600}
+.coreblock{background:var(--card2);border-radius:10px;padding:12px;font-size:14px;line-height:1.6;white-space:pre-line}
+.coretitle{font-family:'Barlow Condensed';font-size:19px;font-weight:700;color:var(--gold);margin-bottom:4px;text-transform:uppercase}
+.engblock{background:var(--card2);border-radius:10px;padding:12px;font-size:14px;line-height:1.55;margin-bottom:10px}
+.engblock b{color:var(--gold)}
+.zones{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
+.zones div{background:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px;font-size:12px;color:var(--steel)}
+.zones b{display:block;color:var(--gold);font-family:'Barlow Condensed';font-size:16px}
+select,input[type=text],input[type=number],textarea{width:100%;background:var(--card2);border:1px solid var(--line);border-radius:10px;color:var(--bone);padding:12px;font-size:15px;font-family:'Inter'}
+textarea{resize:none;min-height:54px}
+label.f{display:block;font-size:11px;color:var(--steel);text-transform:uppercase;letter-spacing:.1em;margin:12px 0 6px}
+.row{display:flex;gap:10px}.row>*{flex:1}
+.chk{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);cursor:pointer;font-size:15px;flex-wrap:wrap}
+.chk:last-child{border-bottom:none}
+.box{width:24px;height:24px;border-radius:7px;border:1.5px solid var(--steel);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .12s}
+.chk.on .box{background:var(--gold);border-color:var(--gold)}
+.chk.on .box::after{content:'✓';color:#0A0A0A;font-weight:700;font-size:15px}
+button.primary{width:100%;padding:16px;border-radius:12px;border:none;background:var(--gold);color:#0A0A0A;
+  font-family:'Barlow Condensed';font-size:20px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;margin-top:4px}
+button.ghost{width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--steel);font-size:14px;cursor:pointer}
+.pm{display:flex;align-items:center;gap:14px}
+.pm button{width:44px;height:44px;border-radius:10px;border:1px solid var(--line);background:var(--card2);color:var(--gold);font-size:22px;cursor:pointer}
+.pm .val{flex:1;text-align:center;font-family:'Barlow Condensed';font-size:24px;font-weight:600}
+#clock{font-family:'Barlow Condensed';font-size:64px;font-weight:700;text-align:center;color:var(--bone);font-variant-numeric:tabular-nums;margin:6px 0}
+#clock.hot{color:var(--gold)}
+.timerrow{display:flex;gap:8px}
+.timerrow button{flex:1;padding:12px;border-radius:10px;border:1px solid var(--line);background:var(--card2);color:var(--bone);font-family:'Barlow Condensed';font-size:16px;font-weight:600;letter-spacing:.05em;cursor:pointer;text-transform:uppercase}
+.timerrow button.go{border-color:var(--gold);color:var(--gold)}
+.sess{display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid var(--line)}
+.sess:last-child{border:none}
+.sess .l b{font-family:'Barlow Condensed';font-size:17px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.sess .l div{font-size:12px;color:var(--steel);margin-top:2px}
+.sess .r{font-family:'Barlow Condensed';font-size:15px;color:var(--gold);text-align:right}
+.badge{display:inline-block;font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:99px;border:1px solid var(--gold-dim);color:var(--gold);margin-left:6px;vertical-align:middle}
+nav{position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,10,.94);backdrop-filter:blur(12px);border-top:1px solid var(--line);
+  display:flex;padding:8px 0 calc(env(safe-area-inset-bottom) + 8px)}
+nav button{flex:1;background:none;border:none;color:var(--steel);font-family:'Barlow Condensed';font-size:14px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;padding:8px 0}
+nav button.on{color:var(--gold)}
+.page{display:none}.page.on{display:block}
+#toast{position:fixed;top:calc(env(safe-area-inset-top) + 12px);left:50%;transform:translateX(-50%) translateY(-80px);background:var(--gold);color:#0A0A0A;
+  font-weight:600;font-size:14px;padding:11px 20px;border-radius:99px;transition:transform .25s;z-index:50;white-space:nowrap}
+#toast.show{transform:translateX(-50%) translateY(0)}
+.mut{color:var(--steel);font-size:13px;line-height:1.5}
+.off{text-align:center;padding:40px 0;color:var(--steel)}
+.off .big{color:var(--bone);margin-bottom:6px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <h1>RAYA <span>TRAIN</span></h1>
+  <div id="dateline">—</div>
+</header>
+<div class="wrap">
+
+<div class="page on" id="pg-today">
+  <div class="card" id="banner">
+    <div class="big" id="sessTitle">Loading…</div>
+    <div class="sub" id="sessSub"></div>
+  </div>
+  <div id="todayBody"></div>
+</div>
+
+<div class="page" id="pg-timer">
+  <div class="card">
+    <h2>Clock</h2>
+    <div id="clock">0:00</div>
+    <div class="timerrow">
+      <button class="go" onclick="T.start()">Start</button>
+      <button onclick="T.stop()">Stop</button>
+      <button onclick="T.reset()">Reset</button>
+    </div>
+    <label class="f">Quick rest timers</label>
+    <div class="timerrow">
+      <button onclick="T.count(30)">0:30</button>
+      <button onclick="T.count(60)">1:00</button>
+      <button onclick="T.count(90)">1:30</button>
+      <button onclick="T.count(120)">2:00</button>
+    </div>
+    <p class="mut" style="margin-top:12px">Test day: swings pass at ≤ 5:00, get-ups at ≤ 10:00.</p>
+  </div>
+  <div class="card">
+    <h2>Log an S&S Test</h2>
+    <div class="row">
+      <div><label class="f">Swing bell (lb)</label><input type="number" id="tSwingWt" inputmode="numeric"></div>
+      <div><label class="f">Swing time</label><input type="text" id="tSwingTime" placeholder="5:00"></div>
+    </div>
+    <div class="row">
+      <div><label class="f">Get-up bell (lb)</label><input type="number" id="tGetupWt" inputmode="numeric"></div>
+      <div><label class="f">Get-up time</label><input type="text" id="tGetupTime" placeholder="10:00"></div>
+    </div>
+    <label class="f">Notes</label><textarea id="tNotes"></textarea>
+    <button class="primary" onclick="saveTest()" style="margin-top:14px">Save Test</button>
+  </div>
+  <div class="card">
+    <h2>Log a 10:00 Bike TT</h2>
+    <p class="mut" style="margin-bottom:8px">Continuous max-calorie effort, evenly paced. Sets every engine pace zone. Re-test every 6 weeks.</p>
+    <label class="f">Total calories</label><input type="number" id="ttCal" inputmode="numeric" placeholder="e.g. 140">
+    <button class="primary" onclick="saveTT()" style="margin-top:14px">Save Benchmark</button>
+  </div>
+</div>
+
+<div class="page" id="pg-prog">
+  <div class="card">
+    <h2>Swing Ladder <span class="wt" id="pSwingWts"></span></h2>
+    <div class="ladder" id="pSwingLadder"></div>
+    <div class="ladder-lbl"><span>current bell</span><b id="pSwingCount"></b><span>next bell</span></div>
+    <label class="f">Sets at next bell</label>
+    <div class="pm"><button onclick="bump('swing',-1)">−</button><div class="val" id="pSwingVal">0 / 10</div><button onclick="bump('swing',1)">+</button></div>
+  </div>
+  <div class="card">
+    <h2>Get-Up Ladder <span class="wt" id="pGetupWts"></span></h2>
+    <div class="ladder" id="pGetupLadder"></div>
+    <div class="ladder-lbl"><span>current bell</span><b id="pGetupCount"></b><span>next bell</span></div>
+    <label class="f">Reps per side at next bell</label>
+    <div class="pm"><button onclick="bump('getup',-1)">−</button><div class="val" id="pGetupVal">0 / 5</div><button onclick="bump('getup',1)">+</button></div>
+  </div>
+  <div class="card">
+    <h2>Engine Zones <span class="wt" id="pTT"></span></h2>
+    <div class="zones" id="zoneGrid"><div style="grid-column:1/3">Log a 10:00 bike TT (Timer tab) to unlock cal/min pace targets.</div></div>
+  </div>
+  <div class="card">
+    <h2>Program</h2>
+    <label class="f">Schedule option</label>
+    <select id="pOption" onchange="saveOption()">
+      <option value="A">Option A — 5-Day + Sat Z2</option>
+      <option value="B">Option B — 2 On / 1 Off</option>
+    </select>
+    <label class="f">Bell weights (lb) — current / next</label>
+    <div class="row"><div><input type="number" id="pSwingCur"></div><div><input type="number" id="pSwingNext"></div></div>
+    <div class="sub" style="margin:4px 0 8px">Swings</div>
+    <div class="row"><div><input type="number" id="pGetupCur"></div><div><input type="number" id="pGetupNext"></div></div>
+    <div class="sub" style="margin:4px 0 8px">Get-ups</div>
+    <button class="ghost" onclick="saveWeights()">Save weights</button>
+    <label class="f">Mayhem book position (week / day)</label>
+    <div class="row">
+      <div><select id="pCoreWeek"><option>1</option><option>2</option><option>3</option><option>4</option></select></div>
+      <div><select id="pCoreDay"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></div>
+    </div>
+    <button class="ghost" style="margin-top:10px" onclick="saveCorePos()">Save book position</button>
+  </div>
+</div>
+
+<div class="page" id="pg-hist">
+  <div class="card"><h2>This Week</h2><div class="big" id="hWeek">0</div><div class="sub">sessions logged</div></div>
+  <div class="card"><h2>Sessions</h2><div id="hList" class="mut">Loading…</div></div>
+  <div class="card"><h2>Tests & Benchmarks</h2><div id="hTests" class="mut">No tests yet.</div></div>
+</div>
+
+</div>
+<nav>
+  <button class="on" onclick="tab('today',this)">Today</button>
+  <button onclick="tab('timer',this)">Timer</button>
+  <button onclick="tab('prog',this)">Progress</button>
+  <button onclick="tab('hist',this)">History</button>
+</nav>
+<div id="toast">Saved</div>
+
+<script>
+const SB='https://zuijmbyrwzixnhcaqgpl.supabase.co/rest/v1';
+const KEY='sb_publishable_64yRp9qL6lES2TGOItXeEg_UFtWQfJ2';
+const H={'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':'application/json'};
+const api=async(path,opt={})=>{
+  const r=await fetch(SB+path,{...opt,headers:{...H,...(opt.headers||{})}});
+  if(!r.ok){toast('Sync error');throw new Error(await r.text())}
+  const t=await r.text();return t?JSON.parse(t):null;
+};
+
+/* ---------- Demo videos ---------- */
+/* Mayhem links extracted from the 30-Day Abs ebook */
+const V={
+ 'Alternating Leg V-Ups':'https://youtu.be/CqvlD9ngEGg','Alt-Leg V-Ups':'https://youtu.be/CqvlD9ngEGg',
+ 'Pilates 100':'https://youtu.be/uipzGC5Pyyw',
+ 'Reverse Crunches':'https://youtu.be/EY1z2AAEl3I','Reverse Crunch':'https://youtu.be/EY1z2AAEl3I',
+ 'Mountain Climbers':'https://youtu.be/4Pf4UKQUUV0','Mtn Climbers':'https://youtu.be/4Pf4UKQUUV0',
+ 'Mtn Climber Twists':'https://youtu.be/ehyN25oorkY?t=5',
+ 'Scissor Switch':'https://youtu.be/pqcFk2sQFLo',
+ 'Sit Ups':'https://youtu.be/D7603V-8CzU',
+ 'Feet-Anchored Sit Ups':'https://youtu.be/3-KAoO5nd6Q',
+ 'Plank Shoulder Taps':'https://youtu.be/6igKb2-FgqI',
+ 'Plank Jacks':'https://youtu.be/zopR9ws4o0U',
+ 'Plank Hold':'https://youtu.be/7gz0lv6EzIg','Plank':'https://youtu.be/7gz0lv6EzIg',
+ 'High Plank Hold':'https://youtu.be/70bshI6GcD8',
+ 'Side Plank':'https://youtu.be/xD_eXK0bCus',
+ 'Leg Lift w/ Hip Dip':'https://youtu.be/5S7k_q0x32A',
+ 'Leg Lifts':'https://youtu.be/9R4bqCbdGUo',
+ 'Runners Crunches':'https://youtu.be/XZLru822jPI',
+ 'Russian Twists':'https://youtu.be/vfkGfoesi7A',
+ 'Bicycle Kicks':'https://youtu.be/BXnG1ZXrFZs',
+ 'Crab Toe Touches':'https://youtu.be/XGfAn_1N2yg','Crab Toe Touch':'https://youtu.be/XGfAn_1N2yg',
+ 'Froggers':'https://youtu.be/yF_b4Rdeseg',
+ 'Flutter Kicks':'https://youtu.be/jEjB0phld7M',
+ 'Heel Taps':'https://youtu.be/UbWEbsYIdT4',
+ 'Tuck Ups':'https://youtu.be/i9K8OVUnc40',
+ 'Hollow Hold':'https://youtu.be/Q4eiqzCN_Vw',
+ 'V-Hold/Tuck Hold':'https://youtu.be/wLaCHd5lJsU',
+ 'V-Ups':'https://youtu.be/wKgs8K1WlOA',
+ 'Burpees':'https://youtu.be/yne2-n93jEE',
+ 'Deadbugs':'https://youtu.be/5-KpDfJGMHM',
+ 'Superman Hold':'https://youtu.be/x-p2AAmJ6-I',
+ 'Birddogs':'https://youtu.be/D1M_uEYGC8U',
+ 'Single-Leg Glute Bridge':'https://youtu.be/1cqP3pAXSQU',
+ 'Glute Bridges':'https://youtu.be/GCXeUFSNKDg',
+ 'Bear Crawl Hold':'https://youtu.be/jkxCTY_3rWQ'};
+/* StrongFirst official */
+const SF={
+ swing:'https://www.youtube.com/watch?v=PAhDt_0PjP4',        // Improve Your Kettlebell Swing (S&S course excerpt)
+ swingSetup:'https://www.youtube.com/watch?v=nKzkLyMe48E',   // Brett Jones — setup for ballistics
+ getup:'https://www.youtube.com/watch?v=AnZ1Wok0bmE',        // Shoe Get-Up (S&S course excerpt)
+ getupTip:'https://www.youtube.com/watch?v=01YAZdjWfcM'};    // Get-up tip
+const yts=q=>'https://www.youtube.com/results?search_query='+encodeURIComponent(q);
+const CSLIB='https://trainingzone.crossoversymmetry.com/exercises/';
+const CS_ACT=[['Row',yts('crossover symmetry row')],['Reverse Fly',yts('crossover symmetry reverse fly')],
+ ['Pull Down',yts('crossover symmetry pull down')],['Victory',yts('crossover symmetry victory')],
+ ['90/90 External Rotation',yts('crossover symmetry 90 90')],['Scap Low Pullback',yts('crossover symmetry scap pullback')]];
+
+/* link-ify core text without nested replacements */
+function linkify(txt){
+  const names=Object.keys(V).sort((a,b)=>b.length-a.length);
+  const stash=[];
+  names.forEach((n,i)=>{
+    if(txt.includes(n)){stash[i]=`<a class="v" target="_blank" rel="noopener" href="${V[n]}">${n}</a>`;
+      txt=txt.split(n).join(`\x01${i}\x02`);}});
+  return txt.replace(/\x01(\d+)\x02/g,(_,i)=>stash[+i]);
+}
+
+/* ---------- Mayhem 30-Day Abs ---------- */
+const STYLES=['Fight Gone Bad','Tabata','AMRAP','For Time','Chipper','Static Holds'];
+const CORE={
+1:[`3 SETS:\n1:00 Alternating Leg V-Ups\n1:00 Pilates 100\n1:00 Reverse Crunch\n1:00 Mountain Climbers\n1:00 Rest`,
+`8 SETS (:20 on / :10 off):\n• Scissor Switch\n• Sit Ups\n• Plank Jacks\nNo extra rest — 12 min total`,
+`3 SETS — AMRAP 3:00:\n10 Leg Lifts\n20 Runners Crunches\n30 Russian Twists\nRest 2:00 between sets`,
+`5 SETS:\n30 Bicycle Kicks\n20 Crab Toe Touch\n10 Froggers\nRest 1:00 between sets — record each set time`,
+`FOR TIME:\n100 Flutter Kicks\n75 Heel Taps\n50 Feet-Anchored Sit Ups\n25 Tuck Ups`,
+`3 SETS:\n1:00 Plank\n1:00 Side Plank (R)\n1:00 Side Plank (L)\n1:00 Hollow Hold\n1:00 Rest`],
+2:[`3 SETS:\n1:00 Leg Lift w/ Hip Dip\n1:00 Crab Toe Touch\n1:00 Hollow Hold\n1:00 Plank Jacks\n1:00 Rest`,
+`8 SETS (:20 on / :10 off):\n• Flutter Kicks\n• Reverse Crunches\n• Russian Twists\nNo extra rest — 12 min total`,
+`2 SETS — AMRAP 4:00:\n40 Mtn Climber Twists\n20 Sit Ups\nRest 3:00 between sets`,
+`6 SETS:\n10 Leg Lifts\n20 Runners Crunches\n20 V-Ups\n10 Burpees\nRest 1:00 between sets — record each set time`,
+`FOR TIME:\n100 Pilates 100\n80 Russian Twists\n60 Bicycle Kicks\n40 Scissor Switch\n20 Deadbugs`,
+`3 SETS:\n:30 Hollow Hold\n1:00 Superman Hold\n:30 Hollow Hold\n1:00 V-Hold/Tuck Hold\n2:00 Rest`],
+3:[`3 SETS:\n1:00 Deadbugs\n1:00 Tuck Ups\n1:00 Birddogs\n1:00 Burpees\n1:00 Rest`,
+`8 SETS (:20 on / :10 off):\n• Heel Taps\n• Plank Shoulder Taps\n• Alternating Leg V-Ups\nNo extra rest — 12 min total`,
+`5 SETS — AMRAP 1:30:\n20 Sit Ups\nMax-rep Mtn Climbers\nRest 1:30 between sets`,
+`6 SETS:\n40 Heel Taps\n20 V-Ups\n40 Flutter Kicks\nRest 1–2 min between sets — record each set time`,
+`FOR TIME:\n50 Runners Crunches\n50 Leg Lifts\n50 Reverse Crunches\n50 Plank Jacks\n50 Feet-Anchored Sit Ups`,
+`4 SETS:\n:30 Single-Leg Glute Bridge (R/L)\n1:30 High Plank Hold\nRest 1:30 between sets`],
+4:[`3 SETS:\n1:00 Glute Bridges\n1:00 Feet-Anchored Sit Ups\n1:00 Heel Taps\n1:00 Plank Jacks\n1:00 Rest`,
+`8 SETS (:20 on / :10 off):\n• Flutter Kicks\n• Runners Crunches\n• Mountain Climbers\nNo extra rest — 12 min total`,
+`2 SETS — AMRAP 5:00:\n30 Russian Twists\n20 Alt-Leg V-Ups\n10 Burpees\nRest 3:00 between sets`,
+`3 SETS:\n20 Leg Lifts\n20 Tuck Ups\n20 Crab Toe Touches\n20 Reverse Crunches\n20 Plank Jacks\nRest 2:00 between sets — record each set time`,
+`FOR TIME:\n100 Scissor Switch\n100 Sit Ups\n100 Plank Shoulder Taps`,
+`3 SETS:\n1:00 Plank Hold\n1:00 Hollow Hold\n1:00 Bear Crawl Hold\n1:00 Plank Hold\n1:00 Rest`]};
+
+/* ---------- Engine prescriptions (Hinshaw rotation) ---------- */
+const ENGINES={
+ A:{name:'VO2 Intervals',time:'10–12 min',zone:'vo2',
+    rx:'<b>10–16 × :30 @ VO2 pace / :30 easy spin</b>\nor 5 × 1:00 hard / 1:00 easy\nEven output — last rep matches the first. Recovery is easy movement, never a dead stop.'},
+ B:{name:'Threshold',time:'12–14 min',zone:'thr',
+    rx:'<b>3 × 3:00 @ threshold / 1:30 easy</b>\nor 4 × 800m row / 400m run @ threshold w/ equal easy time\n"Comfortably uncomfortable" — could speak a sentence, wouldn\'t want to.'},
+ C:{name:'Tempo',time:'12–15 min',zone:'tmp',
+    rx:'<b>2 × 6:00 @ tempo / 2:00 easy</b>\nor 12:00 continuous negative split — first half moderate, second half tempo.'},
+ D:{name:'Zone 2',time:'30–45 min',zone:'z2',
+    rx:'<b>Conversational pace the whole way.</b> Run / row / bike / ruck — any modality. If you can\'t talk, you\'re stealing from tomorrow.'}};
+const MODS=['Echo bike','Rower','Run','Ski erg','Ruck','Jump rope','Other'];
+
+/* schedule v2: [title, sub, sns('full'|'light'|null), engineKey|null, strength, recovery] */
+const SCHED_A={
+ 1:['Full + Threshold','S&S · core · Engine B','full','B',false,false],
+ 2:['Full + Iron Scap','S&S · core · CS Strength after','full',null,true,false],
+ 3:['Full + VO2','S&S · core · Engine A','full','A',false,true],
+ 4:['Aerobic Day','No bells — Zone 2 · core · CS Strength',null,'D',true,false],
+ 5:['Full + Tempo','S&S · core · Engine C','full','C',false,true],
+ 6:['Optional Zone 2','30–45 min easy — or take the day',null,'D',false,true],
+ 0:null};
+const SCHED_B={
+ 1:['Strength Day','Push the progression · CS Strength','full',null,true,false],
+ 2:['Engine Day','S&S @ current + VO2 or Threshold','full','A',false,true],
+ 3:['Off','CS Recovery only',null,null,false,true],
+ 4:['Strength Day','Push the progression · CS Strength','full',null,true,false],
+ 5:['Engine Day','S&S @ current + Tempo','full','C',false,true],
+ 6:['Flex Day','Optional light S&S + long Zone 2','light','D',false,true],
+ 0:null};
+
+let STATE=null, todayLogged=false, sel={swings:new Set(),getups:new Set(),core:false,csA:false,csS:false,csR:false};
+
+const $=id=>document.getElementById(id);
+const toast=m=>{const t=$('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1800)};
+function tab(p,btn){document.querySelectorAll('.page').forEach(x=>x.classList.remove('on'));$('pg-'+p).classList.add('on');
+ document.querySelectorAll('nav button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');}
+
+async function load(){
+  const now=new Date();
+  $('dateline').textContent=now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+  STATE=(await api('/train_program_state?id=eq.1'))[0];
+  const today=now.toISOString().slice(0,10);
+  const existing=await api(`/train_sessions?session_date=eq.${today}&select=id`);
+  todayLogged=existing.length>0;
+  renderToday(now.getDay());
+  renderProg();
+  loadHistory();
+}
+
+function paces(){
+  if(!STATE.tt_cal_10min)return null;
+  const r=STATE.tt_cal_10min/10;
+  const f=x=>x.toFixed(1);
+  return {z2:`${f(r*.55)}–${f(r*.65)}`,tmp:`${f(r*.78)}–${f(r*.85)}`,thr:`${f(r*.88)}–${f(r*.92)}`,vo2:`${f(r*1.03)}–${f(r*1.10)}`};
+}
+
+function renderToday(dow){
+  const sched=(STATE.program_option==='A'?SCHED_A:SCHED_B)[dow];
+  const body=$('todayBody');
+  if(!sched){$('sessTitle').textContent='Rest Day';$('sessSub').textContent='Sundays are off. Go be with the family.';
+    body.innerHTML='<div class="off"><div class="big disp">Recover</div><p class="mut">Bells stay on the floor today.</p></div>';return;}
+  if(todayLogged){$('sessTitle').textContent='Logged ✓';$('sessSub').textContent='Session already recorded today.';
+    body.innerHTML='<div class="off"><div class="big disp">Done</div><p class="mut">Check History for the record.</p></div>';return;}
+  $('sessTitle').textContent=sched[0];$('sessSub').textContent=sched[1];
+  const [,,sns,engKey,doStr,doRec]=sched;
+  let n=1, html='';
+
+  // Warm-up + CS Activation
+  html+=`<div class="card"><h2>${n++} · Warm-Up + CS Activation</h2>
+    <p class="mut">Bands at eye level. 8 reps each, squeeze the blades, ~5-sec holds:</p>
+    <div style="margin:8px 0">${CS_ACT.map(([nm,u])=>`<a class="vb" target="_blank" rel="noopener" href="${u}">▶ ${nm}</a>`).join('')}</div>
+    <p class="mut">Then 3 rounds: <a class="v" target="_blank" rel="noopener" href="${yts('prying goblet squat StrongFirst')}">5 prying goblet squats</a> · <a class="v" target="_blank" rel="noopener" href="${V['Glute Bridges']}">5 hip bridges</a> · <a class="v" target="_blank" rel="noopener" href="${yts('kettlebell halo')}">3 halos each way</a></p>
+    <div class="chk" id="csA" onclick="tog('csA')" style="margin-top:6px"><div class="box"></div><span>Activation done</span></div>
+    <p class="mut" style="margin-top:6px">Full CS video library: <a class="v" target="_blank" rel="noopener" href="${CSLIB}">Training Zone</a></p></div>`;
+
+  // S&S
+  if(sns){
+    const light=sns==='light';
+    const nSets=light?5:10, nGet=light?3:5;
+    const hs=STATE.swing_heavy_sets, hr=STATE.getup_heavy_reps;
+    html+=`<div class="card"><h2>${n++} · Swings — ${nSets}×10 one-hand <span class="wt">${STATE.swing_weight_lb}${hs>0&&!light?' / '+STATE.swing_next_weight_lb:''} lb</span></h2><div class="setgrid">`;
+    for(let i=1;i<=nSets;i++){
+      const heavy=!light&&i<=hs;
+      html+=`<div class="setbtn${heavy?' heavy':''}" id="sw${i}" onclick="togSet('swings',${i})">${i%2?'L':'R'}<small>${heavy?STATE.swing_next_weight_lb:STATE.swing_weight_lb}</small></div>`;}
+    html+=`</div><p class="mut" style="margin-top:10px">Max power every rep. Rest 30–60s.
+      <a class="vb" target="_blank" rel="noopener" href="${SF.swing}">▶ Swing form</a><a class="vb" target="_blank" rel="noopener" href="${SF.swingSetup}">▶ Setup</a></p></div>`;
+
+    html+=`<div class="card"><h2>${n++} · Get-Ups — ${nGet}/side <span class="wt">${STATE.getup_weight_lb}${hr>0&&!light?' / '+STATE.getup_next_weight_lb:''} lb</span></h2><div class="setgrid">`;
+    for(let i=1;i<=nGet*2;i++){
+      const side=i%2?'L':'R', rep=Math.ceil(i/2);
+      const heavy=!light&&rep<=hr;
+      html+=`<div class="setbtn${heavy?' heavy':''}" id="gu${i}" onclick="togSet('getups',${i})">${side}${rep}<small>${heavy?STATE.getup_next_weight_lb:STATE.getup_weight_lb}</small></div>`;}
+    html+=`</div><p class="mut" style="margin-top:10px">Slow and owned. Eyes on the bell to the elbow.
+      <a class="vb" target="_blank" rel="noopener" href="${SF.getup}">▶ Get-up (shoe drill)</a><a class="vb" target="_blank" rel="noopener" href="${SF.getupTip}">▶ Form tip</a></p></div>`;
+  }
+
+  // Core (movement names are tappable videos)
+  const wk=STATE.core_week, dy=STATE.core_day;
+  html+=`<div class="card"><h2>${n++} · Core <span class="wt">WK${wk} · D${dy}</span></h2>
+    <div class="coreblock"><div class="coretitle">${STYLES[dy-1]}</div>${linkify(CORE[wk][dy-1])}</div>
+    <div class="chk" id="coreChk" onclick="tog('core')" style="margin-top:6px"><div class="box"></div><span>Core complete</span></div>
+    <label class="f">Score / time (optional)</label><input type="text" id="coreScore" placeholder="e.g. 4:32 or 212 reps"></div>`;
+
+  // Engine
+  if(engKey){
+    const e=ENGINES[engKey], p=paces();
+    html+=`<div class="card"><h2>${n++} · Engine ${engKey} — ${e.name} <span class="wt">${e.time}</span></h2>
+      <div class="engblock">${e.rx.replace(/\n/g,'<br>')}</div>`;
+    if(p)html+=`<p class="mut">Target: <b style="color:var(--gold)">${p[e.zone]} cal/min</b> on the Echo (from your TT).</p>`;
+    else html+=`<p class="mut">Log a 10:00 bike TT (Timer tab) to unlock pace targets.</p>`;
+    html+=`<label class="f">Modality</label><select id="engMod">${MODS.map(m=>`<option>${m}</option>`).join('')}</select>
+      <label class="f">Result (optional)</label><input type="text" id="engNotes" placeholder="e.g. 108 cal / even splits"></div>`;
+  }
+
+  // CS Strength (Iron Scap)
+  if(doStr){
+    html+=`<div class="card"><h2>${n++} · CS Strength — Iron Scap</h2>
+      <p class="mut">Run the Iron Scap protocol from your chart, <b style="color:var(--bone)">after</b> training — this is the session that builds shoulder durability. Videos: <a class="v" target="_blank" rel="noopener" href="${CSLIB}">Training Zone library</a></p>
+      <div class="chk" id="csS" onclick="tog('csS')" style="margin-top:6px"><div class="box"></div><span>Iron Scap done</span></div></div>`;
+  }
+  // CS Recovery
+  if(doRec){
+    html+=`<div class="card"><h2>Cool-Down</h2>
+      <div class="chk" id="csR" onclick="tog('csR')"><div class="box"></div><span>CS Recovery (light bands)</span></div></div>`;
+  }
+
+  html+=`<div class="card"><label class="f">Session RPE (1–10)</label><input type="number" id="rpe" inputmode="numeric" min="1" max="10">
+    <label class="f">Notes</label><textarea id="sNotes"></textarea>
+    <button class="primary" style="margin-top:14px" onclick="saveSession('${sns||'none'}','${engKey||''}')">Complete Session</button></div>`;
+  body.innerHTML=html;
+}
+
+function tog(id){sel[id]=!sel[id];$(id==='core'?'coreChk':id).classList.toggle('on',sel[id]);}
+function togSet(kind,i){const pre=kind==='swings'?'sw':'gu';const s=sel[kind];
+ s.has(i)?s.delete(i):s.add(i);$(pre+i).classList.toggle('done',s.has(i));}
+
+async function saveSession(sns,engKey){
+  const now=new Date();
+  const payload={
+    session_date:now.toISOString().slice(0,10),
+    day_type:sns==='none'?'aerobic':sns,
+    swings:sns!=='none'?{sets_done:sel.swings.size,reps:10,weight_lb:STATE.swing_weight_lb,heavy_sets:STATE.swing_heavy_sets,heavy_weight_lb:STATE.swing_next_weight_lb}:null,
+    getups:sns!=='none'?{reps_done:sel.getups.size,weight_lb:STATE.getup_weight_lb,heavy_reps:STATE.getup_heavy_reps,heavy_weight_lb:STATE.getup_next_weight_lb}:null,
+    core_week:STATE.core_week, core_day:STATE.core_day,
+    core_completed:sel.core, core_score:$('coreScore')?.value||null,
+    cs_activation:sel.csA, cs_recovery:sel.csR||sel.csS,
+    endurance_choice:engKey?`${engKey}:${$('engMod')?.value||''}`:null,
+    endurance_notes:$('engNotes')?.value||null,
+    rpe:parseInt($('rpe')?.value)||null,
+    notes:[sel.csS?'[Iron Scap ✓]':null,$('sNotes')?.value||null].filter(Boolean).join(' ')||null};
+  await api('/train_sessions',{method:'POST',body:JSON.stringify(payload)});
+  if(sel.core){
+    let d=STATE.core_day+1, w=STATE.core_week;
+    if(d>6){d=1;w=w>=4?1:w+1;}
+    await api('/train_program_state?id=eq.1',{method:'PATCH',body:JSON.stringify({core_day:d,core_week:w,updated_at:new Date().toISOString()})});
+  }
+  toast('Session logged');
+  sel={swings:new Set(),getups:new Set(),core:false,csA:false,csS:false,csR:false};
+  load();
+}
+
+/* ---------- progression ---------- */
+function renderProg(){
+  $('pOption').value=STATE.program_option;
+  $('pSwingWts').textContent=`${STATE.swing_weight_lb} → ${STATE.swing_next_weight_lb} lb`;
+  $('pGetupWts').textContent=`${STATE.getup_weight_lb} → ${STATE.getup_next_weight_lb} lb`;
+  $('pSwingLadder').innerHTML=Array.from({length:10},(_,i)=>`<i class="${i<STATE.swing_heavy_sets?'f':''}"></i>`).join('');
+  $('pGetupLadder').innerHTML=Array.from({length:5},(_,i)=>`<i class="${i<STATE.getup_heavy_reps?'f':''}"></i>`).join('');
+  $('pSwingCount').textContent=`${STATE.swing_heavy_sets} / 10 heavy`;
+  $('pGetupCount').textContent=`${STATE.getup_heavy_reps} / 5 heavy`;
+  $('pSwingVal').textContent=`${STATE.swing_heavy_sets} / 10`;
+  $('pGetupVal').textContent=`${STATE.getup_heavy_reps} / 5`;
+  $('pSwingCur').value=STATE.swing_weight_lb;$('pSwingNext').value=STATE.swing_next_weight_lb;
+  $('pGetupCur').value=STATE.getup_weight_lb;$('pGetupNext').value=STATE.getup_next_weight_lb;
+  $('pCoreWeek').value=STATE.core_week;$('pCoreDay').value=STATE.core_day;
+  const p=paces();
+  $('pTT').textContent=STATE.tt_cal_10min?`TT: ${STATE.tt_cal_10min} cal`:'';
+  if(p)$('zoneGrid').innerHTML=`<div><b>${p.z2}</b>Zone 2 cal/min</div><div><b>${p.tmp}</b>Tempo cal/min</div>
+    <div><b>${p.thr}</b>Threshold cal/min</div><div><b>${p.vo2}</b>VO2 cal/min</div>`;
+}
+async function bump(kind,d){
+  if(kind==='swing'){
+    let v=Math.min(10,Math.max(0,STATE.swing_heavy_sets+d));
+    if(v===10){await patchState({swing_weight_lb:STATE.swing_next_weight_lb,swing_heavy_sets:0});toast(`Swings graduated to ${STATE.swing_weight_lb} lb`);}
+    else await patchState({swing_heavy_sets:v});
+  } else {
+    let v=Math.min(5,Math.max(0,STATE.getup_heavy_reps+d));
+    if(v===5){await patchState({getup_weight_lb:STATE.getup_next_weight_lb,getup_heavy_reps:0});toast(`Get-ups graduated to ${STATE.getup_weight_lb} lb`);}
+    else await patchState({getup_heavy_reps:v});
+  }
+}
+async function patchState(obj){
+  obj.updated_at=new Date().toISOString();
+  await api('/train_program_state?id=eq.1',{method:'PATCH',body:JSON.stringify(obj)});
+  STATE={...STATE,...obj};renderProg();renderToday(new Date().getDay());
+}
+const saveOption=()=>patchState({program_option:$('pOption').value}).then(()=>toast('Schedule updated'));
+const saveWeights=()=>patchState({
+  swing_weight_lb:+$('pSwingCur').value,swing_next_weight_lb:+$('pSwingNext').value,
+  getup_weight_lb:+$('pGetupCur').value,getup_next_weight_lb:+$('pGetupNext').value}).then(()=>toast('Weights saved'));
+const saveCorePos=()=>patchState({core_week:+$('pCoreWeek').value,core_day:+$('pCoreDay').value}).then(()=>toast('Book position saved'));
+
+/* ---------- tests & benchmarks ---------- */
+const parseTime=s=>{if(!s)return null;const p=s.split(':');return p.length===2?(+p[0]*60)+ +p[1]:+s;};
+async function saveTest(){
+  const st=parseTime($('tSwingTime').value), gt=parseTime($('tGetupTime').value);
+  await api('/train_tests',{method:'POST',body:JSON.stringify({
+    swing_weight_lb:+$('tSwingWt').value||STATE.swing_weight_lb,
+    swing_time_sec:st, swing_passed:st!=null&&st<=300,
+    getup_weight_lb:+$('tGetupWt').value||STATE.getup_weight_lb,
+    getup_time_sec:gt, getup_passed:gt!=null&&gt<=600,
+    notes:$('tNotes').value||null})});
+  toast('Test saved');['tSwingTime','tGetupTime','tNotes'].forEach(i=>$(i).value='');
+  loadHistory();
+}
+async function saveTT(){
+  const c=+$('ttCal').value;
+  if(!c){toast('Enter calories');return;}
+  await patchState({tt_cal_10min:c});
+  await api('/train_tests',{method:'POST',body:JSON.stringify({
+    swing_weight_lb:0,getup_weight_lb:0,notes:`10:00 bike TT — ${c} cal`})});
+  toast('Benchmark saved — zones unlocked');
+  $('ttCal').value='';loadHistory();
+}
+
+/* ---------- history ---------- */
+const fmtT=s=>s==null?'—':`${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+async function loadHistory(){
+  const sess=await api('/train_sessions?order=session_date.desc&limit=20');
+  const monday=new Date();monday.setDate(monday.getDate()-((monday.getDay()+6)%7));
+  $('hWeek').textContent=sess.filter(s=>new Date(s.session_date+'T12:00')>=new Date(monday.toDateString())).length;
+  $('hList').innerHTML=sess.length?sess.map(s=>{
+    const d=new Date(s.session_date+'T12:00').toLocaleDateString('en-US',{weekday:'short',month:'numeric',day:'numeric'});
+    const sw=s.swings?`${s.swings.sets_done}×10 @ ${s.swings.weight_lb}${s.swings.heavy_sets?'/'+s.swings.heavy_weight_lb:''}`:'';
+    return `<div class="sess"><div class="l"><b>${d}${s.core_completed?'<span class="badge">core ✓</span>':''}</b>
+      <div>${s.day_type}${s.endurance_choice?' · '+s.endurance_choice.replace(':',' — '):''}${s.rpe?' · RPE '+s.rpe:''}</div></div>
+      <div class="r">${sw}</div></div>`;}).join(''):'No sessions yet. Go swing something heavy.';
+  const tests=await api('/train_tests?order=test_date.desc&limit=10');
+  if(tests.length)$('hTests').innerHTML=tests.map(t=>{
+    if(t.swing_weight_lb===0)return `<div class="sess"><div class="l"><b>${t.test_date}</b><div>${t.notes||''}</div></div><div class="r">BENCH</div></div>`;
+    return `<div class="sess"><div class="l"><b>${t.test_date}</b><div>SW ${t.swing_weight_lb}lb ${fmtT(t.swing_time_sec)} ${t.swing_passed?'✓':''} · TGU ${t.getup_weight_lb}lb ${fmtT(t.getup_time_sec)} ${t.getup_passed?'✓':''}</div></div>
+     <div class="r">${t.swing_passed&&t.getup_passed?'PASS':''}</div></div>`;}).join('');
+}
+
+/* ---------- timer ---------- */
+const T={t0:null,iv:null,down:0,
+ start(){this.stop();this.t0=Date.now();this.down=0;this.iv=setInterval(()=>this.tick(),200);$('clock').classList.add('hot');},
+ count(sec){this.stop();this.t0=Date.now();this.down=sec;this.iv=setInterval(()=>this.tick(),200);$('clock').classList.add('hot');},
+ tick(){let e=Math.floor((Date.now()-this.t0)/1000);
+   if(this.down){let r=this.down-e;if(r<=0){this.stop();$('clock').textContent='0:00';if(navigator.vibrate)navigator.vibrate([200,100,200]);return;}e=r;}
+   $('clock').textContent=`${Math.floor(e/60)}:${String(e%60).padStart(2,'0')}`;},
+ stop(){clearInterval(this.iv);this.iv=null;$('clock').classList.remove('hot');},
+ reset(){this.stop();$('clock').textContent='0:00';}};
+
+/* ---------- freshness: network-first SW + refresh on resume ---------- */
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&STATE)load();});
+window.addEventListener('pageshow',e=>{if(e.persisted&&STATE)load();});
+
+load();
+</script>
+</body>
+</html>
