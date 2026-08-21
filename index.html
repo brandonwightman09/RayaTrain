@@ -225,7 +225,16 @@ nav button.on{color:var(--gold)}
   </div>
   <div class="card">
     <h2>Program</h2>
-    <label class="f" style="margin-top:0">Schedule option</label>
+    <label class="f" style="margin-top:0">Program week (6-week cycle)</label>
+    <select id="pWeek" onchange="setWeek(+this.value)">
+      <option value="1">Week 1 — Build</option>
+      <option value="2">Week 2 — Build</option>
+      <option value="3">Week 3 — Build</option>
+      <option value="4">Week 4 — S&S test week</option>
+      <option value="5">Week 5 — Peak volume</option>
+      <option value="6">Week 6 — Engine test week</option>
+    </select>
+    <label class="f">Schedule option</label>
     <select id="pOption" onchange="saveOption()">
       <option value="A">Option A — 5-Day + Sat Z2</option>
       <option value="B">Option B — 2 On / 1 Off</option>
@@ -334,22 +343,26 @@ const SF={
  getupTip:'https://www.youtube.com/watch?v=01YAZdjWfcM'};
 const yts=q=>'https://www.youtube.com/results?search_query='+encodeURIComponent(q);
 const CSLIB='https://trainingzone.crossoversymmetry.com/exercises/';
-const IRONSCAP_VID='https://www.youtube.com/watch?v=nQ7J1rZvpuM';
+/* Precise protocol videos */
+const VID_ACT='https://www.youtube.com/watch?v=Y80mRnwkGGk';      // Mayhem — Activation full follow-along
+const VID_ACT_REC='https://www.youtube.com/watch?v=dtVnYAXffXI';  // Activation + Recovery routines
+const VID_IRON_OFFICIAL='https://www.youtube.com/watch?v=nQ7J1rZvpuM'; // Crossover Symmetry — Iron Scap (official)
+const VID_IRON_FULL='https://www.youtube.com/watch?v=q2RuBPLvaFw';     // Full Iron Scap protocol demo
 const CS_ACT=[
- ['Crossover Row','Heavy','8',yts('crossover symmetry row')],
- ['Reverse Fly','Light','8',yts('crossover symmetry reverse fly')],
- ['Crossover Pulldown','Heavy','8',yts('crossover symmetry pulldown')],
- ['Crossover 90/90','Light','8',yts('crossover symmetry 90 90')],
- ['Crossover Scaption','Light','8',yts('crossover symmetry scaption')],
- ['Crossover Incline Plus','Heavy','8',yts('crossover symmetry incline plus')]];
+ ['Crossover Row','Heavy','8',VID_ACT],
+ ['Reverse Fly','Light','8',VID_ACT],
+ ['Crossover Pulldown','Heavy','8',VID_ACT],
+ ['Crossover 90/90','Light','8',VID_ACT],
+ ['Crossover Scaption','Light','8',VID_ACT],
+ ['Crossover Incline Plus','Heavy','8',VID_ACT]];
 const IRON=[
- ['Archer','Heavy','10 / side',yts('crossover symmetry archer')],
- ['Pulldown','Heavy','10',yts('crossover symmetry pulldown')],
- ['Tiger Walk','Heavy','20 / side',yts('crossover symmetry tiger walk')],
- ['WY Negative','Light','10',yts('crossover symmetry WY negative')],
- ['Snow Angel','Light','10',yts('crossover symmetry snow angel')],
- ['Bear Hug','Heavy','10',yts('crossover symmetry bear hug')],
- ['ATYT','Light','10 — fast',yts('crossover symmetry ATYT')]];
+ ['Archer','Heavy','10 / side',VID_IRON_FULL],
+ ['Pulldown','Heavy','10',VID_IRON_FULL],
+ ['Tiger Walk','Heavy','20 / side',VID_IRON_FULL],
+ ['WY Negative','Light','10',VID_IRON_FULL],
+ ['Snow Angel','Light','10',VID_IRON_FULL],
+ ['Bear Hug','Heavy','10',VID_IRON_FULL],
+ ['ATYT','Light','10 — fast',VID_IRON_FULL]];
 const mvrows=list=>list.map(([n,b,r,u])=>
   `<div class="mvrow"><span class="mn"><a target="_blank" rel="noopener" href="${u}">${n}</a></span><span class="mr"><b>${r}</b> · ${b} band</span></div>`).join('');
 
@@ -400,6 +413,28 @@ const ENGINES={
  D:{name:'Zone 2',time:'30–45 min',zone:'z2',
     rx:'<b>Conversational pace the whole way.</b> Run / row / bike / ruck — any modality. If you can\'t talk, you\'re stealing from tomorrow.'}};
 const MODS=['Echo bike','Rower','Run','Ski erg','Ruck','Jump rope','Other'];
+
+/* ---------- 6-week cycle ----------
+   W1–W3 build, W4 = S&S test week (deload engines), W5 peak volume, W6 = engine test week */
+const CYCLE_LEN=6;
+const WEEKMODS={
+ 1:{a:10,b:3,c:'2 × 6:00 @ tempo / 2:00 easy'},
+ 2:{a:12,b:3,c:'2 × 6:00 @ tempo / 2:00 easy'},
+ 3:{a:14,b:4,c:'2 × 7:00 @ tempo / 2:00 easy'},
+ 4:{a:10,b:3,c:'2 × 6:00 @ tempo / 2:00 easy',sstest:true},
+ 5:{a:16,b:4,c:'2 × 7:00 @ tempo / 2:00 easy'},
+ 6:{a:12,b:3,c:'12:00 continuous negative split — first half moderate, second half tempo',tt:true}};
+const mondayOf=d=>{const m=new Date(d);m.setHours(12,0,0,0);m.setDate(m.getDate()-((m.getDay()+6)%7));return m;};
+function programWeek(){
+  const s=mondayOf(new Date(STATE.start_date+'T12:00')), n=mondayOf(new Date());
+  const w=Math.floor((n-s)/(7*864e5));
+  return ((w%CYCLE_LEN)+CYCLE_LEN)%CYCLE_LEN+1;
+}
+async function setWeek(w){
+  const m=mondayOf(new Date());m.setDate(m.getDate()-(w-1)*7);
+  await patchState({start_date:m.toISOString().slice(0,10)});
+  toast(`Program week set to ${w}`);
+}
 
 const SCHED_A={
  1:['Full + Threshold','S&S · core · Engine B','full','B',false,false],
@@ -485,14 +520,25 @@ function pick(dd){selDow=dd;renderCal();renderOverview();}
 function buildBlocks(dow){
   const s=sched()[dow];
   if(!s)return null;
-  const [title,sub,sns,engKey,iron,rec]=s;
+  let [title,sub,sns,engKey,iron,rec]=s;
+  const wk=programWeek(), wm=WEEKMODS[wk];
   const light=sns==='light';
+  const ssTestDay=wm.sstest&&dow===1&&sns==='full';
+  const ttDay=wm.tt&&engKey==='A';
+  if(ssTestDay){title='S&S Test Day';sub=`Week ${wk} — swings and get-ups on the clock`;engKey=null;rec=true;}
+  if(ttDay){title='Engine Test Day';sub=`Week ${wk} — 10:00 bike time trial resets your zones`;}
+  if(wm.tt&&dow===6){sub+=' · optional: 2k row or 1-mile run TT for a second-modality benchmark';}
   const blocks=[];
   blocks.push({t:'check',letter:'A',cat:'Prep',name:'Warm-Up · CS Activation',rx:'6 movements × 8',key:'warmup',
     html:`<span class="ct">Bands eye level → knee level · 2-2-2-2 tempo</span>`+mvrows(CS_ACT)+
-      `<span class="ct" style="margin-top:12px">Then 3 rounds</span><div class="mvrow"><span class="mn"><a target="_blank" rel="noopener" href="${yts('prying goblet squat StrongFirst')}">Prying Goblet Squat</a></span><span class="mr"><b>5</b></span></div><div class="mvrow"><span class="mn"><a target="_blank" rel="noopener" href="${V['Glute Bridges']}">Hip Bridge</a></span><span class="mr"><b>5</b></span></div><div class="mvrow"><span class="mn"><a target="_blank" rel="noopener" href="${yts('kettlebell halo')}">Halo</a></span><span class="mr"><b>3</b> / way</span></div>`});
+      `<span class="ct" style="margin-top:12px">Then 3 rounds</span><div class="mvrow"><span class="mn"><a target="_blank" rel="noopener" href="${yts('prying goblet squat StrongFirst')}">Prying Goblet Squat</a></span><span class="mr"><b>5</b></span></div><div class="mvrow"><span class="mn"><a target="_blank" rel="noopener" href="${V['Glute Bridges']}">Hip Bridge</a></span><span class="mr"><b>5</b></span></div><div class="mvrow"><span class="mn"><a target="_blank" rel="noopener" href="${yts('kettlebell halo')}">Halo</a></span><span class="mr"><b>3</b> / way</span></div>
+      <div style="margin-top:12px"><a class="vb" target="_blank" rel="noopener" href="${VID_ACT}">Activation follow-along</a><a class="vb" target="_blank" rel="noopener" href="${CSLIB}">Training Zone</a></div>`});
   let L=66;
-  if(sns){
+  if(ssTestDay){
+    blocks.push({t:'sstest',letter:String.fromCharCode(L++),cat:'Test',name:'S&S Clock Test',key:'sstest',
+      rx:'Swings ≤ 5:00 · Get-ups ≤ 10:00',
+      html:`<span class="ct">The Simple standard protocol</span><b>Swings:</b> 10 one-hand swings every :30 for 5:00 — 100 total. Pass ≤ 5:00.\nRest exactly 1:00.\n<b>Get-ups:</b> 1 rep on the minute for 10:00, alternating sides. Pass ≤ 10:00.\n\nPick the heaviest bell you own every set with. Passing both @ 32kg / 70lb = <b>Simple</b>.`});
+  } else if(sns){
     const nSets=light?5:10, nGet=light?3:5;
     blocks.push({t:'sets',letter:String.fromCharCode(L++),cat:'Strength / Power',name:'One-Hand Swings',key:'swings',
       rx:`${nSets} × 10 · ${STATE.swing_weight_lb} lb`,
@@ -507,20 +553,28 @@ function buildBlocks(dow){
       sets:Array.from({length:nGet*2},(_,i)=>({lbl:`${i%2?'R':'L'}${Math.ceil((i+1)/2)}`,reps:1,
         lb:(!light&&Math.ceil((i+1)/2)<=STATE.getup_heavy_reps)?STATE.getup_next_weight_lb:STATE.getup_weight_lb,done:false}))});
   }
-  const wk=STATE.core_week,dy=STATE.core_day;
-  blocks.push({t:'check',letter:String.fromCharCode(L++),cat:'Core · Mayhem 30-Day Abs',name:STYLES[dy-1],key:'core',
-    rx:`Week ${wk} · Day ${dy}`,score:true,html:linkify(CORE[wk][dy-1])});
-  if(engKey){
+  const cwk=STATE.core_week,cdy=STATE.core_day;
+  blocks.push({t:'check',letter:String.fromCharCode(L++),cat:'Core · Mayhem',name:STYLES[cdy-1],key:'core',
+    rx:`Week ${cwk} · Day ${cdy}`,score:true,html:linkify(CORE[cwk][cdy-1])});
+  if(ttDay){
+    blocks.push({t:'tt',letter:String.fromCharCode(L++),cat:'Test',name:'10:00 Bike Time Trial',key:'tt',
+      rx:'Max calories · even pace',
+      html:`<span class="ct">Re-benchmark — updates every engine zone</span>Continuous 10:00 max-calorie effort on the Echo. <b>Even or negative split</b> — going out hot is a failed pace, not a big engine.${STATE.tt_cal_10min?`\n\nStanding mark: <b>${STATE.tt_cal_10min} cal</b>. Beat it.`:''}`});
+  } else if(engKey){
     const e=ENGINES[engKey],p=paces();
+    let rx=e.rx;
+    if(engKey==='A')rx=`<b>${wm.a} × :30 @ VO2 pace / :30 easy spin</b>\nEven output — last rep matches the first. Recovery is easy movement, never a dead stop.`;
+    if(engKey==='B')rx=`<b>${wm.b} × 3:00 @ threshold / 1:30 easy</b>\n"Comfortably uncomfortable" — could speak a sentence, wouldn't want to.`;
+    if(engKey==='C')rx=`<b>${wm.c}</b>`;
     blocks.push({t:'engine',letter:String.fromCharCode(L++),cat:'Conditioning',name:e.name,key:'engine',engKey,
-      rx:e.time,html:e.rx.replace(/\n/g,'<br>')+(p?`<br><br>Target: <b>${p[e.zone]} cal/min</b> on the Echo.`:'<br><br>Log a 10:00 bike TT to unlock pace targets.')});
+      rx:e.time,html:rx.replace(/\n/g,'<br>')+(p?`<br><br>Target: <b>${p[e.zone]} cal/min</b> on the Echo.`:'<br><br>Log a 10:00 bike TT to unlock pace targets.')});
   }
   if(iron)blocks.push({t:'check',letter:String.fromCharCode(L++),cat:'Shoulder Strength',name:'Iron Scap',key:'iron',rx:'7 movements · after training',
     html:`<span class="ct">Controlled 2-2-2-2 tempo · ATYT as fast as possible</span>`+mvrows(IRON)+
-      `<div style="margin-top:12px"><a class="vb" target="_blank" rel="noopener" href="${IRONSCAP_VID}">Full protocol video</a><a class="vb" target="_blank" rel="noopener" href="${CSLIB}">Training Zone</a></div>`});
+      `<div style="margin-top:12px"><a class="vb" target="_blank" rel="noopener" href="${VID_IRON_OFFICIAL}">Official Iron Scap</a><a class="vb" target="_blank" rel="noopener" href="${VID_IRON_FULL}">Full protocol demo</a></div>`});
   if(rec)blocks.push({t:'check',letter:String.fromCharCode(L++),cat:'Cool-Down',name:'CS Recovery',key:'rec',rx:'Light bands',
-    html:`Light bands, easy pace, slow eccentrics — flush the shoulders after the hard work.`});
-  return {title,sub,sns:sns||'none',engKey:engKey||'',dow,blocks};
+    html:`Light bands, easy pace, slow eccentrics — flush the shoulders after the hard work. <a class="v" target="_blank" rel="noopener" href="${VID_ACT_REC}">Recovery routine video</a>`});
+  return {title,sub:`${sub}`,sns:ssTestDay?'test':(sns||'none'),engKey:ttDay?'':(engKey||''),dow,wk,blocks};
 }
 
 /* ---------- overview ---------- */
@@ -531,7 +585,7 @@ function renderOverview(){
   if(!plan){body.innerHTML=`<div class="card" id="banner"><div class="big">Rest Day</div><div class="sub">Sundays are off. Go be with the family.</div></div>`;return;}
   const today=now.toISOString().slice(0,10);
   const loggedToday=SESS.some(s=>s.session_date===today);
-  let html=`<div class="card" id="banner"><div class="eyebrow" style="margin-bottom:4px">${isToday?'Today':'Scheduled '+['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][selDow]}</div>
+  let html=`<div class="card" id="banner"><div class="eyebrow" style="margin-bottom:4px">${isToday?'Today':'Scheduled '+['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][selDow]} · Week ${plan.wk} of ${CYCLE_LEN}</div>
     <div class="big">${plan.title}</div><div class="sub">${plan.sub}${loggedToday&&isToday?' · already logged today':''}</div>
     <button class="primary" style="margin-top:16px" onclick="Wiz.open(${selDow})">Start session</button></div>
     <div class="card">`;
@@ -565,6 +619,11 @@ const Wiz={
     if(b.score){const sc=$('in-score');if(sc)this.res.scores[b.key]=sc.value;}
     if(b.t==='engine'){const m=$('in-mod'),n=$('in-eng');
       if(m)this.res.engMod=m.value;if(n)this.res.engNotes=n.value;}
+    if(b.t==='sstest'){
+      const a=$('in-tsw'),bb=$('in-tst'),c=$('in-tgw'),d=$('in-tgt');
+      if(a)this.res.tswWt=a.value;if(bb)this.res.tswT=bb.value;
+      if(c)this.res.tguWt=c.value;if(d)this.res.tguT=d.value;}
+    if(b.t==='tt'){const t=$('in-tt');if(t)this.res.ttCal=t.value;}
   },
   render(){
     $('wizDots').innerHTML=Array.from({length:this.steps()},(_,j)=>
@@ -590,6 +649,17 @@ const Wiz={
           <input id="in-l${j}" type="number" inputmode="numeric" value="${s.lb}">
           <button class="setcirc${s.done?' on':''}" onclick="Wiz.togSet('${b.key}',${j},this)">✓</button></div>`;
       });
+    }
+    if(b.t==='sstest'){
+      html+=`<div class="sethead" style="grid-template-columns:1fr 1fr;margin-top:4px"><span>Swing bell (lb)</span><span>Swing time</span></div>
+        <div class="setrow" style="grid-template-columns:1fr 1fr"><input id="in-tsw" type="number" inputmode="numeric" value="${this.res.tswWt||STATE.swing_weight_lb}"><input id="in-tst" type="text" placeholder="e.g. 4:48" value="${this.res.tswT||''}"></div>
+        <div class="sethead" style="grid-template-columns:1fr 1fr"><span>Get-up bell (lb)</span><span>Get-up time</span></div>
+        <div class="setrow" style="grid-template-columns:1fr 1fr"><input id="in-tgw" type="number" inputmode="numeric" value="${this.res.tguWt||STATE.getup_weight_lb}"><input id="in-tgt" type="text" placeholder="e.g. 9:30" value="${this.res.tguT||''}"></div>
+        <p class="mut">Times save to your test history automatically when you complete the session.</p>`;
+    }
+    if(b.t==='tt'){
+      html+=`<label class="f">Total calories</label><input id="in-tt" type="number" inputmode="numeric" placeholder="${STATE.tt_cal_10min?'Beat '+STATE.tt_cal_10min:'e.g. 140'}" value="${this.res.ttCal||''}">
+        <p class="mut" style="margin-top:8px">Saves as your new benchmark and recalculates every pace zone.</p>`;
     }
     if(b.t==='engine'){
       html+=`<label class="f">Modality</label><select id="in-mod">${MODS.map(m=>`<option${this.res.engMod===m?' selected':''}>${m}</option>`).join('')}</select>
@@ -630,6 +700,19 @@ const Wiz={
       duration_min:dur, rpe:r.rpe,
       notes:[r.done.iron?'[Iron Scap ✓]':null,r.notes].filter(Boolean).join(' ')||null};
     await api('/train_sessions',{method:'POST',body:JSON.stringify(payload)});
+    // test-day results
+    if(r.tswT||r.tguT){
+      const st=parseTime(r.tswT), gt=parseTime(r.tguT);
+      await api('/train_tests',{method:'POST',body:JSON.stringify({
+        swing_weight_lb:+r.tswWt||STATE.swing_weight_lb, swing_time_sec:st, swing_passed:st!=null&&st<=300,
+        getup_weight_lb:+r.tguWt||STATE.getup_weight_lb, getup_time_sec:gt, getup_passed:gt!=null&&gt<=600,
+        notes:'W'+p.wk+' programmed S&S test'})});
+    }
+    if(r.ttCal&&+r.ttCal>0){
+      await api('/train_program_state?id=eq.1',{method:'PATCH',body:JSON.stringify({tt_cal_10min:+r.ttCal,updated_at:new Date().toISOString()})});
+      STATE.tt_cal_10min=+r.ttCal;
+      await api('/train_tests',{method:'POST',body:JSON.stringify({swing_weight_lb:0,getup_weight_lb:0,notes:`10:00 bike TT — ${+r.ttCal} cal`})});
+    }
     if(r.done.core){
       let d=STATE.core_day+1,w=STATE.core_week;
       if(d>6){d=1;w=w>=4?1:w+1;}
@@ -653,6 +736,7 @@ const Wiz={
 /* ---------- progress ---------- */
 function renderProg(){
   $('pOption').value=STATE.program_option;
+  $('pWeek').value=programWeek();
   $('pSwingWts').textContent=`${STATE.swing_weight_lb} → ${STATE.swing_next_weight_lb} lb`;
   $('pGetupWts').textContent=`${STATE.getup_weight_lb} → ${STATE.getup_next_weight_lb} lb`;
   $('pSwingLadder').innerHTML=Array.from({length:10},(_,i)=>`<i class="${i<STATE.swing_heavy_sets?'f':''}"></i>`).join('');
