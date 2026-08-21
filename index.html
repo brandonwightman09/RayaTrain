@@ -4,23 +4,23 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Raya Train</title>
-<meta name="theme-color" content="#0B0C0E">
+<meta name="theme-color" content="#F5F3EE">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Raya Train">
 <link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' fill='%230B0C0E'/%3E%3Ccircle cx='90' cy='108' r='42' fill='%23C8A24A'/%3E%3Cpath d='M62 84 Q62 44 90 44 Q118 44 118 84' stroke='%23C8A24A' stroke-width='14' fill='none'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' fill='%23F5F3EE'/%3E%3Ccircle cx='90' cy='108' r='42' fill='%23B8891F'/%3E%3Cpath d='M62 84 Q62 44 90 44 Q118 44 118 84' stroke='%23B8891F' stroke-width='14' fill='none'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0B0C0E; --surface:#131518; --surface2:#1A1D21; --field:#17191D;
-  --border:rgba(255,255,255,.07); --border2:rgba(255,255,255,.12);
-  --text:#F4F2EC; --muted:#8E939B; --faint:#5C6067;
-  --gold:#C8A24A; --gold-hi:#E4C77B; --gold-soft:rgba(200,162,74,.14);
-  --green:#46B876; --green-soft:rgba(70,184,118,.14);
-  --yellow:#D9C64A; --teal:#4AC5B8; --red:#D96C5F;
+  --bg:#F5F3EE; --surface:#FFFFFF; --surface2:#EFEDE6; --field:#FBFAF7;
+  --border:rgba(20,22,26,.10); --border2:rgba(20,22,26,.16);
+  --text:#1A1D22; --muted:#6B6F77; --faint:#9A9DA4;
+  --gold:#B8891F; --gold-hi:#D9A93C; --gold-soft:rgba(184,137,31,.12);
+  --green:#2FA265; --green-soft:rgba(47,162,101,.12);
+  --yellow:#C7A016; --teal:#1F9E93; --red:#C6503F; --blue:#3E6DD6;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html{background:var(--bg)}
@@ -39,16 +39,16 @@ header{padding:calc(env(safe-area-inset-top) + 18px) 20px 6px;display:flex;justi
 .cday.sel:not(.today){color:var(--gold)}
 .cday .dot{width:4px;height:4px;border-radius:99px;background:var(--faint);margin:5px auto 0}
 .cday .dot.none{background:transparent}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:12px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:12px;box-shadow:0 1px 2px rgba(20,22,26,.04)}
 .card h2{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;gap:8px}
 .card h2 .wt{color:var(--gold);white-space:nowrap;font-size:12px}
 .big{font-size:24px;font-weight:700;letter-spacing:-.01em;line-height:1.15}
 .bignum{font-family:'Barlow Condensed';font-size:38px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
 .sub{font-size:13px;color:var(--muted);margin-top:4px}
-a.v{color:var(--gold-hi);text-decoration:none;font-weight:500}
-a.vb{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:500;color:var(--muted);text-decoration:none;border:1px solid var(--border2);border-radius:8px;padding:6px 11px;margin:2px 6px 2px 0;background:var(--surface2)}
+a.v{color:var(--gold);text-decoration:none;font-weight:600}
+a.vb{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:500;color:var(--text);text-decoration:none;border:1px solid var(--border2);border-radius:8px;padding:6px 11px;margin:2px 6px 2px 0;background:var(--surface2)}
 a.vb::before{content:'▶';font-size:9px;color:var(--gold)}
-#banner{background:linear-gradient(155deg,rgba(200,162,74,.08),var(--surface) 60%);border-color:var(--border2)}
+#banner{background:linear-gradient(155deg,var(--gold-soft),var(--surface) 60%);border-color:var(--border2)}
 .blk{display:flex;gap:14px;padding:15px 2px;border-bottom:1px solid var(--border);align-items:flex-start}
 .blk:last-child{border-bottom:none;padding-bottom:4px}
 .blk:first-child{padding-top:4px}
@@ -57,17 +57,16 @@ a.vb::before{content:'▶';font-size:9px;color:var(--gold)}
 .blk .cat{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin-bottom:3px}
 .blk .nm{font-size:16px;font-weight:600;line-height:1.3;letter-spacing:-.01em}
 .blk .rx{font-size:13px;font-weight:600;color:var(--gold);margin-top:3px}
-button.primary{width:100%;padding:15px;border-radius:10px;border:none;background:var(--gold);color:#141009;
+button.primary{width:100%;padding:15px;border-radius:10px;border:none;background:var(--gold);color:#fff;
   font-size:15px;font-weight:600;letter-spacing:.01em;cursor:pointer;margin-top:4px;font-family:'Inter'}
 button.primary:active{background:var(--gold-hi)}
-button.primary.done{background:var(--green-soft);color:var(--green);border:1px solid rgba(70,184,118,.3)}
+button.primary.done{background:var(--green-soft);color:var(--green);border:1px solid rgba(47,162,101,.3)}
 button.ghost{width:100%;padding:12px;border-radius:10px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-size:14px;font-weight:500;cursor:pointer;font-family:'Inter'}
 select,input[type=text],input[type=number],textarea{width:100%;background:var(--field);border:1px solid var(--border2);border-radius:10px;color:var(--text);padding:12px;font-size:15px;font-family:'Inter'}
 select:focus,input:focus,textarea:focus{outline:none;border-color:var(--gold)}
 textarea{resize:none;min-height:54px}
 label.f{display:block;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin:14px 0 6px}
 .row{display:flex;gap:10px}.row>*{flex:1}
-/* stats */
 .tick{display:block;width:22px;height:3px;border-radius:2px;margin-bottom:7px}
 .statgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
 .statgrid .lbl{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
@@ -85,19 +84,25 @@ label.f{display:block;font-size:11px;font-weight:600;color:var(--muted);text-tra
 .hl b{color:var(--text);font-weight:600}
 .goal{height:6px;border-radius:99px;background:var(--surface2);border:1px solid var(--border);overflow:hidden;margin-top:10px}
 .goal i{display:block;height:100%;background:var(--gold);border-radius:99px}
+.base{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--border)}
+.base:last-of-type{border-bottom:none}
+.base .bn{font-size:14px;font-weight:600}
+.base .bn small{display:block;font-size:11px;color:var(--muted);font-weight:400;margin-top:1px}
+.base .bv{font-family:'Barlow Condensed';font-size:22px;font-weight:700;color:var(--gold);font-variant-numeric:tabular-nums}
+.base .bv.empty{color:var(--faint);font-family:'Inter';font-size:13px;font-weight:500}
 /* wizard */
 #wiz{position:fixed;inset:0;background:var(--bg);z-index:40;display:none;flex-direction:column}
 #wiz.on{display:flex}
 #wizTop{padding:calc(env(safe-area-inset-top) + 14px) 16px 10px;display:flex;align-items:center;gap:10px}
 #wizClose{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:4px 10px}
-#wizDots{flex:1;display:flex;justify-content:center;gap:6px;align-items:center}
+#wizDots{flex:1;display:flex;justify-content:center;gap:6px;align-items:center;flex-wrap:wrap}
 #wizDots i{width:7px;height:7px;border-radius:99px;background:var(--surface2);border:1px solid var(--border2);transition:all .15s}
 #wizDots i.done{background:var(--green);border-color:var(--green)}
 #wizDots i.cur{width:12px;height:12px;border-color:var(--gold);background:var(--gold-soft)}
 #wizBody{flex:1;overflow-y:auto;padding:8px 18px 24px;max-width:560px;margin:0 auto;width:100%}
 #wizBody h3{font-size:26px;font-weight:700;letter-spacing:-.015em;margin:4px 0 12px}
-.rxtext{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:15px;font-size:14.5px;line-height:1.65;white-space:pre-line;margin-bottom:12px;color:#DCD9D2}
-.rxtext b{color:var(--gold-hi);font-weight:600}
+.rxtext{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:15px;font-size:14.5px;line-height:1.65;white-space:pre-line;margin-bottom:12px;color:var(--text)}
+.rxtext b{color:var(--gold);font-weight:600}
 .rxtext .ct{display:block;font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;white-space:normal}
 .mvrow{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);white-space:normal}
 .mvrow:last-child{border-bottom:none}
@@ -110,8 +115,8 @@ label.f{display:block;font-size:11px;font-weight:600;color:var(--muted);text-tra
 .setrow .n{font-size:14px;font-weight:600;color:var(--muted);text-align:center}
 .setrow input{text-align:center;padding:11px 6px;font-size:15px}
 .setcirc{width:40px;height:40px;border-radius:99px;border:2px solid var(--border2);background:none;cursor:pointer;justify-self:center;transition:all .12s;display:flex;align-items:center;justify-content:center;color:transparent;font-weight:700;font-size:14px}
-.setcirc.on{background:var(--green);border-color:var(--green);color:#0B0C0E}
-#wizBar{border-top:1px solid var(--border);background:rgba(11,12,14,.97);padding:10px 22px calc(env(safe-area-inset-bottom) + 12px);display:flex;justify-content:space-between;align-items:center}
+.setcirc.on{background:var(--green);border-color:var(--green);color:#fff}
+#wizBar{border-top:1px solid var(--border);background:rgba(245,243,238,.97);padding:10px 22px calc(env(safe-area-inset-bottom) + 12px);display:flex;justify-content:space-between;align-items:center}
 #wizBar button{background:none;border:none;color:var(--text);font-size:14px;font-weight:600;cursor:pointer;padding:8px 4px}
 #wizBar #wbTimer{color:var(--muted);display:flex;align-items:center;gap:6px;font-variant-numeric:tabular-nums;font-weight:500}
 #wbTimer.hot{color:var(--gold)}
@@ -120,9 +125,28 @@ label.f{display:block;font-size:11px;font-weight:600;color:var(--muted);text-tra
 .timerrow{display:flex;gap:8px}
 .timerrow button{flex:1;padding:11px 4px;border-radius:9px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter'}
 .timerrow button.go{border-color:var(--gold);color:var(--gold)}
-.timerrow button.rd{color:var(--red);border-color:rgba(217,108,95,.35)}
-#clock{font-family:'Barlow Condensed';font-size:62px;font-weight:700;text-align:center;font-variant-numeric:tabular-nums;margin:4px 0 8px}
-#clock.hot{color:var(--gold)}
+.timerrow button.rd{color:var(--red);border-color:rgba(198,80,63,.35)}
+/* TIMER PAGE */
+.tgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tcard{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px 14px;text-align:center;cursor:pointer;box-shadow:0 1px 2px rgba(20,22,26,.04);transition:transform .1s}
+.tcard:active{transform:scale(.97)}
+.tcard .ic{font-size:30px;margin-bottom:8px;line-height:1}
+.tcard .tt{font-size:15px;font-weight:600}
+.tcard .ts{font-size:11px;color:var(--muted);margin-top:3px}
+#trun{position:fixed;inset:0;background:var(--bg);z-index:45;display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px}
+#trun.on{display:flex}
+#trun .lbl{font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+#trun .phase{font-family:'Barlow Condensed';font-size:34px;font-weight:700;margin:6px 0;text-transform:uppercase}
+#trun .phase.work{color:var(--gold)}#trun .phase.rest{color:var(--teal)}
+#bigclock{font-family:'Barlow Condensed';font-size:120px;font-weight:700;line-height:.9;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+#bigclock.warn{color:var(--red)}
+#trun .meta{font-size:15px;color:var(--muted);margin-top:8px;font-weight:500}
+#trun .ctrls{display:flex;gap:12px;margin-top:36px}
+#trun .ctrls button{padding:15px 26px;border-radius:12px;border:1px solid var(--border2);background:var(--surface);font-size:16px;font-weight:600;cursor:pointer;font-family:'Inter'}
+#trun .ctrls button.go{background:var(--gold);color:#fff;border-color:var(--gold)}
+#trun .ctrls button.rd{color:var(--red);border-color:rgba(198,80,63,.4)}
+#trun .x{position:absolute;top:calc(env(safe-area-inset-top) + 16px);left:20px;background:none;border:none;font-size:22px;color:var(--muted);cursor:pointer}
+#tsetup{width:100%;max-width:360px}
 .ladder{display:flex;gap:3px;height:7px;margin:10px 0 5px}
 .ladder i{flex:1;border-radius:2px;background:var(--surface2);border:1px solid var(--border)}
 .ladder i.f{background:var(--gold);border-color:var(--gold)}
@@ -134,6 +158,7 @@ label.f{display:block;font-size:11px;font-weight:600;color:var(--muted);text-tra
 .zones{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
 .zones div{background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:10px;font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
 .zones b{display:block;color:var(--text);font-family:'Barlow Condensed';font-size:20px;font-weight:700;letter-spacing:0;margin-bottom:2px;text-transform:none}
+.zones .md{color:var(--gold);text-transform:none;letter-spacing:0;font-size:11px;margin-bottom:6px;font-weight:600}
 .sess{padding:13px 0;border-bottom:1px solid var(--border);cursor:pointer}
 .sess:last-child{border:none}
 .sess .top{display:flex;justify-content:space-between;align-items:center}
@@ -144,13 +169,13 @@ label.f{display:block;font-size:11px;font-weight:600;color:var(--muted);text-tra
 .sess.open .det{display:block}
 .sess .det b{color:var(--text);font-weight:600}
 .pill{display:inline-block;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:99px;background:var(--green-soft);color:var(--green);margin-left:7px;vertical-align:middle}
-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(11,12,14,.96);backdrop-filter:blur(14px);border-top:1px solid var(--border);
+nav{position:fixed;bottom:0;left:0;right:0;background:rgba(245,243,238,.96);backdrop-filter:blur(14px);border-top:1px solid var(--border);
   display:flex;padding:8px 0 calc(env(safe-area-inset-bottom) + 8px);z-index:30}
 nav button{flex:1;background:none;border:none;color:var(--faint);font-size:12px;font-weight:600;letter-spacing:.04em;cursor:pointer;padding:9px 0;font-family:'Inter'}
 nav button.on{color:var(--gold)}
 .page{display:none}.page.on{display:block}
-#toast{position:fixed;top:calc(env(safe-area-inset-top) + 12px);left:50%;transform:translateX(-50%) translateY(-80px);background:var(--surface2);border:1px solid var(--border2);color:var(--text);
-  font-weight:500;font-size:13px;padding:11px 18px;border-radius:10px;transition:transform .25s;z-index:60;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+#toast{position:fixed;top:calc(env(safe-area-inset-top) + 12px);left:50%;transform:translateX(-50%) translateY(-80px);background:var(--text);color:var(--bg);
+  font-weight:500;font-size:13px;padding:11px 18px;border-radius:10px;transition:transform .25s;z-index:60;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.25)}
 #toast.show{transform:translateX(-50%) translateY(0)}
 .mut{color:var(--muted);font-size:13px;line-height:1.55}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}}
@@ -166,42 +191,10 @@ nav button.on{color:var(--gold)}
 
 <div class="page on" id="pg-today"><div id="todayBody"></div></div>
 
+<!-- TIMER: tool grid -->
 <div class="page" id="pg-timer">
-  <div class="card">
-    <h2>Clock</h2>
-    <div id="clock">0:00</div>
-    <div class="timerrow">
-      <button class="go" onclick="T.start()">Start</button>
-      <button class="rd" onclick="T.stop()">Stop</button>
-      <button onclick="T.reset()">Reset</button>
-    </div>
-    <label class="f">Rest timers</label>
-    <div class="timerrow">
-      <button onclick="T.count(30)">0:30</button>
-      <button onclick="T.count(60)">1:00</button>
-      <button onclick="T.count(90)">1:30</button>
-      <button onclick="T.count(120)">2:00</button>
-    </div>
-  </div>
-  <div class="card">
-    <h2>S&S Test</h2>
-    <div class="row">
-      <div><label class="f">Swing bell (lb)</label><input type="number" id="tSwingWt" inputmode="numeric"></div>
-      <div><label class="f">Swing time</label><input type="text" id="tSwingTime" placeholder="5:00"></div>
-    </div>
-    <div class="row">
-      <div><label class="f">Get-up bell (lb)</label><input type="number" id="tGetupWt" inputmode="numeric"></div>
-      <div><label class="f">Get-up time</label><input type="text" id="tGetupTime" placeholder="10:00"></div>
-    </div>
-    <label class="f">Notes</label><textarea id="tNotes"></textarea>
-    <button class="primary" onclick="saveTest()" style="margin-top:14px">Save test</button>
-  </div>
-  <div class="card">
-    <h2>10:00 Bike Time Trial</h2>
-    <p class="mut" style="margin-bottom:6px">Continuous max-calorie effort, evenly paced. Sets every engine zone. Re-test every 6 weeks.</p>
-    <label class="f">Total calories</label><input type="number" id="ttCal" inputmode="numeric" placeholder="e.g. 140">
-    <button class="primary" onclick="saveTT()" style="margin-top:14px">Save benchmark</button>
-  </div>
+  <div class="tgrid" id="timerGrid"></div>
+  <p class="mut" style="text-align:center;margin-top:16px">Tools for any block that runs on a clock — Tabata cores, EMOM get-ups, interval engine work.</p>
 </div>
 
 <div class="page" id="pg-prog">
@@ -220,19 +213,36 @@ nav button.on{color:var(--gold)}
     <div class="pm"><button onclick="bump('getup',-1)">−</button><div class="val" id="pGetupVal">0 / 5</div><button onclick="bump('getup',1)">+</button></div>
   </div>
   <div class="card">
-    <h2>Engine Zones <span class="wt" id="pTT"></span></h2>
-    <div class="zones" id="zoneGrid"><div style="grid-column:1/3;text-transform:none;letter-spacing:0;font-size:13px">Log a 10:00 bike TT (Timer tab) to unlock cal/min targets.</div></div>
+    <h2>Engine Baselines</h2>
+    <div id="baseList"></div>
+    <p class="mut" style="margin-top:10px">Each modality's engine days compute pace targets from its own baseline. Log one below; test days in the cycle will prompt you too.</p>
+  </div>
+  <div class="card">
+    <h2>Engine Zones <span class="wt" id="pZoneMod"></span></h2>
+    <div class="zones" id="zoneGrid"></div>
+  </div>
+  <div class="card">
+    <h2>Log a Test</h2>
+    <label class="f" style="margin-top:0">Test type</label>
+    <select id="testKind" onchange="renderTestForm()">
+      <option value="sands">S&S Clock Test</option>
+      <option value="bike">Echo Bike — 10:00 max cal</option>
+      <option value="row">Rower — 2k time</option>
+      <option value="run">Run — 1 mile time</option>
+      <option value="ski">Ski Erg — 2k time</option>
+    </select>
+    <div id="testForm"></div>
   </div>
   <div class="card">
     <h2>Program</h2>
     <label class="f" style="margin-top:0">Program week (6-week cycle)</label>
     <select id="pWeek" onchange="setWeek(+this.value)">
-      <option value="1">Week 1 — Build</option>
-      <option value="2">Week 2 — Build</option>
-      <option value="3">Week 3 — Build</option>
+      <option value="1">Week 1 — Build · row 2k test</option>
+      <option value="2">Week 2 — Build · 1-mile run test</option>
+      <option value="3">Week 3 — Build · ski 2k test</option>
       <option value="4">Week 4 — S&S test week</option>
       <option value="5">Week 5 — Peak volume</option>
-      <option value="6">Week 6 — Engine test week</option>
+      <option value="6">Week 6 — Engine test week (bike TT)</option>
     </select>
     <label class="f">Schedule option</label>
     <select id="pOption" onchange="saveOption()">
@@ -268,18 +278,36 @@ nav button.on{color:var(--gold)}
   <div id="wizBody"></div>
   <div id="tsheet">
     <div class="timerrow">
-      <button class="go" onclick="T.start()">Start</button>
-      <button class="rd" onclick="T.stop()">Stop</button>
-      <button onclick="T.count(30)">0:30</button>
-      <button onclick="T.count(60)">1:00</button>
-      <button onclick="T.count(90)">1:30</button>
-      <button onclick="T.count(120)">2:00</button>
+      <button class="go" onclick="Rest.q()">Rest ▸</button>
+      <button onclick="tab('timer',document.querySelectorAll('nav button')[1]);Wiz.close();">Full timers</button>
+    </div>
+    <div class="timerrow" style="margin-top:8px">
+      <button onclick="Rest.set(30)">0:30</button>
+      <button onclick="Rest.set(60)">1:00</button>
+      <button onclick="Rest.set(90)">1:30</button>
+      <button onclick="Rest.set(120)">2:00</button>
     </div>
   </div>
   <div id="wizBar">
     <button onclick="Wiz.nav(-1)">← Back</button>
     <button id="wbTimer" onclick="document.getElementById('tsheet').classList.toggle('on')">⏱ <span id="wbClock">Timer</span></button>
     <button onclick="Wiz.nav(1)" style="color:var(--gold)">Next →</button>
+  </div>
+</div>
+
+<!-- TIMER RUNNER -->
+<div id="trun">
+  <button class="x" onclick="Clock.close()">✕</button>
+  <div id="tsetup"></div>
+  <div id="tface" style="display:none;text-align:center">
+    <div class="lbl" id="trLbl">—</div>
+    <div class="phase" id="trPhase" style="display:none">—</div>
+    <div id="bigclock">0:00</div>
+    <div class="meta" id="trMeta"></div>
+    <div class="ctrls">
+      <button class="go" id="trGo" onclick="Clock.toggle()">Start</button>
+      <button onclick="Clock.reset()">Reset</button>
+    </div>
   </div>
 </div>
 
@@ -304,78 +332,35 @@ const api=async(path,opt={})=>{
 /* ---------- Demo videos ---------- */
 const V={
  'Alternating Leg V-Ups':'https://youtu.be/CqvlD9ngEGg','Alt-Leg V-Ups':'https://youtu.be/CqvlD9ngEGg',
- 'Pilates 100':'https://youtu.be/uipzGC5Pyyw',
- 'Reverse Crunches':'https://youtu.be/EY1z2AAEl3I','Reverse Crunch':'https://youtu.be/EY1z2AAEl3I',
- 'Mountain Climbers':'https://youtu.be/4Pf4UKQUUV0','Mtn Climbers':'https://youtu.be/4Pf4UKQUUV0',
- 'Mtn Climber Twists':'https://youtu.be/ehyN25oorkY?t=5',
- 'Scissor Switch':'https://youtu.be/pqcFk2sQFLo',
- 'Sit Ups':'https://youtu.be/D7603V-8CzU',
- 'Feet-Anchored Sit Ups':'https://youtu.be/3-KAoO5nd6Q',
- 'Plank Shoulder Taps':'https://youtu.be/6igKb2-FgqI',
- 'Plank Jacks':'https://youtu.be/zopR9ws4o0U',
- 'Plank Hold':'https://youtu.be/7gz0lv6EzIg','Plank':'https://youtu.be/7gz0lv6EzIg',
- 'High Plank Hold':'https://youtu.be/70bshI6GcD8',
- 'Side Plank':'https://youtu.be/xD_eXK0bCus',
- 'Leg Lift w/ Hip Dip':'https://youtu.be/5S7k_q0x32A',
- 'Leg Lifts':'https://youtu.be/9R4bqCbdGUo',
- 'Runners Crunches':'https://youtu.be/XZLru822jPI',
- 'Russian Twists':'https://youtu.be/vfkGfoesi7A',
- 'Bicycle Kicks':'https://youtu.be/BXnG1ZXrFZs',
- 'Crab Toe Touches':'https://youtu.be/XGfAn_1N2yg','Crab Toe Touch':'https://youtu.be/XGfAn_1N2yg',
- 'Froggers':'https://youtu.be/yF_b4Rdeseg',
- 'Flutter Kicks':'https://youtu.be/jEjB0phld7M',
- 'Heel Taps':'https://youtu.be/UbWEbsYIdT4',
- 'Tuck Ups':'https://youtu.be/i9K8OVUnc40',
- 'Hollow Hold':'https://youtu.be/Q4eiqzCN_Vw',
- 'V-Hold/Tuck Hold':'https://youtu.be/wLaCHd5lJsU',
- 'V-Ups':'https://youtu.be/wKgs8K1WlOA',
- 'Burpees':'https://youtu.be/yne2-n93jEE',
- 'Deadbugs':'https://youtu.be/5-KpDfJGMHM',
- 'Superman Hold':'https://youtu.be/x-p2AAmJ6-I',
- 'Birddogs':'https://youtu.be/D1M_uEYGC8U',
- 'Single-Leg Glute Bridge':'https://youtu.be/1cqP3pAXSQU',
- 'Glute Bridges':'https://youtu.be/GCXeUFSNKDg',
- 'Bear Crawl Hold':'https://youtu.be/jkxCTY_3rWQ'};
-const SF={
- swing:'https://www.youtube.com/watch?v=PAhDt_0PjP4',
- swingSetup:'https://www.youtube.com/watch?v=nKzkLyMe48E',
- getup:'https://www.youtube.com/watch?v=AnZ1Wok0bmE',
- getupTip:'https://www.youtube.com/watch?v=01YAZdjWfcM'};
+ 'Pilates 100':'https://youtu.be/uipzGC5Pyyw','Reverse Crunches':'https://youtu.be/EY1z2AAEl3I','Reverse Crunch':'https://youtu.be/EY1z2AAEl3I',
+ 'Mountain Climbers':'https://youtu.be/4Pf4UKQUUV0','Mtn Climbers':'https://youtu.be/4Pf4UKQUUV0','Mtn Climber Twists':'https://youtu.be/ehyN25oorkY?t=5',
+ 'Scissor Switch':'https://youtu.be/pqcFk2sQFLo','Sit Ups':'https://youtu.be/D7603V-8CzU','Feet-Anchored Sit Ups':'https://youtu.be/3-KAoO5nd6Q',
+ 'Plank Shoulder Taps':'https://youtu.be/6igKb2-FgqI','Plank Jacks':'https://youtu.be/zopR9ws4o0U','Plank Hold':'https://youtu.be/7gz0lv6EzIg','Plank':'https://youtu.be/7gz0lv6EzIg',
+ 'High Plank Hold':'https://youtu.be/70bshI6GcD8','Side Plank':'https://youtu.be/xD_eXK0bCus','Leg Lift w/ Hip Dip':'https://youtu.be/5S7k_q0x32A',
+ 'Leg Lifts':'https://youtu.be/9R4bqCbdGUo','Runners Crunches':'https://youtu.be/XZLru822jPI','Russian Twists':'https://youtu.be/vfkGfoesi7A',
+ 'Bicycle Kicks':'https://youtu.be/BXnG1ZXrFZs','Crab Toe Touches':'https://youtu.be/XGfAn_1N2yg','Crab Toe Touch':'https://youtu.be/XGfAn_1N2yg',
+ 'Froggers':'https://youtu.be/yF_b4Rdeseg','Flutter Kicks':'https://youtu.be/jEjB0phld7M','Heel Taps':'https://youtu.be/UbWEbsYIdT4','Tuck Ups':'https://youtu.be/i9K8OVUnc40',
+ 'Hollow Hold':'https://youtu.be/Q4eiqzCN_Vw','V-Hold/Tuck Hold':'https://youtu.be/wLaCHd5lJsU','V-Ups':'https://youtu.be/wKgs8K1WlOA','Burpees':'https://youtu.be/yne2-n93jEE',
+ 'Deadbugs':'https://youtu.be/5-KpDfJGMHM','Superman Hold':'https://youtu.be/x-p2AAmJ6-I','Birddogs':'https://youtu.be/D1M_uEYGC8U',
+ 'Single-Leg Glute Bridge':'https://youtu.be/1cqP3pAXSQU','Glute Bridges':'https://youtu.be/GCXeUFSNKDg','Bear Crawl Hold':'https://youtu.be/jkxCTY_3rWQ'};
+const SF={swing:'https://www.youtube.com/watch?v=PAhDt_0PjP4',swingSetup:'https://www.youtube.com/watch?v=nKzkLyMe48E',
+ getup:'https://www.youtube.com/watch?v=AnZ1Wok0bmE',getupTip:'https://www.youtube.com/watch?v=01YAZdjWfcM'};
 const yts=q=>'https://www.youtube.com/results?search_query='+encodeURIComponent(q);
 const CSLIB='https://trainingzone.crossoversymmetry.com/exercises/';
-/* Precise protocol videos */
-const VID_ACT='https://www.youtube.com/watch?v=Y80mRnwkGGk';      // Mayhem — Activation full follow-along
-const VID_ACT_REC='https://www.youtube.com/watch?v=dtVnYAXffXI';  // Activation + Recovery routines
-const VID_IRON_OFFICIAL='https://www.youtube.com/watch?v=nQ7J1rZvpuM'; // Crossover Symmetry — Iron Scap (official)
-const VID_IRON_FULL='https://www.youtube.com/watch?v=q2RuBPLvaFw';     // Full Iron Scap protocol demo
-const CS_ACT=[
- ['Crossover Row','Heavy','8',VID_ACT],
- ['Reverse Fly','Light','8',VID_ACT],
- ['Crossover Pulldown','Heavy','8',VID_ACT],
- ['Crossover 90/90','Light','8',VID_ACT],
- ['Crossover Scaption','Light','8',VID_ACT],
- ['Crossover Incline Plus','Heavy','8',VID_ACT]];
-const IRON=[
- ['Archer','Heavy','10 / side',VID_IRON_FULL],
- ['Pulldown','Heavy','10',VID_IRON_FULL],
- ['Tiger Walk','Heavy','20 / side',VID_IRON_FULL],
- ['WY Negative','Light','10',VID_IRON_FULL],
- ['Snow Angel','Light','10',VID_IRON_FULL],
- ['Bear Hug','Heavy','10',VID_IRON_FULL],
- ['ATYT','Light','10 — fast',VID_IRON_FULL]];
-const mvrows=list=>list.map(([n,b,r,u])=>
-  `<div class="mvrow"><span class="mn"><a target="_blank" rel="noopener" href="${u}">${n}</a></span><span class="mr"><b>${r}</b> · ${b} band</span></div>`).join('');
+const VID_ACT='https://www.youtube.com/watch?v=Y80mRnwkGGk';
+const VID_ACT_REC='https://www.youtube.com/watch?v=dtVnYAXffXI';
+const VID_IRON_OFFICIAL='https://www.youtube.com/watch?v=nQ7J1rZvpuM';
+const VID_IRON_FULL='https://www.youtube.com/watch?v=q2RuBPLvaFw';
+const CS_ACT=[['Crossover Row','Heavy','8',VID_ACT],['Reverse Fly','Light','8',VID_ACT],['Crossover Pulldown','Heavy','8',VID_ACT],
+ ['Crossover 90/90','Light','8',VID_ACT],['Crossover Scaption','Light','8',VID_ACT],['Crossover Incline Plus','Heavy','8',VID_ACT]];
+const IRON=[['Archer','Heavy','10 / side',VID_IRON_FULL],['Pulldown','Heavy','10',VID_IRON_FULL],['Tiger Walk','Heavy','20 / side',VID_IRON_FULL],
+ ['WY Negative','Light','10',VID_IRON_FULL],['Snow Angel','Light','10',VID_IRON_FULL],['Bear Hug','Heavy','10',VID_IRON_FULL],['ATYT','Light','10 — fast',VID_IRON_FULL]];
+const mvrows=list=>list.map(([n,b,r,u])=>`<div class="mvrow"><span class="mn"><a target="_blank" rel="noopener" href="${u}">${n}</a></span><span class="mr"><b>${r}</b> · ${b} band</span></div>`).join('');
+function linkify(txt){const names=Object.keys(V).sort((a,b)=>b.length-a.length);const stash=[];
+  names.forEach((n,i)=>{if(txt.includes(n)){stash[i]=`<a class="v" target="_blank" rel="noopener" href="${V[n]}">${n}</a>`;txt=txt.split(n).join(`\x01${i}\x02`);}});
+  return txt.replace(/\x01(\d+)\x02/g,(_,i)=>stash[+i]);}
 
-function linkify(txt){
-  const names=Object.keys(V).sort((a,b)=>b.length-a.length);
-  const stash=[];
-  names.forEach((n,i)=>{
-    if(txt.includes(n)){stash[i]=`<a class="v" target="_blank" rel="noopener" href="${V[n]}">${n}</a>`;
-      txt=txt.split(n).join(`\x01${i}\x02`);}});
-  return txt.replace(/\x01(\d+)\x02/g,(_,i)=>stash[+i]);
-}
-
-/* ---------- Mayhem 30-Day Abs ---------- */
+/* ---------- Mayhem core ---------- */
 const STYLES=['Fight Gone Bad','Tabata','AMRAP','For Time','Chipper','Static Holds'];
 const CORE={
 1:[`3 SETS:\n1:00 Alternating Leg V-Ups\n1:00 Pilates 100\n1:00 Reverse Crunch\n1:00 Mountain Climbers\n1:00 Rest`,
@@ -404,23 +389,23 @@ const CORE={
 `3 SETS:\n1:00 Plank Hold\n1:00 Hollow Hold\n1:00 Bear Crawl Hold\n1:00 Plank Hold\n1:00 Rest`]};
 
 const ENGINES={
- A:{name:'VO2 Intervals',time:'10–12 min',zone:'vo2',
-    rx:'<b>10–16 × :30 @ VO2 pace / :30 easy spin</b>\nor 5 × 1:00 hard / 1:00 easy\nEven output — last rep matches the first. Recovery is easy movement, never a dead stop.'},
- B:{name:'Threshold',time:'12–14 min',zone:'thr',
-    rx:'<b>3 × 3:00 @ threshold / 1:30 easy</b>\nor 4 × 800m row / 400m run @ threshold w/ equal easy time\n"Comfortably uncomfortable" — could speak a sentence, wouldn\'t want to.'},
- C:{name:'Tempo',time:'12–15 min',zone:'tmp',
-    rx:'<b>2 × 6:00 @ tempo / 2:00 easy</b>\nor 12:00 continuous negative split — first half moderate, second half tempo.'},
- D:{name:'Zone 2',time:'30–45 min',zone:'z2',
-    rx:'<b>Conversational pace the whole way.</b> Run / row / bike / ruck — any modality. If you can\'t talk, you\'re stealing from tomorrow.'}};
+ A:{name:'VO2 Intervals',time:'10–12 min',zone:'vo2'},
+ B:{name:'Threshold',time:'12–14 min',zone:'thr'},
+ C:{name:'Tempo',time:'12–15 min',zone:'tmp'},
+ D:{name:'Zone 2',time:'30–45 min',zone:'z2'}};
 const MODS=['Echo bike','Rower','Run','Ski erg','Ruck','Jump rope','Other'];
+/* modality → baseline key + how zones read */
+const MODMETA={
+ 'Echo bike':{key:'bike_tt_cal',kind:'cal'},
+ 'Rower':{key:'row_2k_sec',kind:'pace500'},
+ 'Run':{key:'run_mile_sec',kind:'pacemile'},
+ 'Ski erg':{key:'ski_2k_sec',kind:'pace500'}};
 
-/* ---------- 6-week cycle ----------
-   W1–W3 build, W4 = S&S test week (deload engines), W5 peak volume, W6 = engine test week */
 const CYCLE_LEN=6;
 const WEEKMODS={
- 1:{a:10,b:3,c:'2 × 6:00 @ tempo / 2:00 easy'},
- 2:{a:12,b:3,c:'2 × 6:00 @ tempo / 2:00 easy'},
- 3:{a:14,b:4,c:'2 × 7:00 @ tempo / 2:00 easy'},
+ 1:{a:10,b:3,c:'2 × 6:00 @ tempo / 2:00 easy',rowtest:true},
+ 2:{a:12,b:3,c:'2 × 6:00 @ tempo / 2:00 easy',runtest:true},
+ 3:{a:14,b:4,c:'2 × 7:00 @ tempo / 2:00 easy',skitest:true},
  4:{a:10,b:3,c:'2 × 6:00 @ tempo / 2:00 easy',sstest:true},
  5:{a:16,b:4,c:'2 × 7:00 @ tempo / 2:00 easy'},
  6:{a:12,b:3,c:'12:00 continuous negative split — first half moderate, second half tempo',tt:true}};
@@ -458,9 +443,12 @@ let STATE=null, selDow=null, SESS=[], TESTS=[];
 const $=id=>document.getElementById(id);
 const toast=m=>{const t=$('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1800)};
 function tab(p,btn){document.querySelectorAll('.page').forEach(x=>x.classList.remove('on'));$('pg-'+p).classList.add('on');
- document.querySelectorAll('nav button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');}
+ document.querySelectorAll('nav button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
+ if(p==='timer')renderTimerGrid();}
 const fmtN=n=>n>=1e6?(n/1e6).toFixed(2)+'M':n>=1e4?Math.round(n/1e3)+'K':n.toLocaleString();
 const fmtD=s=>new Date(s+'T12:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'2-digit'});
+const fmtT=s=>s==null?'—':`${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+const parseTime=s=>{if(!s)return null;const p=(''+s).split(':');return p.length===2?(+p[0]*60)+ +p[1]:+s;};
 
 async function load(){
   const now=new Date();
@@ -468,36 +456,38 @@ async function load(){
   $('dateline').textContent=now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
   STATE=(await api('/train_program_state?id=eq.1'))[0];
   SESS=await api('/train_sessions?order=session_date.asc&limit=500');
-  TESTS=await api('/train_tests?order=test_date.desc&limit=30');
+  TESTS=await api('/train_tests?order=test_date.desc&limit=40');
   renderCal();renderOverview();renderProg();renderStats();
 }
 
 function sched(){return STATE.program_option==='A'?SCHED_A:SCHED_B;}
-function paces(){
-  if(!STATE.tt_cal_10min)return null;
-  const r=STATE.tt_cal_10min/10, f=x=>x.toFixed(1);
-  return {z2:`${f(r*.55)}–${f(r*.65)}`,tmp:`${f(r*.78)}–${f(r*.85)}`,thr:`${f(r*.88)}–${f(r*.92)}`,vo2:`${f(r*1.03)}–${f(r*1.10)}`};
-}
-/* per-session derived metrics */
-function sVol(s){
-  let v=0;
-  for(const part of [s.swings,s.getups]){
-    if(!part)continue;
-    if(part.detail)part.detail.forEach(x=>{if(x.done)v+=x.reps*x.lb;});
-    else if(part.sets_done)v+=part.sets_done*10*part.weight_lb;
-    else if(part.reps_done)v+=part.reps_done*part.weight_lb;
+
+/* ---------- pace zones per modality ---------- */
+function zonesFor(mod){
+  const meta=MODMETA[mod]; if(!meta)return null;
+  const base=STATE[meta.key]; if(!base)return null;
+  if(meta.kind==='cal'){ // bike: cal/min zones
+    const r=base/10, f=x=>x.toFixed(1);
+    return {unit:'cal/min',z2:`${f(r*.55)}–${f(r*.65)}`,tmp:`${f(r*.78)}–${f(r*.85)}`,thr:`${f(r*.88)}–${f(r*.92)}`,vo2:`${f(r*1.03)}–${f(r*1.10)}`};
   }
-  return v;
+  // pace-based: derive target /500m or /mile from the test pace
+  let tp; // seconds per 500m (row/ski) or per mile (run)
+  if(meta.kind==='pace500')tp=base/4;        // 2000m → per 500
+  else tp=base;                               // mile time
+  const pc=(mult)=>{const s=Math.round(tp*mult);return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;};
+  // slower pace = higher multiplier on time
+  return {unit:meta.kind==='pace500'?'/500m':'/mile',
+    z2:`${pc(1.14)}–${pc(1.22)}`,tmp:`${pc(1.04)}–${pc(1.08)}`,thr:`${pc(1.0)}–${pc(1.03)}`,vo2:`${pc(.93)}–${pc(.97)}`};
 }
-function sReps(s){
-  let r=0;
-  for(const part of [s.swings,s.getups]){
-    if(!part)continue;
-    if(part.detail)part.detail.forEach(x=>{if(x.done)r+=x.reps;});
-    else r+=(part.sets_done?part.sets_done*10:0)+(part.reps_done||0);
-  }
-  return r;
-}
+
+/* per-session derived */
+function sVol(s){let v=0;for(const part of [s.swings,s.getups]){if(!part)continue;
+  if(part.detail)part.detail.forEach(x=>{if(x.done)v+=x.reps*x.lb;});
+  else if(part.sets_done)v+=part.sets_done*10*part.weight_lb;
+  else if(part.reps_done)v+=part.reps_done*part.weight_lb;}return v;}
+function sReps(s){let r=0;for(const part of [s.swings,s.getups]){if(!part)continue;
+  if(part.detail)part.detail.forEach(x=>{if(x.done)r+=x.reps;});
+  else r+=(part.sets_done?part.sets_done*10:0)+(part.reps_done||0);}return r;}
 
 /* ---------- calendar ---------- */
 function renderCal(){
@@ -525,9 +515,16 @@ function buildBlocks(dow){
   const light=sns==='light';
   const ssTestDay=wm.sstest&&dow===1&&sns==='full';
   const ttDay=wm.tt&&engKey==='A';
+  // distance engine tests replace the VO2 (A) slot in build weeks
+  let distTest=null;
+  if(engKey==='A'){
+    if(wm.rowtest)distTest={kind:'row',name:'Rower 2k Test',baseKey:'row_2k_sec',hint:'2000m for time — even splits, negative last 500.'};
+    if(wm.runtest)distTest={kind:'run',name:'1-Mile Run Test',baseKey:'run_mile_sec',hint:'One mile for time — controlled first quarter, build to the finish.'};
+    if(wm.skitest)distTest={kind:'ski',name:'Ski Erg 2k Test',baseKey:'ski_2k_sec',hint:'2000m for time — legs-first stroke, even splits.'};
+  }
   if(ssTestDay){title='S&S Test Day';sub=`Week ${wk} — swings and get-ups on the clock`;engKey=null;rec=true;}
   if(ttDay){title='Engine Test Day';sub=`Week ${wk} — 10:00 bike time trial resets your zones`;}
-  if(wm.tt&&dow===6){sub+=' · optional: 2k row or 1-mile run TT for a second-modality benchmark';}
+  if(distTest){title=distTest.name;sub=`Week ${wk} — baseline sets your ${distTest.kind} pace zones`;}
   const blocks=[];
   blocks.push({t:'check',letter:'A',cat:'Prep',name:'Warm-Up · CS Activation',rx:'6 movements × 8',key:'warmup',
     html:`<span class="ct">Bands eye level → knee level · 2-2-2-2 tempo</span>`+mvrows(CS_ACT)+
@@ -537,18 +534,16 @@ function buildBlocks(dow){
   if(ssTestDay){
     blocks.push({t:'sstest',letter:String.fromCharCode(L++),cat:'Test',name:'S&S Clock Test',key:'sstest',
       rx:'Swings ≤ 5:00 · Get-ups ≤ 10:00',
-      html:`<span class="ct">The Simple standard protocol</span><b>Swings:</b> 10 one-hand swings every :30 for 5:00 — 100 total. Pass ≤ 5:00.\nRest exactly 1:00.\n<b>Get-ups:</b> 1 rep on the minute for 10:00, alternating sides. Pass ≤ 10:00.\n\nPick the heaviest bell you own every set with. Passing both @ 32kg / 70lb = <b>Simple</b>.`});
+      html:`<span class="ct">Pavel's Simple standard protocol</span><b>Swings:</b> 10 one-hand swings every :30 for 5:00 — 100 total. Use the <b>EMOM/interval timer</b>. Pass ≤ 5:00.\nRest exactly 1:00.\n<b>Get-ups:</b> 1 rep on the minute for 10:00, alternating sides. Pass ≤ 10:00.\n\nHeaviest bell you own every rep with. Both @ 32kg / 70lb = <b>Simple</b>.`});
   } else if(sns){
     const nSets=light?5:10, nGet=light?3:5;
     blocks.push({t:'sets',letter:String.fromCharCode(L++),cat:'Strength / Power',name:'One-Hand Swings',key:'swings',
-      rx:`${nSets} × 10 · ${STATE.swing_weight_lb} lb`,
-      vids:[['Swing form',SF.swing],['Setup',SF.swingSetup]],
+      rx:`${nSets} × 10 · ${STATE.swing_weight_lb} lb`,vids:[['Swing form',SF.swing],['Setup',SF.swingSetup]],
       note:'Max power every rep. Alternate hands each set. Rest 30–60s.',
       sets:Array.from({length:nSets},(_,i)=>({lbl:`${i+1}·${i%2?'R':'L'}`,reps:10,
         lb:(!light&&i<STATE.swing_heavy_sets)?STATE.swing_next_weight_lb:STATE.swing_weight_lb,done:false}))});
     blocks.push({t:'sets',letter:String.fromCharCode(L++),cat:'Strength / Power',name:'Turkish Get-Ups',key:'getups',
-      rx:`${nGet} / side · ${STATE.getup_weight_lb} lb`,
-      vids:[['Get-up walkthrough',SF.getup],['Form tip',SF.getupTip]],
+      rx:`${nGet} / side · ${STATE.getup_weight_lb} lb`,vids:[['Get-up walkthrough',SF.getup],['Form tip',SF.getupTip]],
       note:'Slow and owned. Eyes on the bell to the elbow.',
       sets:Array.from({length:nGet*2},(_,i)=>({lbl:`${i%2?'R':'L'}${Math.ceil((i+1)/2)}`,reps:1,
         lb:(!light&&Math.ceil((i+1)/2)<=STATE.getup_heavy_reps)?STATE.getup_next_weight_lb:STATE.getup_weight_lb,done:false}))});
@@ -556,25 +551,28 @@ function buildBlocks(dow){
   const cwk=STATE.core_week,cdy=STATE.core_day;
   blocks.push({t:'check',letter:String.fromCharCode(L++),cat:'Core · Mayhem',name:STYLES[cdy-1],key:'core',
     rx:`Week ${cwk} · Day ${cdy}`,score:true,html:linkify(CORE[cwk][cdy-1])});
-  if(ttDay){
-    blocks.push({t:'tt',letter:String.fromCharCode(L++),cat:'Test',name:'10:00 Bike Time Trial',key:'tt',
-      rx:'Max calories · even pace',
-      html:`<span class="ct">Re-benchmark — updates every engine zone</span>Continuous 10:00 max-calorie effort on the Echo. <b>Even or negative split</b> — going out hot is a failed pace, not a big engine.${STATE.tt_cal_10min?`\n\nStanding mark: <b>${STATE.tt_cal_10min} cal</b>. Beat it.`:''}`});
+  if(distTest){
+    blocks.push({t:'disttest',letter:String.fromCharCode(L++),cat:'Test',name:distTest.name,key:'disttest',
+      distKind:distTest.kind,baseKey:distTest.baseKey,rx:'For time',
+      html:`<span class="ct">Hinshaw benchmark — sets this modality's pace zones</span>${distTest.hint}\n\nUse the <b>For Time</b> timer, log your finish below.${STATE[distTest.baseKey]?`\n\nStanding mark: <b>${fmtT(STATE[distTest.baseKey])}</b>. Beat it.`:''}`});
+  } else if(ttDay){
+    blocks.push({t:'tt',letter:String.fromCharCode(L++),cat:'Test',name:'10:00 Bike Time Trial',key:'tt',rx:'Max calories · even pace',
+      html:`<span class="ct">Re-benchmark — updates bike pace zones</span>Continuous 10:00 max-calorie effort on the Echo. <b>Even or negative split</b> — going out hot is a failed pace, not a big engine. Use the <b>AMRAP/For Time 10:00</b> timer.${STATE.bike_tt_cal?`\n\nStanding mark: <b>${STATE.bike_tt_cal} cal</b>. Beat it.`:''}`});
   } else if(engKey){
-    const e=ENGINES[engKey],p=paces();
-    let rx=e.rx;
+    const e=ENGINES[engKey];
+    let rx='';
     if(engKey==='A')rx=`<b>${wm.a} × :30 @ VO2 pace / :30 easy spin</b>\nEven output — last rep matches the first. Recovery is easy movement, never a dead stop.`;
     if(engKey==='B')rx=`<b>${wm.b} × 3:00 @ threshold / 1:30 easy</b>\n"Comfortably uncomfortable" — could speak a sentence, wouldn't want to.`;
     if(engKey==='C')rx=`<b>${wm.c}</b>`;
-    blocks.push({t:'engine',letter:String.fromCharCode(L++),cat:'Conditioning',name:e.name,key:'engine',engKey,
-      rx:e.time,html:rx.replace(/\n/g,'<br>')+(p?`<br><br>Target: <b>${p[e.zone]} cal/min</b> on the Echo.`:'<br><br>Log a 10:00 bike TT to unlock pace targets.')});
+    if(engKey==='D')rx=`<b>Conversational pace the whole way.</b> Run / row / bike / ruck — any modality. If you can't talk, you're stealing from tomorrow.`;
+    blocks.push({t:'engine',letter:String.fromCharCode(L++),cat:'Conditioning',name:e.name,key:'engine',engKey,zone:e.zone,rx:e.time,html:rx.replace(/\n/g,'<br>')});
   }
   if(iron)blocks.push({t:'check',letter:String.fromCharCode(L++),cat:'Shoulder Strength',name:'Iron Scap',key:'iron',rx:'7 movements · after training',
     html:`<span class="ct">Controlled 2-2-2-2 tempo · ATYT as fast as possible</span>`+mvrows(IRON)+
       `<div style="margin-top:12px"><a class="vb" target="_blank" rel="noopener" href="${VID_IRON_OFFICIAL}">Official Iron Scap</a><a class="vb" target="_blank" rel="noopener" href="${VID_IRON_FULL}">Full protocol demo</a></div>`});
   if(rec)blocks.push({t:'check',letter:String.fromCharCode(L++),cat:'Cool-Down',name:'CS Recovery',key:'rec',rx:'Light bands',
     html:`Light bands, easy pace, slow eccentrics — flush the shoulders after the hard work. <a class="v" target="_blank" rel="noopener" href="${VID_ACT_REC}">Recovery routine video</a>`});
-  return {title,sub:`${sub}`,sns:ssTestDay?'test':(sns||'none'),engKey:ttDay?'':(engKey||''),dow,wk,blocks};
+  return {title,sub,sns:ssTestDay?'test':(sns||'none'),engKey:(ttDay||distTest)?'':(engKey||''),dow,wk,blocks};
 }
 
 /* ---------- overview ---------- */
@@ -589,10 +587,8 @@ function renderOverview(){
     <div class="big">${plan.title}</div><div class="sub">${plan.sub}${loggedToday&&isToday?' · already logged today':''}</div>
     <button class="primary" style="margin-top:16px" onclick="Wiz.open(${selDow})">Start session</button></div>
     <div class="card">`;
-  for(const b of plan.blocks){
-    html+=`<div class="blk"><div class="badge">${b.letter}</div>
-      <div><div class="cat">${b.cat}</div><div class="nm">${b.name}</div><div class="rx">${b.rx}</div></div></div>`;
-  }
+  for(const b of plan.blocks)html+=`<div class="blk"><div class="badge">${b.letter}</div>
+    <div><div class="cat">${b.cat}</div><div class="nm">${b.name}</div><div class="rx">${b.rx}</div></div></div>`;
   html+=`</div>`;
   body.innerHTML=html;
 }
@@ -601,33 +597,25 @@ function renderOverview(){
 const Wiz={
   plan:null,i:0,res:{},t0:null,
   open(dow){
-    this.plan=buildBlocks(dow);
-    if(!this.plan)return;
+    this.plan=buildBlocks(dow); if(!this.plan)return;
     this.i=0;this.res={done:{},scores:{},sets:{}};this.t0=Date.now();
     for(const b of this.plan.blocks)if(b.t==='sets')this.res.sets[b.key]=b.sets.map(s=>({...s}));
     $('wiz').classList.add('on');this.render();
   },
-  close(){$('wiz').classList.remove('on');},
+  close(){$('wiz').classList.remove('on');$('tsheet').classList.remove('on');},
   steps(){return this.plan.blocks.length+1;},
   nav(d){this.capture();this.i=Math.min(this.steps()-1,Math.max(0,this.i+d));this.render();},
   capture(){
-    const b=this.plan.blocks[this.i];
-    if(!b)return;
-    if(b.t==='sets')this.res.sets[b.key].forEach((s,j)=>{
-      const r=$(`in-r${j}`),l=$(`in-l${j}`);
-      if(r)s.reps=+r.value||0;if(l)s.lb=+l.value||0;});
+    const b=this.plan.blocks[this.i]; if(!b)return;
+    if(b.t==='sets')this.res.sets[b.key].forEach((s,j)=>{const r=$(`in-r${j}`),l=$(`in-l${j}`);if(r)s.reps=+r.value||0;if(l)s.lb=+l.value||0;});
     if(b.score){const sc=$('in-score');if(sc)this.res.scores[b.key]=sc.value;}
-    if(b.t==='engine'){const m=$('in-mod'),n=$('in-eng');
-      if(m)this.res.engMod=m.value;if(n)this.res.engNotes=n.value;}
-    if(b.t==='sstest'){
-      const a=$('in-tsw'),bb=$('in-tst'),c=$('in-tgw'),d=$('in-tgt');
-      if(a)this.res.tswWt=a.value;if(bb)this.res.tswT=bb.value;
-      if(c)this.res.tguWt=c.value;if(d)this.res.tguT=d.value;}
+    if(b.t==='engine'){const m=$('in-mod'),n=$('in-eng');if(m)this.res.engMod=m.value;if(n)this.res.engNotes=n.value;}
+    if(b.t==='sstest'){['tsw','tst','tgw','tgt'].forEach(k=>{const e=$('in-'+k);if(e)this.res[k]=e.value;});}
     if(b.t==='tt'){const t=$('in-tt');if(t)this.res.ttCal=t.value;}
+    if(b.t==='disttest'){const t=$('in-dt');if(t)this.res.distT=t.value;this.res.distKind=b.distKind;this.res.distBaseKey=b.baseKey;}
   },
   render(){
-    $('wizDots').innerHTML=Array.from({length:this.steps()},(_,j)=>
-      `<i class="${j<this.i?'done':j===this.i?'cur':''}"></i>`).join('');
+    $('wizDots').innerHTML=Array.from({length:this.steps()},(_,j)=>`<i class="${j<this.i?'done':j===this.i?'cur':''}"></i>`).join('');
     const body=$('wizBody');
     if(this.i===this.plan.blocks.length){
       body.innerHTML=`<div class="eyebrow">Wrap-up</div><h3>Complete session</h3>
@@ -640,94 +628,74 @@ const Wiz={
     let html=`<div class="eyebrow">${b.letter} · ${b.cat}</div><h3>${b.name}</h3>`;
     if(b.vids)html+=`<div style="margin-bottom:12px">${b.vids.map(([n,u])=>`<a class="vb" target="_blank" rel="noopener" href="${u}">${n}</a>`).join('')}</div>`;
     if(b.html)html+=`<div class="rxtext">${b.html}</div>`;
+    // pace target for engine
+    if(b.t==='engine'){
+      const mod=this.res.engMod||'Echo bike', z=zonesFor(mod);
+      if(z)html+=`<p class="mut" style="margin-bottom:8px">Target on ${mod}: <b style="color:var(--gold)">${z[b.zone]} ${z.unit}</b></p>`;
+      else html+=`<p class="mut" style="margin-bottom:8px">No ${mod} baseline yet — log one in Progress to see pace targets.</p>`;
+    }
     if(b.note)html+=`<p class="mut" style="margin-bottom:8px">${b.note}</p>`;
     if(b.t==='sets'){
       html+=`<div class="sethead"><span>Set</span><span>Reps</span><span>Lb</span><span></span></div>`;
-      this.res.sets[b.key].forEach((s,j)=>{
-        html+=`<div class="setrow"><div class="n">${s.lbl}</div>
-          <input id="in-r${j}" type="number" inputmode="numeric" value="${s.reps}">
-          <input id="in-l${j}" type="number" inputmode="numeric" value="${s.lb}">
-          <button class="setcirc${s.done?' on':''}" onclick="Wiz.togSet('${b.key}',${j},this)">✓</button></div>`;
-      });
+      this.res.sets[b.key].forEach((s,j)=>{html+=`<div class="setrow"><div class="n">${s.lbl}</div>
+        <input id="in-r${j}" type="number" inputmode="numeric" value="${s.reps}">
+        <input id="in-l${j}" type="number" inputmode="numeric" value="${s.lb}">
+        <button class="setcirc${s.done?' on':''}" onclick="Wiz.togSet('${b.key}',${j},this)">✓</button></div>`;});
     }
     if(b.t==='sstest'){
       html+=`<div class="sethead" style="grid-template-columns:1fr 1fr;margin-top:4px"><span>Swing bell (lb)</span><span>Swing time</span></div>
-        <div class="setrow" style="grid-template-columns:1fr 1fr"><input id="in-tsw" type="number" inputmode="numeric" value="${this.res.tswWt||STATE.swing_weight_lb}"><input id="in-tst" type="text" placeholder="e.g. 4:48" value="${this.res.tswT||''}"></div>
+        <div class="setrow" style="grid-template-columns:1fr 1fr"><input id="in-tsw" type="number" inputmode="numeric" value="${this.res.tsw||STATE.swing_weight_lb}"><input id="in-tst" type="text" placeholder="4:48" value="${this.res.tst||''}"></div>
         <div class="sethead" style="grid-template-columns:1fr 1fr"><span>Get-up bell (lb)</span><span>Get-up time</span></div>
-        <div class="setrow" style="grid-template-columns:1fr 1fr"><input id="in-tgw" type="number" inputmode="numeric" value="${this.res.tguWt||STATE.getup_weight_lb}"><input id="in-tgt" type="text" placeholder="e.g. 9:30" value="${this.res.tguT||''}"></div>
-        <p class="mut">Times save to your test history automatically when you complete the session.</p>`;
+        <div class="setrow" style="grid-template-columns:1fr 1fr"><input id="in-tgw" type="number" inputmode="numeric" value="${this.res.tgw||STATE.getup_weight_lb}"><input id="in-tgt" type="text" placeholder="9:30" value="${this.res.tgt||''}"></div>`;
     }
-    if(b.t==='tt'){
-      html+=`<label class="f">Total calories</label><input id="in-tt" type="number" inputmode="numeric" placeholder="${STATE.tt_cal_10min?'Beat '+STATE.tt_cal_10min:'e.g. 140'}" value="${this.res.ttCal||''}">
-        <p class="mut" style="margin-top:8px">Saves as your new benchmark and recalculates every pace zone.</p>`;
-    }
-    if(b.t==='engine'){
-      html+=`<label class="f">Modality</label><select id="in-mod">${MODS.map(m=>`<option${this.res.engMod===m?' selected':''}>${m}</option>`).join('')}</select>
+    if(b.t==='tt')html+=`<label class="f">Total calories</label><input id="in-tt" type="number" inputmode="numeric" placeholder="${STATE.bike_tt_cal?'Beat '+STATE.bike_tt_cal:'e.g. 140'}" value="${this.res.ttCal||''}">`;
+    if(b.t==='disttest')html+=`<label class="f">Finish time (m:ss)</label><input id="in-dt" type="text" placeholder="${STATE[b.baseKey]?fmtT(STATE[b.baseKey]):'e.g. 7:45'}" value="${this.res.distT||''}">`;
+    if(b.t==='engine')html+=`<label class="f">Modality</label><select id="in-mod" onchange="Wiz.reMod(this.value)">${MODS.map(m=>`<option${this.res.engMod===m?' selected':''}>${m}</option>`).join('')}</select>
         <label class="f">Result (optional)</label><input type="text" id="in-eng" value="${this.res.engNotes||''}" placeholder="e.g. 108 cal, even splits">`;
-    }
-    if(b.t==='check'||b.t==='engine'){
-      const on=this.res.done[b.key];
-      html+=`<button class="primary${on?' done':''}" style="margin-top:16px" onclick="Wiz.markDone('${b.key}',this)">${on?'Completed ✓':'Mark as completed'}</button>`;
-    }
+    if(b.t==='check'||b.t==='engine'){const on=this.res.done[b.key];
+      html+=`<button class="primary${on?' done':''}" style="margin-top:16px" onclick="Wiz.markDone('${b.key}',this)">${on?'Completed ✓':'Mark as completed'}</button>`;}
     if(b.score)html+=`<label class="f">Score / time (optional)</label><input type="text" id="in-score" value="${this.res.scores[b.key]||''}" placeholder="e.g. 4:32 or 212 reps">`;
-    body.innerHTML=html;
-    $('wizBody').scrollTop=0;
+    body.innerHTML=html;$('wizBody').scrollTop=0;
   },
+  reMod(m){this.res.engMod=m;this.render();},
   togSet(key,j,el){this.capture();const s=this.res.sets[key][j];s.done=!s.done;el.classList.toggle('on',s.done);},
-  markDone(key,el){
-    this.capture();
-    this.res.done[key]=!this.res.done[key];
-    el.textContent=this.res.done[key]?'Completed ✓':'Mark as completed';
-    el.classList.toggle('done',this.res.done[key]);
-  },
+  markDone(key,el){this.capture();this.res.done[key]=!this.res.done[key];
+    el.textContent=this.res.done[key]?'Completed ✓':'Mark as completed';el.classList.toggle('done',this.res.done[key]);},
   async save(){
     this.res.rpe=+$('in-rpe').value||null;this.res.notes=$('in-notes').value||null;
     const now=new Date(), p=this.plan, r=this.res;
     const sw=r.sets.swings, gu=r.sets.getups;
     const dur=Math.max(1,Math.round((Date.now()-this.t0)/60000));
-    const payload={
-      session_date:now.toISOString().slice(0,10),
-      day_type:p.sns==='none'?'aerobic':p.sns,
-      swings:sw?{sets_done:sw.filter(s=>s.done).length,reps:10,weight_lb:STATE.swing_weight_lb,
-        heavy_sets:STATE.swing_heavy_sets,heavy_weight_lb:STATE.swing_next_weight_lb,detail:sw}:null,
-      getups:gu?{reps_done:gu.filter(s=>s.done).length,weight_lb:STATE.getup_weight_lb,
-        heavy_reps:STATE.getup_heavy_reps,heavy_weight_lb:STATE.getup_next_weight_lb,detail:gu}:null,
-      core_week:STATE.core_week,core_day:STATE.core_day,
-      core_completed:!!r.done.core,core_score:r.scores.core||null,
+    const payload={session_date:now.toISOString().slice(0,10),day_type:p.sns==='none'?'aerobic':p.sns,
+      swings:sw?{sets_done:sw.filter(s=>s.done).length,reps:10,weight_lb:STATE.swing_weight_lb,heavy_sets:STATE.swing_heavy_sets,heavy_weight_lb:STATE.swing_next_weight_lb,detail:sw}:null,
+      getups:gu?{reps_done:gu.filter(s=>s.done).length,weight_lb:STATE.getup_weight_lb,heavy_reps:STATE.getup_heavy_reps,heavy_weight_lb:STATE.getup_next_weight_lb,detail:gu}:null,
+      core_week:STATE.core_week,core_day:STATE.core_day,core_completed:!!r.done.core,core_score:r.scores.core||null,
       cs_activation:!!r.done.warmup,cs_recovery:!!r.done.rec||!!r.done.iron,
-      endurance_choice:p.engKey?`${p.engKey}:${r.engMod||''}`:null,
-      endurance_notes:r.engNotes||null,
-      duration_min:dur, rpe:r.rpe,
-      notes:[r.done.iron?'[Iron Scap ✓]':null,r.notes].filter(Boolean).join(' ')||null};
+      endurance_choice:p.engKey?`${p.engKey}:${r.engMod||''}`:null,endurance_notes:r.engNotes||null,
+      duration_min:dur,rpe:r.rpe,notes:[r.done.iron?'[Iron Scap ✓]':null,r.notes].filter(Boolean).join(' ')||null};
     await api('/train_sessions',{method:'POST',body:JSON.stringify(payload)});
-    // test-day results
-    if(r.tswT||r.tguT){
-      const st=parseTime(r.tswT), gt=parseTime(r.tguT);
-      await api('/train_tests',{method:'POST',body:JSON.stringify({
-        swing_weight_lb:+r.tswWt||STATE.swing_weight_lb, swing_time_sec:st, swing_passed:st!=null&&st<=300,
-        getup_weight_lb:+r.tguWt||STATE.getup_weight_lb, getup_time_sec:gt, getup_passed:gt!=null&&gt<=600,
-        notes:'W'+p.wk+' programmed S&S test'})});
-    }
-    if(r.ttCal&&+r.ttCal>0){
-      await api('/train_program_state?id=eq.1',{method:'PATCH',body:JSON.stringify({tt_cal_10min:+r.ttCal,updated_at:new Date().toISOString()})});
-      STATE.tt_cal_10min=+r.ttCal;
-      await api('/train_tests',{method:'POST',body:JSON.stringify({swing_weight_lb:0,getup_weight_lb:0,notes:`10:00 bike TT — ${+r.ttCal} cal`})});
-    }
-    if(r.done.core){
-      let d=STATE.core_day+1,w=STATE.core_week;
-      if(d>6){d=1;w=w>=4?1:w+1;}
-      await api('/train_program_state?id=eq.1',{method:'PATCH',body:JSON.stringify({core_day:d,core_week:w,updated_at:new Date().toISOString()})});
-    }
-    // session summary screen
-    const vol=sVol(payload), reps=sReps(payload);
+    // test results
+    if(r.tst||r.tgt){const st=parseTime(r.tst),gt=parseTime(r.tgt);
+      await api('/train_tests',{method:'POST',body:JSON.stringify({test_kind:'sands',
+        swing_weight_lb:+r.tsw||STATE.swing_weight_lb,swing_time_sec:st,swing_passed:st!=null&&st<=300,result_sec:st,
+        getup_weight_lb:+r.tgw||STATE.getup_weight_lb,getup_time_sec:gt,getup_passed:gt!=null&&gt<=600,
+        notes:'W'+p.wk+' programmed S&S test'})});}
+    if(r.ttCal&&+r.ttCal>0){await patchState({bike_tt_cal:+r.ttCal});
+      await api('/train_tests',{method:'POST',body:JSON.stringify({test_kind:'bike',swing_weight_lb:0,getup_weight_lb:0,result_cal:+r.ttCal,notes:`Bike 10:00 TT — ${+r.ttCal} cal`})});}
+    if(r.distT){const sec=parseTime(r.distT);
+      await patchState({[r.distBaseKey]:sec});
+      const nm={row:'Row 2k',run:'1-Mile Run',ski:'Ski 2k'}[r.distKind];
+      await api('/train_tests',{method:'POST',body:JSON.stringify({test_kind:r.distKind,swing_weight_lb:0,getup_weight_lb:0,result_sec:sec,notes:`${nm} — ${fmtT(sec)}`})});}
+    if(r.done.core){let d=STATE.core_day+1,w=STATE.core_week;if(d>6){d=1;w=w>=4?1:w+1;}
+      await api('/train_program_state?id=eq.1',{method:'PATCH',body:JSON.stringify({core_day:d,core_week:w,updated_at:new Date().toISOString()})});}
+    const vol=sVol(payload),reps=sReps(payload);
     $('wizDots').innerHTML='';
     $('wizBody').innerHTML=`<div class="eyebrow">Session summary</div><h3>In the books</h3>
       <div class="card" style="margin-top:8px"><div class="statgrid">
         <div><span class="tick" style="background:var(--green)"></span><div class="lbl">Volume (lb)</div><div class="val">${fmtN(vol)}</div></div>
         <div><span class="tick" style="background:var(--yellow)"></span><div class="lbl">Reps</div><div class="val">${reps.toLocaleString()}</div></div>
         <div><span class="tick" style="background:var(--teal)"></span><div class="lbl">Minutes</div><div class="val">${dur}</div></div>
-      </div></div>
-      ${r.rpe?`<p class="mut">RPE ${r.rpe} · ${p.title}</p>`:''}
+      </div></div>${r.rpe?`<p class="mut">RPE ${r.rpe} · ${p.title}</p>`:''}
       <button class="primary" style="margin-top:14px" onclick="Wiz.close();load();">Done</button>`;
     toast('Session logged');
   }
@@ -735,122 +703,115 @@ const Wiz={
 
 /* ---------- progress ---------- */
 function renderProg(){
-  $('pOption').value=STATE.program_option;
-  $('pWeek').value=programWeek();
+  $('pWeek').value=programWeek();$('pOption').value=STATE.program_option;
   $('pSwingWts').textContent=`${STATE.swing_weight_lb} → ${STATE.swing_next_weight_lb} lb`;
   $('pGetupWts').textContent=`${STATE.getup_weight_lb} → ${STATE.getup_next_weight_lb} lb`;
   $('pSwingLadder').innerHTML=Array.from({length:10},(_,i)=>`<i class="${i<STATE.swing_heavy_sets?'f':''}"></i>`).join('');
   $('pGetupLadder').innerHTML=Array.from({length:5},(_,i)=>`<i class="${i<STATE.getup_heavy_reps?'f':''}"></i>`).join('');
-  $('pSwingCount').textContent=`${STATE.swing_heavy_sets} / 10 heavy`;
-  $('pGetupCount').textContent=`${STATE.getup_heavy_reps} / 5 heavy`;
-  $('pSwingVal').textContent=`${STATE.swing_heavy_sets} / 10`;
-  $('pGetupVal').textContent=`${STATE.getup_heavy_reps} / 5`;
+  $('pSwingCount').textContent=`${STATE.swing_heavy_sets} / 10 heavy`;$('pGetupCount').textContent=`${STATE.getup_heavy_reps} / 5 heavy`;
+  $('pSwingVal').textContent=`${STATE.swing_heavy_sets} / 10`;$('pGetupVal').textContent=`${STATE.getup_heavy_reps} / 5`;
   $('pSwingCur').value=STATE.swing_weight_lb;$('pSwingNext').value=STATE.swing_next_weight_lb;
   $('pGetupCur').value=STATE.getup_weight_lb;$('pGetupNext').value=STATE.getup_next_weight_lb;
   $('pCoreWeek').value=STATE.core_week;$('pCoreDay').value=STATE.core_day;
-  const p=paces();
-  $('pTT').textContent=STATE.tt_cal_10min?`TT ${STATE.tt_cal_10min} cal`:'';
-  if(p)$('zoneGrid').innerHTML=`<div><b>${p.z2}</b>Zone 2 cal/min</div><div><b>${p.tmp}</b>Tempo cal/min</div>
-    <div><b>${p.thr}</b>Threshold cal/min</div><div><b>${p.vo2}</b>VO2 cal/min</div>`;
+  // baselines
+  const bl=[['Echo bike','bike_tt_cal','10:00 max cal',v=>v+' cal'],
+    ['Rower','row_2k_sec','2000m for time',v=>fmtT(v)],
+    ['Run','run_mile_sec','1 mile for time',v=>fmtT(v)],
+    ['Ski erg','ski_2k_sec','2000m for time',v=>fmtT(v)]];
+  $('baseList').innerHTML=bl.map(([n,k,d,f])=>`<div class="base"><div class="bn">${n}<small>${d}</small></div>
+    <div class="bv${STATE[k]?'':' empty'}">${STATE[k]?f(STATE[k]):'not set'}</div></div>`).join('');
+  // zones for currently-active engine modality (default bike, else first with a baseline)
+  let zmod='Echo bike';
+  if(!STATE.bike_tt_cal){for(const m of ['Rower','Run','Ski erg'])if(STATE[MODMETA[m].key]){zmod=m;break;}}
+  const z=zonesFor(zmod);
+  $('pZoneMod').textContent=zmod;
+  $('zoneGrid').innerHTML=z?`<div style="grid-column:1/3" class="md">${zmod} · ${z.unit}</div>
+    <div><b>${z.z2}</b>Zone 2</div><div><b>${z.tmp}</b>Tempo</div><div><b>${z.thr}</b>Threshold</div><div><b>${z.vo2}</b>VO2</div>`
+    :`<div style="grid-column:1/3;text-transform:none;letter-spacing:0;font-size:13px">Log a baseline above to unlock pace zones.</div>`;
+  renderTestForm();
+}
+function renderTestForm(){
+  const k=$('testKind').value;
+  let h='';
+  if(k==='sands')h=`<div class="row"><div><label class="f">Swing bell (lb)</label><input type="number" id="ts_sw" inputmode="numeric" value="${STATE.swing_weight_lb}"></div>
+      <div><label class="f">Swing time</label><input type="text" id="ts_st" placeholder="4:48"></div></div>
+    <div class="row"><div><label class="f">Get-up bell (lb)</label><input type="number" id="ts_gw" inputmode="numeric" value="${STATE.getup_weight_lb}"></div>
+      <div><label class="f">Get-up time</label><input type="text" id="ts_gt" placeholder="9:30"></div></div>`;
+  else if(k==='bike')h=`<label class="f">Total calories in 10:00</label><input type="number" id="ts_cal" inputmode="numeric" placeholder="${STATE.bike_tt_cal||'140'}">`;
+  else{const lbl=k==='run'?'1-mile finish time':'2000m finish time';const cur=k==='row'?STATE.row_2k_sec:k==='ski'?STATE.ski_2k_sec:STATE.run_mile_sec;
+    h=`<label class="f">${lbl} (m:ss)</label><input type="text" id="ts_time" placeholder="${cur?fmtT(cur):(k==='run'?'7:45':'7:20')}">`;}
+  $('testForm').innerHTML=h+`<button class="primary" style="margin-top:14px" onclick="saveTestForm()">Save test</button>`;
+}
+async function saveTestForm(){
+  const k=$('testKind').value;
+  if(k==='sands'){const st=parseTime($('ts_st').value),gt=parseTime($('ts_gt').value);
+    if(st==null&&gt==null){toast('Enter a time');return;}
+    await api('/train_tests',{method:'POST',body:JSON.stringify({test_kind:'sands',
+      swing_weight_lb:+$('ts_sw').value||STATE.swing_weight_lb,swing_time_sec:st,swing_passed:st!=null&&st<=300,result_sec:st,
+      getup_weight_lb:+$('ts_gw').value||STATE.getup_weight_lb,getup_time_sec:gt,getup_passed:gt!=null&&gt<=600,notes:'S&S test'})});
+  } else if(k==='bike'){const c=+$('ts_cal').value;if(!c){toast('Enter calories');return;}
+    await patchState({bike_tt_cal:c});
+    await api('/train_tests',{method:'POST',body:JSON.stringify({test_kind:'bike',swing_weight_lb:0,getup_weight_lb:0,result_cal:c,notes:`Bike 10:00 TT — ${c} cal`})});
+  } else {const sec=parseTime($('ts_time').value);if(!sec){toast('Enter a time');return;}
+    const bk={row:'row_2k_sec',run:'run_mile_sec',ski:'ski_2k_sec'}[k], nm={row:'Row 2k',run:'1-Mile Run',ski:'Ski 2k'}[k];
+    await patchState({[bk]:sec});
+    await api('/train_tests',{method:'POST',body:JSON.stringify({test_kind:k,swing_weight_lb:0,getup_weight_lb:0,result_sec:sec,notes:`${nm} — ${fmtT(sec)}`})});
+  }
+  toast('Test saved · zones updated');load();
 }
 async function bump(kind,d){
-  if(kind==='swing'){
-    let v=Math.min(10,Math.max(0,STATE.swing_heavy_sets+d));
+  if(kind==='swing'){let v=Math.min(10,Math.max(0,STATE.swing_heavy_sets+d));
     if(v===10){await patchState({swing_weight_lb:STATE.swing_next_weight_lb,swing_heavy_sets:0});toast(`Swings graduated to ${STATE.swing_weight_lb} lb`);}
     else await patchState({swing_heavy_sets:v});
-  } else {
-    let v=Math.min(5,Math.max(0,STATE.getup_heavy_reps+d));
+  } else {let v=Math.min(5,Math.max(0,STATE.getup_heavy_reps+d));
     if(v===5){await patchState({getup_weight_lb:STATE.getup_next_weight_lb,getup_heavy_reps:0});toast(`Get-ups graduated to ${STATE.getup_weight_lb} lb`);}
-    else await patchState({getup_heavy_reps:v});
-  }
+    else await patchState({getup_heavy_reps:v});}
 }
-async function patchState(obj){
-  obj.updated_at=new Date().toISOString();
+async function patchState(obj){obj.updated_at=new Date().toISOString();
   await api('/train_program_state?id=eq.1',{method:'PATCH',body:JSON.stringify(obj)});
-  STATE={...STATE,...obj};renderCal();renderProg();renderOverview();
-}
+  STATE={...STATE,...obj};renderCal();renderProg();renderOverview();}
 const saveOption=()=>patchState({program_option:$('pOption').value}).then(()=>toast('Schedule updated'));
-const saveWeights=()=>patchState({
-  swing_weight_lb:+$('pSwingCur').value,swing_next_weight_lb:+$('pSwingNext').value,
+const saveWeights=()=>patchState({swing_weight_lb:+$('pSwingCur').value,swing_next_weight_lb:+$('pSwingNext').value,
   getup_weight_lb:+$('pGetupCur').value,getup_next_weight_lb:+$('pGetupNext').value}).then(()=>toast('Weights saved'));
 const saveCorePos=()=>patchState({core_week:+$('pCoreWeek').value,core_day:+$('pCoreDay').value}).then(()=>toast('Book position saved'));
 
-/* ---------- tests ---------- */
-const parseTime=s=>{if(!s)return null;const p=s.split(':');return p.length===2?(+p[0]*60)+ +p[1]:+s;};
-async function saveTest(){
-  const st=parseTime($('tSwingTime').value), gt=parseTime($('tGetupTime').value);
-  await api('/train_tests',{method:'POST',body:JSON.stringify({
-    swing_weight_lb:+$('tSwingWt').value||STATE.swing_weight_lb,
-    swing_time_sec:st, swing_passed:st!=null&&st<=300,
-    getup_weight_lb:+$('tGetupWt').value||STATE.getup_weight_lb,
-    getup_time_sec:gt, getup_passed:gt!=null&&gt<=600,
-    notes:$('tNotes').value||null})});
-  toast('Test saved');['tSwingTime','tGetupTime','tNotes'].forEach(i=>$(i).value='');
-  load();
-}
-async function saveTT(){
-  const c=+$('ttCal').value;
-  if(!c){toast('Enter calories');return;}
-  await patchState({tt_cal_10min:c});
-  await api('/train_tests',{method:'POST',body:JSON.stringify({swing_weight_lb:0,getup_weight_lb:0,notes:`10:00 bike TT — ${c} cal`})});
-  toast('Benchmark saved — zones unlocked');
-  $('ttCal').value='';load();
-}
-
-/* ---------- stats page ---------- */
+/* ---------- stats ---------- */
 function svgChart(vals,color){
   if(!vals.length)return '';
-  const W=320,Hh=90,n=vals.length;
-  const maxV=Math.max(...vals,1);
+  const W=320,Hh=90,n=vals.length,maxV=Math.max(...vals,1);
   let cum=0;const cums=vals.map(v=>cum+=v);const maxC=cum||1;
-  const bw=Math.max(1.5,Math.min(8,W/n*.6)), step=W/Math.max(n,1);
-  let bars='';
-  vals.forEach((v,i)=>{const h=v/maxV*(Hh-6);
-    bars+=`<rect x="${(i+.5)*step-bw/2}" y="${Hh-h}" width="${bw}" height="${h}" fill="${color}" opacity=".45" rx="1"/>`;});
-  let pts=`0,${Hh} `;
-  cums.forEach((c,i)=>{pts+=`${(i+.5)*step},${Hh-c/maxC*(Hh-6)} `;});
-  pts+=`${W},${Hh-(Hh-6)} ${W},${Hh}`;
+  const bw=Math.max(1.5,Math.min(8,W/n*.6)),step=W/Math.max(n,1);let bars='';
+  vals.forEach((v,i)=>{const h=v/maxV*(Hh-6);bars+=`<rect x="${(i+.5)*step-bw/2}" y="${Hh-h}" width="${bw}" height="${h}" fill="${color}" opacity=".4" rx="1"/>`;});
+  let pts=`0,${Hh} `;cums.forEach((c,i)=>{pts+=`${(i+.5)*step},${Hh-c/maxC*(Hh-6)} `;});pts+=`${W},${Hh-(Hh-6)} ${W},${Hh}`;
   return `<div class="chartwrap"><svg viewBox="0 0 ${W} ${Hh}" preserveAspectRatio="none">
-    <polygon points="${pts}" fill="${color}" opacity=".16"/>
-    <polyline points="${pts.trim().split(' ').slice(1,-2).join(' ')}" fill="none" stroke="${color}" stroke-width="1.6"/>
-    ${bars}</svg></div>`;
+    <polygon points="${pts}" fill="${color}" opacity=".12"/>
+    <polyline points="${pts.trim().split(' ').slice(1,-2).join(' ')}" fill="none" stroke="${color}" stroke-width="1.6"/>${bars}</svg></div>`;
 }
 function renderStats(){
-  const body=$('statsBody');
-  const done=SESS;
+  const body=$('statsBody'),done=SESS;
   if(!done.length){body.innerHTML=`<div class="card"><h2>Stats</h2><p class="mut">No sessions yet. Log your first and this page comes alive.</p></div>`;return;}
-  const vols=done.map(sVol), reps=done.map(sReps), mins=done.map(s=>s.duration_min||0);
-  const totV=vols.reduce((a,b)=>a+b,0), totR=reps.reduce((a,b)=>a+b,0), totM=mins.reduce((a,b)=>a+b,0);
-  const hrs=Math.round(totM/60*10)/10;
-  const first=done[0].session_date, last=done[done.length-1].session_date;
-  const l10=done.slice(-10);
-  const v10=l10.reduce((a,s)=>a+sVol(s),0), r10=l10.reduce((a,s)=>a+sReps(s),0), h10=Math.round(l10.reduce((a,s)=>a+(s.duration_min||0),0)/60*10)/10;
-
-  /* PRs */
+  const vols=done.map(sVol),reps=done.map(sReps),mins=done.map(s=>s.duration_min||0);
+  const totV=vols.reduce((a,b)=>a+b,0),totR=reps.reduce((a,b)=>a+b,0),totM=mins.reduce((a,b)=>a+b,0),hrs=Math.round(totM/60*10)/10;
+  const first=done[0].session_date,last=done[done.length-1].session_date,l10=done.slice(-10);
+  const v10=l10.reduce((a,s)=>a+sVol(s),0),r10=l10.reduce((a,s)=>a+sReps(s),0),h10=Math.round(l10.reduce((a,s)=>a+(s.duration_min||0),0)/60*10)/10;
+  let swPR=0,swPRd,guPR=0,guPRd,volPR=0,volPRd;
+  done.forEach(s=>{const sm=s.swings?.detail?Math.max(0,...s.swings.detail.filter(x=>x.done).map(x=>x.lb)):(s.swings?.weight_lb||0);
+    const gm=s.getups?.detail?Math.max(0,...s.getups.detail.filter(x=>x.done).map(x=>x.lb)):(s.getups?.weight_lb||0);const v=sVol(s);
+    if(sm>swPR){swPR=sm;swPRd=s.session_date;}if(gm>guPR){guPR=gm;guPRd=s.session_date;}if(v>volPR){volPR=v;volPRd=s.session_date;}});
   const prs=[];
-  let swPR=0,swPRd=null,guPR=0,guPRd=null,volPR=0,volPRd=null;
-  done.forEach(s=>{
-    const swMax=s.swings?.detail?Math.max(0,...s.swings.detail.filter(x=>x.done).map(x=>x.lb)):(s.swings?.weight_lb||0);
-    const guMax=s.getups?.detail?Math.max(0,...s.getups.detail.filter(x=>x.done).map(x=>x.lb)):(s.getups?.weight_lb||0);
-    const v=sVol(s);
-    if(swMax>swPR){swPR=swMax;swPRd=s.session_date;}
-    if(guMax>guPR){guPR=guMax;guPRd=s.session_date;}
-    if(v>volPR){volPR=v;volPRd=s.session_date;}
-  });
   if(swPR)prs.push(['Heaviest swing bell',`${swPR} lb`,swPRd]);
   if(guPR)prs.push(['Heaviest get-up bell',`${guPR} lb`,guPRd]);
   if(volPR)prs.push(['Biggest session',`${fmtN(volPR)} lb`,volPRd]);
-  let ttPR=0,ttPRd=null;
-  TESTS.forEach(t=>{const m=(t.notes||'').match(/TT — (\d+) cal/);if(m&&+m[1]>ttPR){ttPR=+m[1];ttPRd=t.test_date;}});
-  if(ttPR)prs.push(['Best 10:00 bike TT',`${ttPR} cal`,ttPRd]);
+  if(STATE.bike_tt_cal)prs.push(['Bike 10:00 TT',`${STATE.bike_tt_cal} cal`,null]);
+  if(STATE.row_2k_sec)prs.push(['Row 2k',fmtT(STATE.row_2k_sec),null]);
+  if(STATE.run_mile_sec)prs.push(['1-mile run',fmtT(STATE.run_mile_sec),null]);
+  if(STATE.ski_2k_sec)prs.push(['Ski 2k',fmtT(STATE.ski_2k_sec),null]);
   const bestSw=TESTS.filter(t=>t.swing_passed).sort((a,b)=>b.swing_weight_lb-a.swing_weight_lb||a.swing_time_sec-b.swing_time_sec)[0];
-  if(bestSw)prs.push(['Swing test',`${bestSw.swing_weight_lb} lb · ${fmtT(bestSw.swing_time_sec)}`,bestSw.test_date]);
+  if(bestSw)prs.push(['S&S swing test',`${bestSw.swing_weight_lb} lb · ${fmtT(bestSw.swing_time_sec)}`,bestSw.test_date]);
 
-  let html=`
-  <div class="card"><h2>PR Trophy Case</h2>
+  let html=`<div class="card"><h2>PR Trophy Case</h2>
     ${prs.length?prs.map(([n,v,d])=>`<div class="trow"><div class="tl"><div class="n">${n}</div><div class="v">${v}</div></div>
-      <div class="td"><span class="tcup">🏆</span>${d?fmtD(d):''}</div></div>`).join(''):'<p class="mut">PRs appear as you log sessions and tests.</p>'}
-  </div>
+      <div class="td"><span class="tcup">🏆</span>${d?fmtD(d):'current'}</div></div>`).join(''):'<p class="mut">PRs appear as you log sessions and tests.</p>'}</div>
   <div class="card"><h2>Lifetime Stats <span class="wt">since ${fmtD(first)}</span></h2>
     <div class="statgrid">
       <div><span class="tick" style="background:var(--green)"></span><div class="lbl">Volume (lb)</div><div class="val">${fmtN(totV)}</div></div>
@@ -862,75 +823,129 @@ function renderStats(){
       <div style="grid-column:2/4"><span class="tick" style="background:var(--gold)"></span><div class="lbl">Road to the 1M lb club</div>
         <div class="goal"><i style="width:${Math.min(100,totV/1e6*100)}%"></i></div>
         <div class="sub" style="margin-top:5px">${fmtN(totV)} / 1M — ${Math.min(100,totV/1e6*100).toFixed(1)}%</div></div>
-    </div>
-  </div>
+    </div></div>
   <div class="card"><h2>Recent <span class="wt">last ${l10.length} sessions</span></h2>
     <div class="statgrid">
       <div><span class="tick" style="background:var(--green)"></span><div class="lbl">Volume (lb)</div><div class="val">${fmtN(v10)}</div></div>
       <div><span class="tick" style="background:var(--yellow)"></span><div class="lbl">Reps</div><div class="val">${r10.toLocaleString()}</div></div>
       <div><span class="tick" style="background:var(--teal)"></span><div class="lbl">Hours</div><div class="val">${h10}</div></div>
-    </div>
-  </div>
-  <div class="card"><h2>Volume (lb)</h2><div class="bignum">${totV.toLocaleString()}</div>
-    ${svgChart(vols,'#46B876')}
+    </div></div>
+  <div class="card"><h2>Volume (lb)</h2><div class="bignum">${totV.toLocaleString()}</div>${svgChart(vols,'#2FA265')}
     <div class="chartmeta"><span>${fmtD(first)}</span><span>${fmtD(last)}</span></div>
-    <div class="hl"><span>Highest</span><b>${fmtN(Math.max(...vols))} lb</b></div>
-    <div class="hl"><span>Last</span><b>${fmtN(vols[vols.length-1])} lb</b></div>
-  </div>
-  <div class="card"><h2>Reps</h2><div class="bignum">${totR.toLocaleString()}</div>
-    ${svgChart(reps,'#D9C64A')}
+    <div class="hl"><span>Highest</span><b>${fmtN(Math.max(...vols))} lb</b></div><div class="hl"><span>Last</span><b>${fmtN(vols[vols.length-1])} lb</b></div></div>
+  <div class="card"><h2>Reps</h2><div class="bignum">${totR.toLocaleString()}</div>${svgChart(reps,'#C7A016')}
     <div class="chartmeta"><span>${fmtD(first)}</span><span>${fmtD(last)}</span></div>
-    <div class="hl"><span>Highest</span><b>${Math.max(...reps).toLocaleString()} reps</b></div>
-    <div class="hl"><span>Last</span><b>${reps[reps.length-1].toLocaleString()} reps</b></div>
-  </div>
-  <div class="card"><h2>Hours</h2><div class="bignum">${hrs}</div>
-    ${svgChart(mins,'#4AC5B8')}
+    <div class="hl"><span>Highest</span><b>${Math.max(...reps).toLocaleString()} reps</b></div><div class="hl"><span>Last</span><b>${reps[reps.length-1].toLocaleString()} reps</b></div></div>
+  <div class="card"><h2>Hours</h2><div class="bignum">${hrs}</div>${svgChart(mins,'#1F9E93')}
     <div class="chartmeta"><span>${fmtD(first)}</span><span>${fmtD(last)}</span></div>
-    <div class="hl"><span>Highest</span><b>${Math.max(...mins)} min</b></div>
-    <div class="hl"><span>Last</span><b>${mins[mins.length-1]} min</b></div>
-  </div>
+    <div class="hl"><span>Highest</span><b>${Math.max(...mins)} min</b></div><div class="hl"><span>Last</span><b>${mins[mins.length-1]} min</b></div></div>
   <div class="card"><h2>Session Log</h2>`;
-  [...done].reverse().forEach((s,i)=>{
+  [...done].reverse().forEach(s=>{
     const d=new Date(s.session_date+'T12:00').toLocaleDateString('en-US',{weekday:'short',month:'numeric',day:'numeric'});
     const sw=s.swings?`${s.swings.sets_done}×10 @ ${s.swings.weight_lb}${s.swings.heavy_sets?'/'+s.swings.heavy_weight_lb:''}`:'—';
     const detS=s.swings?.detail?s.swings.detail.map(x=>`${x.lbl||''} ${x.reps}×${x.lb}${x.done?' ✓':''}`).join(' · '):'';
     const detG=s.getups?.detail?s.getups.detail.map(x=>`${x.lbl||''} ${x.lb}${x.done?' ✓':''}`).join(' · '):'';
-    html+=`<div class="sess" onclick="this.classList.toggle('open')">
-      <div class="top"><div class="l"><b>${d}${s.core_completed?'<span class="pill">core</span>':''}</b>
-        <div>${s.day_type}${s.endurance_choice?' · '+s.endurance_choice.replace(':',' — '):''}${s.rpe?' · RPE '+s.rpe:''}${s.duration_min?' · '+s.duration_min+' min':''}</div></div>
+    html+=`<div class="sess" onclick="this.classList.toggle('open')"><div class="top"><div class="l"><b>${d}${s.core_completed?'<span class="pill">core</span>':''}</b>
+      <div>${s.day_type}${s.endurance_choice?' · '+s.endurance_choice.replace(':',' — '):''}${s.rpe?' · RPE '+s.rpe:''}${s.duration_min?' · '+s.duration_min+' min':''}</div></div>
       <div class="r">${sw}</div></div>
       <div class="det"><b>Volume</b> ${fmtN(sVol(s))} lb · <b>Reps</b> ${sReps(s)}
-        ${detS?`<br><b>Swings</b> ${detS}`:''}
-        ${detG?`<br><b>Get-ups</b> ${detG}`:''}
+        ${detS?`<br><b>Swings</b> ${detS}`:''}${detG?`<br><b>Get-ups</b> ${detG}`:''}
         ${s.core_score?`<br><b>Core</b> WK${s.core_week} D${s.core_day} — ${s.core_score}`:''}
-        ${s.endurance_notes?`<br><b>Engine</b> ${s.endurance_notes}`:''}
-        ${s.notes?`<br><b>Notes</b> ${s.notes}`:''}</div></div>`;
-  });
-  html+=`</div><div class="card"><h2>Tests & Benchmarks</h2>`;
+        ${s.endurance_notes?`<br><b>Engine</b> ${s.endurance_notes}`:''}${s.notes?`<br><b>Notes</b> ${s.notes}`:''}</div></div>`;});
+  html+=`</div><div class="card"><h2>Test History</h2>`;
   html+=TESTS.length?TESTS.map(t=>{
-    if(t.swing_weight_lb===0)return `<div class="trow"><div class="tl"><div class="n">Bike TT</div><div class="v">${(t.notes||'').replace('10:00 bike TT — ','')}</div></div><div class="td">${fmtD(t.test_date)}</div></div>`;
-    return `<div class="trow"><div class="tl"><div class="n">S&S Test</div><div class="v" style="font-size:18px">SW ${t.swing_weight_lb}lb ${fmtT(t.swing_time_sec)}${t.swing_passed?' ✓':''} · TGU ${t.getup_weight_lb}lb ${fmtT(t.getup_time_sec)}${t.getup_passed?' ✓':''}</div></div>
-      <div class="td">${t.swing_passed&&t.getup_passed?'<span class="tcup">🏆</span>':''}${fmtD(t.test_date)}</div></div>`;}).join('')
-    :'<p class="mut">No tests yet.</p>';
+    if(t.test_kind==='sands'||t.swing_weight_lb>0)return `<div class="trow"><div class="tl"><div class="n">S&S Test</div><div class="v" style="font-size:18px">SW ${t.swing_weight_lb}lb ${fmtT(t.swing_time_sec)}${t.swing_passed?' ✓':''} · TGU ${t.getup_weight_lb}lb ${fmtT(t.getup_time_sec)}${t.getup_passed?' ✓':''}</div></div>
+      <div class="td">${t.swing_passed&&t.getup_passed?'<span class="tcup">🏆</span>':''}${fmtD(t.test_date)}</div></div>`;
+    return `<div class="trow"><div class="tl"><div class="n">${(t.notes||'').split(' — ')[0]}</div><div class="v">${(t.notes||'').split(' — ')[1]||''}</div></div><div class="td">${fmtD(t.test_date)}</div></div>`;
+  }).join(''):'<p class="mut">No tests yet.</p>';
   html+=`</div>`;
   body.innerHTML=html;
 }
-const fmtT=s=>s==null?'—':`${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
 
-/* ---------- timer ---------- */
-const T={t0:null,iv:null,down:0,
- start(){this.stop();this.t0=Date.now();this.down=0;this.iv=setInterval(()=>this.tick(),200);this.hot(true);},
- count(sec){this.stop();this.t0=Date.now();this.down=sec;this.iv=setInterval(()=>this.tick(),200);this.hot(true);},
- tick(){let e=Math.floor((Date.now()-this.t0)/1000);
-   if(this.down){let r=this.down-e;if(r<=0){this.stop();this.show('0:00');if(navigator.vibrate)navigator.vibrate([200,100,200]);return;}e=r;}
-   this.show(`${Math.floor(e/60)}:${String(e%60).padStart(2,'0')}`);},
- show(s){$('clock').textContent=s;$('wbClock').textContent=s;},
- hot(on){$('clock').classList.toggle('hot',on);$('wbTimer').classList.toggle('hot',on);},
- stop(){clearInterval(this.iv);this.iv=null;this.hot(false);},
- reset(){this.stop();this.show('0:00');$('wbClock').textContent='Timer';}};
+/* ================= TIMERS ================= */
+const TIMERS=[
+ {id:'rest',ic:'⏳',tt:'Rest Timer',ts:'Countdown between sets'},
+ {id:'stop',ic:'⏱',tt:'Stopwatch',ts:'Count up / For Time'},
+ {id:'amrap',ic:'◔',tt:'AMRAP',ts:'Count down from cap'},
+ {id:'fortime',ic:'◷',tt:'For Time',ts:'Count up to a cap'},
+ {id:'tabata',ic:'▦',tt:'Tabata',ts:':20 / :10 × 8'},
+ {id:'interval',ic:'⇄',tt:'Custom Interval',ts:'Work / rest × rounds'},
+ {id:'emom',ic:'◵',tt:'EMOM',ts:'Every minute on the minute'}];
+function renderTimerGrid(){
+  $('timerGrid').innerHTML=TIMERS.map(t=>`<div class="tcard" onclick="Clock.open('${t.id}')">
+    <div class="ic">${t.ic}</div><div class="tt">${t.tt}</div><div class="ts">${t.ts}</div></div>`).join('');
+}
+const Clock={
+  mode:null,cfg:{},iv:null,t0:0,paused:0,running:false,
+  open(mode){this.mode=mode;this.running=false;clearInterval(this.iv);
+    $('trun').classList.add('on');this.setup();},
+  close(){clearInterval(this.iv);this.running=false;$('trun').classList.remove('on');},
+  setup(){
+    const S=$('tsetup'),F=$('tface');F.style.display='none';S.style.display='block';
+    const num=(id,val,min,max)=>`<div class="pm"><button onclick="Clock.adj('${id}',-${min})">−</button><div class="val" id="cfg-${id}">${val}</div><button onclick="Clock.adj('${id}',${min})">+</button></div>`;
+    let h='';
+    if(this.mode==='rest'){this.cfg={sec:60};h=`<label class="f">Rest seconds</label>${num('sec',60,15)}`;}
+    if(this.mode==='stop'){this.cfg={};h=`<p class="mut" style="text-align:center">Count up from zero. Use for For-Time pieces and distance tests.</p>`;}
+    if(this.mode==='amrap'){this.cfg={sec:600};h=`<label class="f">Cap (minutes)</label>${num('min',10,1)}`;this.cfg.min=10;}
+    if(this.mode==='fortime'){this.cfg={min:15};h=`<label class="f">Time cap (minutes)</label>${num('min',15,1)}`;}
+    if(this.mode==='tabata'){this.cfg={work:20,rest:10,rounds:8};h=`<label class="f">Work / Rest (sec) · Rounds</label>
+      ${num('work',20,5)}${num('rest',10,5)}${num('rounds',8,1)}`;}
+    if(this.mode==='interval'){this.cfg={work:30,rest:30,rounds:10};h=`<label class="f">Work sec</label>${num('work',30,5)}<label class="f">Rest sec</label>${num('rest',30,5)}<label class="f">Rounds</label>${num('rounds',10,1)}`;}
+    if(this.mode==='emom'){this.cfg={min:10,every:60};h=`<label class="f">Every (sec)</label>${num('every',60,5)}<label class="f">For (minutes)</label>${num('min',10,1)}`;}
+    S.innerHTML=`<div class="eyebrow" style="text-align:center;margin-bottom:12px">${TIMERS.find(t=>t.id===this.mode).tt}</div>${h}
+      <button class="primary" style="margin-top:20px" onclick="Clock.begin()">Start</button>`;
+  },
+  adj(id,d){this.cfg[id]=Math.max(id==='rounds'||id==='min'?1:5,(this.cfg[id]||0)+d);$('cfg-'+id).textContent=this.cfg[id];},
+  begin(){
+    $('tsetup').style.display='none';$('tface').style.display='block';
+    this.paused=0;this.running=true;this.t0=Date.now();
+    // build phase plan
+    this.phases=[];const c=this.cfg;
+    if(this.mode==='rest')this.phases=[{lbl:'Rest',t:c.sec,down:true,cls:'rest'}];
+    if(this.mode==='stop')this.phases=[{lbl:'Elapsed',t:0,down:false}];
+    if(this.mode==='amrap')this.phases=[{lbl:'AMRAP',t:c.min*60,down:true,cls:'work'}];
+    if(this.mode==='fortime')this.phases=[{lbl:'For Time',t:c.min*60,down:false,cap:c.min*60}];
+    if(this.mode==='tabata')for(let i=0;i<c.rounds;i++){this.phases.push({lbl:`Work ${i+1}/${c.rounds}`,t:c.work,down:true,cls:'work'});this.phases.push({lbl:`Rest ${i+1}/${c.rounds}`,t:c.rest,down:true,cls:'rest'});}
+    if(this.mode==='interval')for(let i=0;i<c.rounds;i++){this.phases.push({lbl:`Work ${i+1}/${c.rounds}`,t:c.work,down:true,cls:'work'});if(i<c.rounds-1||true)this.phases.push({lbl:`Rest ${i+1}/${c.rounds}`,t:c.rest,down:true,cls:'rest'});}
+    if(this.mode==='emom'){const n=Math.round(c.min*60/c.every);for(let i=0;i<n;i++)this.phases.push({lbl:`Min ${i+1}/${n}`,t:c.every,down:true,cls:'work'});}
+    this.pi=0;this.pstart=Date.now();
+    $('trGo').textContent='Pause';
+    clearInterval(this.iv);this.iv=setInterval(()=>this.tick(),100);this.tick();
+  },
+  tick(){
+    const ph=this.phases[this.pi];if(!ph){this.done();return;}
+    const el=(Date.now()-this.pstart)/1000;
+    let show;
+    if(ph.down){const r=Math.ceil(ph.t-el);show=r;
+      $('bigclock').classList.toggle('warn',r<=3&&r>0);
+      if(el>=ph.t){if(navigator.vibrate)navigator.vibrate(120);this.pi++;this.pstart=Date.now();
+        if(this.pi>=this.phases.length){this.done();return;}return;}
+    } else {show=Math.floor(el);
+      if(ph.cap&&el>=ph.cap){this.done();return;}}
+    const s=Math.max(0,show);
+    $('bigclock').textContent=`${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+    $('trPhase').style.display=ph.cls?'block':'none';
+    $('trPhase').className='phase '+(ph.cls||'');$('trPhase').textContent=ph.cls==='work'?'Work':ph.cls==='rest'?'Rest':'';
+    $('trLbl').textContent=ph.lbl;
+    $('trMeta').textContent=this.phases.length>1?`Phase ${this.pi+1} of ${this.phases.length}`:'';
+  },
+  toggle(){
+    if(!this.running){ // resume
+      this.pstart=Date.now()-this.pausedAt;this.running=true;$('trGo').textContent='Pause';
+      this.iv=setInterval(()=>this.tick(),100);
+    } else {this.pausedAt=Date.now()-this.pstart;clearInterval(this.iv);this.running=false;$('trGo').textContent='Resume';}
+  },
+  reset(){clearInterval(this.iv);this.running=false;this.setup();},
+  done(){clearInterval(this.iv);this.running=false;if(navigator.vibrate)navigator.vibrate([200,100,200,100,200]);
+    $('bigclock').textContent='Done';$('bigclock').classList.remove('warn');$('trPhase').style.display='none';
+    $('trLbl').textContent='Complete';$('trMeta').textContent='';$('trGo').textContent='Start';}
+};
+/* in-wizard quick rest reuses Clock */
+const Rest={q(){Clock.open('rest');},set(sec){Clock.open('rest');Clock.cfg={sec};$('tsetup').querySelector('#cfg-sec')&&($('tsetup').querySelector('#cfg-sec').textContent=sec);Clock.begin();}};
 
+/* ---------- freshness ---------- */
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
-document.addEventListener('visibilitychange',()=>{if(!document.hidden&&STATE&&!$('wiz').classList.contains('on'))load();});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&STATE&&!$('wiz').classList.contains('on')&&!$('trun').classList.contains('on'))load();});
 window.addEventListener('pageshow',e=>{if(e.persisted&&STATE&&!$('wiz').classList.contains('on'))load();});
 
 load();
