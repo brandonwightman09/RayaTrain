@@ -4,134 +4,150 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Raya Train</title>
-<meta name="theme-color" content="#0A0A0A">
+<meta name="theme-color" content="#0B0C0E">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Raya Train">
 <link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' fill='%230A0A0A'/%3E%3Ccircle cx='90' cy='108' r='42' fill='%23D4AF37'/%3E%3Cpath d='M62 84 Q62 44 90 44 Q118 44 118 84' stroke='%23D4AF37' stroke-width='14' fill='none'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' fill='%230B0C0E'/%3E%3Ccircle cx='90' cy='108' r='42' fill='%23C8A24A'/%3E%3Cpath d='M62 84 Q62 44 90 44 Q118 44 118 84' stroke='%23C8A24A' stroke-width='14' fill='none'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --ink:#0A0A0A; --card:#151515; --card2:#1D1D1D; --line:#2A2A2A;
-  --gold:#D4AF37; --gold-dim:#8a7223; --bone:#EAE6DC; --steel:#9A968C;
+  --bg:#0B0C0E; --surface:#131518; --surface2:#1A1D21; --field:#17191D;
+  --border:rgba(255,255,255,.07); --border2:rgba(255,255,255,.12);
+  --text:#F4F2EC; --muted:#8E939B; --faint:#5C6067;
+  --gold:#C8A24A; --gold-hi:#E4C77B; --gold-soft:rgba(200,162,74,.14);
+  --green:#46B876; --green-soft:rgba(70,184,118,.14);
+  --red:#D96C5F;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html{background:var(--ink)}
-body{font-family:'Inter',system-ui,sans-serif;background:var(--ink);color:var(--bone);min-height:100vh;padding-bottom:90px}
-h1,h2,h3,.disp{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.04em}
-header{padding:calc(env(safe-area-inset-top) + 16px) 18px 6px;display:flex;justify-content:space-between;align-items:baseline}
-header h1{font-size:26px;font-weight:700}
-header h1 span{color:var(--gold)}
-#dateline{font-size:12px;color:var(--steel);letter-spacing:.08em;text-transform:uppercase}
-.wrap{padding:0 14px;max-width:560px;margin:0 auto}
+html{background:var(--bg)}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:88px;font-size:15px}
+.num{font-family:'Barlow Condensed',sans-serif;font-weight:700}
+header{padding:calc(env(safe-area-inset-top) + 18px) 20px 6px;display:flex;justify-content:space-between;align-items:baseline}
+.wordmark{font-family:'Barlow Condensed';font-size:22px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.wordmark span{color:var(--gold)}
+#dateline{font-size:12px;color:var(--muted);font-weight:500}
+.wrap{padding:0 16px;max-width:560px;margin:0 auto}
+/* eyebrow labels */
+.eyebrow{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 /* calendar strip */
-#calstrip{display:flex;justify-content:space-between;padding:8px 18px 12px;max-width:560px;margin:0 auto}
-.cday{text-align:center;color:var(--steel);font-family:'Barlow Condensed';font-size:19px;font-weight:600;padding:4px 8px 8px;border-bottom:2px solid transparent;position:relative;cursor:pointer}
-.cday small{display:block;font-family:'Inter';font-size:10px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:2px}
-.cday.today{color:var(--bone);border-bottom-color:var(--gold)}
-.cday.sel{color:var(--gold)}
-.cday .dot{width:4px;height:4px;border-radius:99px;background:var(--gold-dim);margin:4px auto 0}
+#calstrip{display:flex;justify-content:space-between;padding:10px 20px 14px;max-width:560px;margin:0 auto}
+.cday{text-align:center;color:var(--faint);font-size:15px;font-weight:600;padding:4px 6px 7px;border-bottom:2px solid transparent;cursor:pointer}
+.cday small{display:block;font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px;color:var(--faint)}
+.cday.today{color:var(--text);border-bottom-color:var(--gold)}
+.cday.today small{color:var(--muted)}
+.cday.sel:not(.today){color:var(--gold)}
+.cday .dot{width:4px;height:4px;border-radius:99px;background:var(--faint);margin:5px auto 0}
 .cday .dot.none{background:transparent}
 /* cards */
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
-.card h2{font-size:15px;font-weight:600;color:var(--steel);letter-spacing:.12em;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:8px}
-.card h2 .wt{color:var(--gold);font-size:15px;white-space:nowrap}
-.big{font-family:'Barlow Condensed';font-size:32px;font-weight:700;line-height:1.05}
-.sub{font-size:12px;color:var(--steel);margin-top:3px}
-a.v{color:var(--gold);text-decoration:none;border-bottom:1px dotted var(--gold-dim)}
-a.vb{display:inline-block;font-size:12px;color:var(--gold);text-decoration:none;border:1px solid var(--gold-dim);border-radius:99px;padding:3px 10px;margin:2px 4px 2px 0}
-#banner{border:1px solid var(--gold-dim);background:linear-gradient(160deg,#161306,#151515 55%)}
-#banner .big{color:var(--gold)}
-/* block list (overview) */
-.blocks{margin-top:4px}
-.blk{display:flex;gap:14px;padding:15px 2px;border-bottom:1px solid var(--line);align-items:flex-start}
-.blk:last-child{border-bottom:none}
-.blk .badge{width:40px;height:40px;border-radius:99px;border:1.5px solid var(--steel);color:var(--bone);flex-shrink:0;
-  display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-size:18px;font-weight:600}
-.blk.done .badge{background:var(--gold);border-color:var(--gold);color:#0A0A0A}
-.blk .cat{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--steel);margin-bottom:2px}
-.blk .nm{font-size:17px;font-weight:600;line-height:1.25}
-.blk .rx{font-family:'Barlow Condensed';font-size:17px;font-weight:600;color:var(--gold);margin-top:2px;letter-spacing:.03em}
-button.primary{width:100%;padding:16px;border-radius:12px;border:none;background:var(--gold);color:#0A0A0A;
-  font-family:'Barlow Condensed';font-size:20px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;margin-top:4px}
-button.ghost{width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--steel);font-size:14px;cursor:pointer}
-select,input[type=text],input[type=number],textarea{width:100%;background:var(--card2);border:1px solid var(--line);border-radius:10px;color:var(--bone);padding:12px;font-size:15px;font-family:'Inter'}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:12px}
+.card h2{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.card h2 .wt{color:var(--gold);white-space:nowrap;font-size:12px}
+.big{font-size:24px;font-weight:700;letter-spacing:-.01em;line-height:1.15}
+.bignum{font-family:'Barlow Condensed';font-size:40px;font-weight:700;line-height:1}
+.sub{font-size:13px;color:var(--muted);margin-top:4px}
+a.v{color:var(--gold-hi);text-decoration:none;font-weight:500}
+a.vb{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:500;color:var(--muted);text-decoration:none;border:1px solid var(--border2);border-radius:8px;padding:6px 11px;margin:2px 6px 2px 0;background:var(--surface2)}
+a.vb::before{content:'▶';font-size:9px;color:var(--gold)}
+#banner{background:linear-gradient(155deg,rgba(200,162,74,.08),var(--surface) 60%);border-color:var(--border2)}
+/* block list */
+.blk{display:flex;gap:14px;padding:15px 2px;border-bottom:1px solid var(--border);align-items:flex-start}
+.blk:last-child{border-bottom:none;padding-bottom:4px}
+.blk:first-child{padding-top:4px}
+.blk .badge{width:36px;height:36px;border-radius:99px;border:1.5px solid var(--border2);color:var(--muted);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600}
+.blk .cat{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin-bottom:3px}
+.blk .nm{font-size:16px;font-weight:600;line-height:1.3;letter-spacing:-.01em}
+.blk .rx{font-size:13px;font-weight:600;color:var(--gold);margin-top:3px}
+/* buttons */
+button.primary{width:100%;padding:15px;border-radius:10px;border:none;background:var(--gold);color:#141009;
+  font-family:'Inter';font-size:15px;font-weight:600;letter-spacing:.01em;cursor:pointer;margin-top:4px}
+button.primary:active{background:var(--gold-hi)}
+button.primary.done{background:var(--green-soft);color:var(--green);border:1px solid rgba(70,184,118,.3)}
+button.ghost{width:100%;padding:12px;border-radius:10px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-size:14px;font-weight:500;cursor:pointer}
+select,input[type=text],input[type=number],textarea{width:100%;background:var(--field);border:1px solid var(--border2);border-radius:10px;color:var(--text);padding:12px;font-size:15px;font-family:'Inter'}
+select:focus,input:focus,textarea:focus{outline:none;border-color:var(--gold)}
 textarea{resize:none;min-height:54px}
-label.f{display:block;font-size:11px;color:var(--steel);text-transform:uppercase;letter-spacing:.1em;margin:12px 0 6px}
+label.f{display:block;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin:14px 0 6px}
 .row{display:flex;gap:10px}.row>*{flex:1}
-/* ======= WIZARD ======= */
-#wiz{position:fixed;inset:0;background:var(--ink);z-index:40;display:none;flex-direction:column}
+/* wizard */
+#wiz{position:fixed;inset:0;background:var(--bg);z-index:40;display:none;flex-direction:column}
 #wiz.on{display:flex}
-#wizTop{padding:calc(env(safe-area-inset-top) + 12px) 16px 10px;display:flex;align-items:center;gap:10px}
-#wizClose{background:none;border:none;color:var(--steel);font-size:22px;cursor:pointer;padding:4px 8px}
-#wizDots{flex:1;display:flex;justify-content:center;gap:7px;align-items:center}
-#wizDots i{width:9px;height:9px;border-radius:99px;border:1.5px solid var(--gold-dim);transition:all .15s}
-#wizDots i.done{background:var(--gold);border-color:var(--gold)}
-#wizDots i.cur{width:15px;height:15px;border-color:var(--gold)}
-#wizBody{flex:1;overflow-y:auto;padding:10px 16px 20px;max-width:560px;margin:0 auto;width:100%}
-#wizBody .cat{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--steel)}
-#wizBody h3{font-size:30px;font-weight:700;margin:4px 0 10px}
-.rxtext{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;font-size:15px;line-height:1.6;white-space:pre-line;margin-bottom:12px}
-.rxtext b{color:var(--gold)}
-.rxtext .ct{font-family:'Barlow Condensed';font-size:18px;font-weight:700;color:var(--gold);text-transform:uppercase}
+#wizTop{padding:calc(env(safe-area-inset-top) + 14px) 16px 10px;display:flex;align-items:center;gap:10px}
+#wizClose{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:4px 10px}
+#wizDots{flex:1;display:flex;justify-content:center;gap:6px;align-items:center}
+#wizDots i{width:7px;height:7px;border-radius:99px;background:var(--surface2);border:1px solid var(--border2);transition:all .15s}
+#wizDots i.done{background:var(--green);border-color:var(--green)}
+#wizDots i.cur{width:12px;height:12px;border-color:var(--gold);background:var(--gold-soft)}
+#wizBody{flex:1;overflow-y:auto;padding:8px 18px 24px;max-width:560px;margin:0 auto;width:100%}
+#wizBody h3{font-size:26px;font-weight:700;letter-spacing:-.015em;margin:4px 0 12px}
+.rxtext{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:15px;font-size:14.5px;line-height:1.65;white-space:pre-line;margin-bottom:12px;color:#DCD9D2}
+.rxtext b{color:var(--gold-hi);font-weight:600}
+.rxtext .ct{display:block;font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;white-space:normal}
+.mvrow{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);white-space:normal}
+.mvrow:last-child{border-bottom:none}
+.mvrow .mn a{color:var(--text);text-decoration:none;font-weight:500;font-size:15px}
+.mvrow .mn a::after{content:' ▶';font-size:9px;color:var(--gold)}
+.mvrow .mr{font-size:13px;color:var(--muted);font-weight:500;text-align:right;flex-shrink:0;margin-left:12px}
+.mvrow .mr b{color:var(--gold);font-weight:600}
 /* set rows */
-.sethead{display:grid;grid-template-columns:44px 1fr 1fr 52px;gap:10px;font-size:11px;color:var(--steel);text-transform:uppercase;letter-spacing:.1em;padding:0 2px;margin:14px 0 6px}
-.setrow{display:grid;grid-template-columns:44px 1fr 1fr 52px;gap:10px;align-items:center;margin-bottom:9px}
-.setrow .n{font-family:'Barlow Condensed';font-size:19px;font-weight:600;color:var(--steel);text-align:center}
-.setrow input{text-align:center;padding:11px 6px;font-size:16px}
-.setcirc{width:42px;height:42px;border-radius:99px;border:2px solid var(--gold-dim);background:none;cursor:pointer;justify-self:center;transition:all .12s;display:flex;align-items:center;justify-content:center;color:transparent;font-weight:700}
-.setcirc.on{background:var(--gold);border-color:var(--gold);color:#0A0A0A}
-#wizBar{border-top:1px solid var(--line);background:rgba(10,10,10,.96);padding:10px 20px calc(env(safe-area-inset-bottom) + 12px);display:flex;justify-content:space-between;align-items:center}
-#wizBar button{background:none;border:none;color:var(--gold);font-family:'Barlow Condensed';font-size:18px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;padding:8px 4px}
-#wizBar #wbTimer{color:var(--steel);display:flex;align-items:center;gap:6px;font-variant-numeric:tabular-nums}
+.sethead{display:grid;grid-template-columns:46px 1fr 1fr 48px;gap:10px;font-size:10px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:.1em;padding:0 2px;margin:14px 0 7px}
+.setrow{display:grid;grid-template-columns:46px 1fr 1fr 48px;gap:10px;align-items:center;margin-bottom:8px}
+.setrow .n{font-size:14px;font-weight:600;color:var(--muted);text-align:center}
+.setrow input{text-align:center;padding:11px 6px;font-size:15px}
+.setcirc{width:40px;height:40px;border-radius:99px;border:2px solid var(--border2);background:none;cursor:pointer;justify-self:center;transition:all .12s;display:flex;align-items:center;justify-content:center;color:transparent;font-weight:700;font-size:14px}
+.setcirc.on{background:var(--green);border-color:var(--green);color:#0B0C0E}
+#wizBar{border-top:1px solid var(--border);background:rgba(11,12,14,.97);padding:10px 22px calc(env(safe-area-inset-bottom) + 12px);display:flex;justify-content:space-between;align-items:center}
+#wizBar button{background:none;border:none;color:var(--text);font-size:14px;font-weight:600;cursor:pointer;padding:8px 4px}
+#wizBar #wbTimer{color:var(--muted);display:flex;align-items:center;gap:6px;font-variant-numeric:tabular-nums;font-weight:500}
 #wbTimer.hot{color:var(--gold)}
-/* timer sheet in wizard */
-#tsheet{display:none;border-top:1px solid var(--line);background:var(--card);padding:12px 16px}
+#tsheet{display:none;border-top:1px solid var(--border);background:var(--surface);padding:12px 16px}
 #tsheet.on{display:block}
 .timerrow{display:flex;gap:8px}
-.timerrow button{flex:1;padding:12px;border-radius:10px;border:1px solid var(--line);background:var(--card2);color:var(--bone);font-family:'Barlow Condensed';font-size:16px;font-weight:600;cursor:pointer;text-transform:uppercase}
+.timerrow button{flex:1;padding:11px 4px;border-radius:9px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:13px;font-weight:600;cursor:pointer}
 .timerrow button.go{border-color:var(--gold);color:var(--gold)}
-#clock{font-family:'Barlow Condensed';font-size:64px;font-weight:700;text-align:center;font-variant-numeric:tabular-nums;margin:6px 0}
+.timerrow button.rd{color:var(--red);border-color:rgba(217,108,95,.35)}
+#clock{font-family:'Barlow Condensed';font-size:62px;font-weight:700;text-align:center;font-variant-numeric:tabular-nums;margin:4px 0 8px}
 #clock.hot{color:var(--gold)}
-/* progress ladders */
-.ladder{display:flex;gap:3px;height:8px;margin:10px 0 4px}
-.ladder i{flex:1;border-radius:2px;background:var(--card2);border:1px solid var(--line)}
+/* ladders */
+.ladder{display:flex;gap:3px;height:7px;margin:10px 0 5px}
+.ladder i{flex:1;border-radius:2px;background:var(--surface2);border:1px solid var(--border)}
 .ladder i.f{background:var(--gold);border-color:var(--gold)}
-.ladder-lbl{display:flex;justify-content:space-between;font-size:11px;color:var(--steel)}
-.ladder-lbl b{color:var(--gold)}
+.ladder-lbl{display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}
+.ladder-lbl b{color:var(--gold);font-weight:600}
 .pm{display:flex;align-items:center;gap:14px}
-.pm button{width:44px;height:44px;border-radius:10px;border:1px solid var(--line);background:var(--card2);color:var(--gold);font-size:22px;cursor:pointer}
-.pm .val{flex:1;text-align:center;font-family:'Barlow Condensed';font-size:24px;font-weight:600}
-.zones{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
-.zones div{background:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px;font-size:12px;color:var(--steel)}
-.zones b{display:block;color:var(--gold);font-family:'Barlow Condensed';font-size:16px}
+.pm button{width:42px;height:42px;border-radius:10px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:20px;cursor:pointer}
+.pm .val{flex:1;text-align:center;font-size:17px;font-weight:600;font-variant-numeric:tabular-nums}
+.zones{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
+.zones div{background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:10px;font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.zones b{display:block;color:var(--text);font-family:'Barlow Condensed';font-size:20px;font-weight:700;letter-spacing:0;margin-bottom:2px;text-transform:none}
 /* history */
-.sess{display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid var(--line)}
+.sess{display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid var(--border)}
 .sess:last-child{border:none}
-.sess .l b{font-family:'Barlow Condensed';font-size:17px;font-weight:600;text-transform:uppercase}
-.sess .l div{font-size:12px;color:var(--steel);margin-top:2px}
-.sess .r{font-family:'Barlow Condensed';font-size:15px;color:var(--gold);text-align:right}
-.pill{display:inline-block;font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:99px;border:1px solid var(--gold-dim);color:var(--gold);margin-left:6px;vertical-align:middle}
-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,10,.94);backdrop-filter:blur(12px);border-top:1px solid var(--line);
+.sess .l b{font-size:14px;font-weight:600}
+.sess .l div{font-size:12px;color:var(--muted);margin-top:2px}
+.sess .r{font-size:13px;font-weight:600;color:var(--gold);text-align:right}
+.pill{display:inline-block;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:99px;background:var(--green-soft);color:var(--green);margin-left:7px;vertical-align:middle}
+nav{position:fixed;bottom:0;left:0;right:0;background:rgba(11,12,14,.96);backdrop-filter:blur(14px);border-top:1px solid var(--border);
   display:flex;padding:8px 0 calc(env(safe-area-inset-bottom) + 8px);z-index:30}
-nav button{flex:1;background:none;border:none;color:var(--steel);font-family:'Barlow Condensed';font-size:14px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;padding:8px 0}
+nav button{flex:1;background:none;border:none;color:var(--faint);font-size:12px;font-weight:600;letter-spacing:.04em;cursor:pointer;padding:9px 0}
 nav button.on{color:var(--gold)}
 .page{display:none}.page.on{display:block}
-#toast{position:fixed;top:calc(env(safe-area-inset-top) + 12px);left:50%;transform:translateX(-50%) translateY(-80px);background:var(--gold);color:#0A0A0A;
-  font-weight:600;font-size:14px;padding:11px 20px;border-radius:99px;transition:transform .25s;z-index:60;white-space:nowrap}
+#toast{position:fixed;top:calc(env(safe-area-inset-top) + 12px);left:50%;transform:translateX(-50%) translateY(-80px);background:var(--surface2);border:1px solid var(--border2);color:var(--text);
+  font-weight:500;font-size:13px;padding:11px 18px;border-radius:10px;transition:transform .25s;z-index:60;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.5)}
 #toast.show{transform:translateX(-50%) translateY(0)}
-.mut{color:var(--steel);font-size:13px;line-height:1.5}
-.off{text-align:center;padding:40px 0;color:var(--steel)}
-.off .big{color:var(--bone);margin-bottom:6px}
+.mut{color:var(--muted);font-size:13px;line-height:1.55}
+.off{text-align:center;padding:44px 0;color:var(--muted)}
+.off .big{color:var(--text);margin-bottom:6px}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
 <header>
-  <h1>RAYA <span>TRAIN</span></h1>
+  <div class="wordmark">RAYA <span>TRAIN</span></div>
   <div id="dateline">—</div>
 </header>
 <div id="calstrip"></div>
@@ -145,10 +161,10 @@ nav button.on{color:var(--gold)}
     <div id="clock">0:00</div>
     <div class="timerrow">
       <button class="go" onclick="T.start()">Start</button>
-      <button onclick="T.stop()">Stop</button>
+      <button class="rd" onclick="T.stop()">Stop</button>
       <button onclick="T.reset()">Reset</button>
     </div>
-    <label class="f">Quick rest timers</label>
+    <label class="f">Rest timers</label>
     <div class="timerrow">
       <button onclick="T.count(30)">0:30</button>
       <button onclick="T.count(60)">1:00</button>
@@ -157,7 +173,7 @@ nav button.on{color:var(--gold)}
     </div>
   </div>
   <div class="card">
-    <h2>Log an S&S Test</h2>
+    <h2>S&S Test</h2>
     <div class="row">
       <div><label class="f">Swing bell (lb)</label><input type="number" id="tSwingWt" inputmode="numeric"></div>
       <div><label class="f">Swing time</label><input type="text" id="tSwingTime" placeholder="5:00"></div>
@@ -167,13 +183,13 @@ nav button.on{color:var(--gold)}
       <div><label class="f">Get-up time</label><input type="text" id="tGetupTime" placeholder="10:00"></div>
     </div>
     <label class="f">Notes</label><textarea id="tNotes"></textarea>
-    <button class="primary" onclick="saveTest()" style="margin-top:14px">Save Test</button>
+    <button class="primary" onclick="saveTest()" style="margin-top:14px">Save test</button>
   </div>
   <div class="card">
-    <h2>Log a 10:00 Bike TT</h2>
-    <p class="mut" style="margin-bottom:8px">Continuous max-cal effort, even pacing. Sets every engine zone. Re-test every 6 weeks.</p>
+    <h2>10:00 Bike Time Trial</h2>
+    <p class="mut" style="margin-bottom:6px">Continuous max-calorie effort, evenly paced. Sets every engine zone. Re-test every 6 weeks.</p>
     <label class="f">Total calories</label><input type="number" id="ttCal" inputmode="numeric" placeholder="e.g. 140">
-    <button class="primary" onclick="saveTT()" style="margin-top:14px">Save Benchmark</button>
+    <button class="primary" onclick="saveTT()" style="margin-top:14px">Save benchmark</button>
   </div>
 </div>
 
@@ -194,11 +210,11 @@ nav button.on{color:var(--gold)}
   </div>
   <div class="card">
     <h2>Engine Zones <span class="wt" id="pTT"></span></h2>
-    <div class="zones" id="zoneGrid"><div style="grid-column:1/3">Log a 10:00 bike TT (Timer tab) to unlock cal/min targets.</div></div>
+    <div class="zones" id="zoneGrid"><div style="grid-column:1/3;text-transform:none;letter-spacing:0;font-size:13px">Log a 10:00 bike TT (Timer tab) to unlock cal/min targets.</div></div>
   </div>
   <div class="card">
     <h2>Program</h2>
-    <label class="f">Schedule option</label>
+    <label class="f" style="margin-top:0">Schedule option</label>
     <select id="pOption" onchange="saveOption()">
       <option value="A">Option A — 5-Day + Sat Z2</option>
       <option value="B">Option B — 2 On / 1 Off</option>
@@ -219,7 +235,7 @@ nav button.on{color:var(--gold)}
 </div>
 
 <div class="page" id="pg-hist">
-  <div class="card"><h2>This Week</h2><div class="big" id="hWeek">0</div><div class="sub">sessions logged</div></div>
+  <div class="card"><h2>This Week</h2><div class="bignum" id="hWeek">0</div><div class="sub">sessions logged</div></div>
   <div class="card"><h2>Sessions</h2><div id="hList" class="mut">Loading…</div></div>
   <div class="card"><h2>Tests & Benchmarks</h2><div id="hTests" class="mut">No tests yet.</div></div>
 </div>
@@ -229,15 +245,15 @@ nav button.on{color:var(--gold)}
 <!-- WIZARD -->
 <div id="wiz">
   <div id="wizTop">
-    <button id="wizClose" onclick="Wiz.close()">⌄</button>
+    <button id="wizClose" onclick="Wiz.close()">✕</button>
     <div id="wizDots"></div>
-    <div style="width:34px"></div>
+    <div style="width:38px"></div>
   </div>
   <div id="wizBody"></div>
   <div id="tsheet">
     <div class="timerrow">
       <button class="go" onclick="T.start()">Start</button>
-      <button onclick="T.stop()">Stop</button>
+      <button class="rd" onclick="T.stop()">Stop</button>
       <button onclick="T.count(30)">0:30</button>
       <button onclick="T.count(60)">1:00</button>
       <button onclick="T.count(90)">1:30</button>
@@ -247,7 +263,7 @@ nav button.on{color:var(--gold)}
   <div id="wizBar">
     <button onclick="Wiz.nav(-1)">← Back</button>
     <button id="wbTimer" onclick="document.getElementById('tsheet').classList.toggle('on')">⏱ <span id="wbClock">Timer</span></button>
-    <button onclick="Wiz.nav(1)">Next →</button>
+    <button onclick="Wiz.nav(1)" style="color:var(--gold)">Next →</button>
   </div>
 </div>
 
@@ -312,14 +328,25 @@ const SF={
 const yts=q=>'https://www.youtube.com/results?search_query='+encodeURIComponent(q);
 const CSLIB='https://trainingzone.crossoversymmetry.com/exercises/';
 const IRONSCAP_VID='https://www.youtube.com/watch?v=nQ7J1rZvpuM';
-/* CS Activation — verified chart order. Eye level then knee level, 8 reps each, 2-2-2-2 tempo */
+/* CS Activation — chart order: eye level → knee level, 8 reps, 2-2-2-2 tempo */
 const CS_ACT=[
- ['Crossover Row','Heavy',yts('crossover symmetry row')],
- ['Reverse Fly','Light',yts('crossover symmetry reverse fly')],
- ['Crossover Pulldown','Heavy',yts('crossover symmetry pulldown')],
- ['Crossover 90/90','Light',yts('crossover symmetry 90 90')],
- ['Crossover Scaption','Light',yts('crossover symmetry scaption')],
- ['Crossover Incline Plus','Heavy',yts('crossover symmetry incline plus')]];
+ ['Crossover Row','Heavy','8',yts('crossover symmetry row')],
+ ['Reverse Fly','Light','8',yts('crossover symmetry reverse fly')],
+ ['Crossover Pulldown','Heavy','8',yts('crossover symmetry pulldown')],
+ ['Crossover 90/90','Light','8',yts('crossover symmetry 90 90')],
+ ['Crossover Scaption','Light','8',yts('crossover symmetry scaption')],
+ ['Crossover Incline Plus','Heavy','8',yts('crossover symmetry incline plus')]];
+/* Iron Scap protocol — controlled tempo throughout; ATYT as fast as possible */
+const IRON=[
+ ['Archer','Heavy','10 / side',yts('crossover symmetry archer')],
+ ['Pulldown','Heavy','10',yts('crossover symmetry pulldown')],
+ ['Tiger Walk','Heavy','20 / side',yts('crossover symmetry tiger walk')],
+ ['WY Negative','Light','10',yts('crossover symmetry WY negative')],
+ ['Snow Angel','Light','10',yts('crossover symmetry snow angel')],
+ ['Bear Hug','Heavy','10',yts('crossover symmetry bear hug')],
+ ['ATYT','Light','10 — fast',yts('crossover symmetry ATYT')]];
+const mvrows=list=>list.map(([n,b,r,u])=>
+  `<div class="mvrow"><span class="mn"><a target="_blank" rel="noopener" href="${u}">${n}</a></span><span class="mr"><b>${r}</b> · ${b} band</span></div>`).join('');
 
 function linkify(txt){
   const names=Object.keys(V).sort((a,b)=>b.length-a.length);
@@ -359,17 +386,16 @@ const CORE={
 `3 SETS:\n1:00 Plank Hold\n1:00 Hollow Hold\n1:00 Bear Crawl Hold\n1:00 Plank Hold\n1:00 Rest`]};
 
 const ENGINES={
- A:{name:'VO2 Intervals',time:'10–12 MIN',zone:'vo2',
+ A:{name:'VO2 Intervals',time:'10–12 min',zone:'vo2',
     rx:'<b>10–16 × :30 @ VO2 pace / :30 easy spin</b>\nor 5 × 1:00 hard / 1:00 easy\nEven output — last rep matches the first. Recovery is easy movement, never a dead stop.'},
- B:{name:'Threshold',time:'12–14 MIN',zone:'thr',
+ B:{name:'Threshold',time:'12–14 min',zone:'thr',
     rx:'<b>3 × 3:00 @ threshold / 1:30 easy</b>\nor 4 × 800m row / 400m run @ threshold w/ equal easy time\n"Comfortably uncomfortable" — could speak a sentence, wouldn\'t want to.'},
- C:{name:'Tempo',time:'12–15 MIN',zone:'tmp',
+ C:{name:'Tempo',time:'12–15 min',zone:'tmp',
     rx:'<b>2 × 6:00 @ tempo / 2:00 easy</b>\nor 12:00 continuous negative split — first half moderate, second half tempo.'},
- D:{name:'Zone 2',time:'30–45 MIN',zone:'z2',
+ D:{name:'Zone 2',time:'30–45 min',zone:'z2',
     rx:'<b>Conversational pace the whole way.</b> Run / row / bike / ruck — any modality. If you can\'t talk, you\'re stealing from tomorrow.'}};
 const MODS=['Echo bike','Rower','Run','Ski erg','Ruck','Jump rope','Other'];
 
-/* schedule: [title, sub, sns, engineKey, ironScap, recovery] */
 const SCHED_A={
  1:['Full + Threshold','S&S · core · Engine B','full','B',false,false],
  2:['Full + Iron Scap','S&S · core · CS Strength after','full',null,true,false],
@@ -412,7 +438,6 @@ function paces(){
   return {z2:`${f(r*.55)}–${f(r*.65)}`,tmp:`${f(r*.78)}–${f(r*.85)}`,thr:`${f(r*.88)}–${f(r*.92)}`,vo2:`${f(r*1.03)}–${f(r*1.10)}`};
 }
 
-/* ---------- calendar strip ---------- */
 function renderCal(){
   const now=new Date(), dow=now.getDay();
   const mon=new Date(now);mon.setDate(now.getDate()-((dow+6)%7));
@@ -429,69 +454,65 @@ function renderCal(){
 }
 function pick(dd){selDow=dd;renderCal();renderOverview();}
 
-/* ---------- block builder ---------- */
 function buildBlocks(dow){
   const s=sched()[dow];
   if(!s)return null;
   const [title,sub,sns,engKey,iron,rec]=s;
   const light=sns==='light';
   const blocks=[];
-  blocks.push({t:'check',letter:'A',cat:'Prep',name:'Warm-Up + CS Activation',rx:'6 movements × 8',key:'warmup',
-    html:`<span class="ct">Bands eye level → knee level · 8 reps each · 2-2-2-2 tempo</span>\n`+
-      CS_ACT.map(([n,b,u])=>`<a class="v" target="_blank" rel="noopener" href="${u}">${n}</a> ×8 (${b})`).join('\n')+
-      `\n\nThen 3 rounds:\n<a class="v" target="_blank" rel="noopener" href="${yts('prying goblet squat StrongFirst')}">5 Prying Goblet Squats</a>\n<a class="v" target="_blank" rel="noopener" href="${V['Glute Bridges']}">5 Hip Bridges</a>\n<a class="v" target="_blank" rel="noopener" href="${yts('kettlebell halo')}">3 Halos each way</a>\n\nFull CS video library: <a class="v" target="_blank" rel="noopener" href="${CSLIB}">Training Zone</a>`});
-  let L=66; // 'B'
+  blocks.push({t:'check',letter:'A',cat:'Prep',name:'Warm-Up · CS Activation',rx:'6 movements × 8',key:'warmup',
+    html:`<span class="ct">Bands eye level → knee level · 2-2-2-2 tempo</span>`+mvrows(CS_ACT)+
+      `<span class="ct" style="margin-top:12px">Then 3 rounds</span><div class="mvrow"><span class="mn"><a target="_blank" rel="noopener" href="${yts('prying goblet squat StrongFirst')}">Prying Goblet Squat</a></span><span class="mr"><b>5</b></span></div><div class="mvrow"><span class="mn"><a target="_blank" rel="noopener" href="${V['Glute Bridges']}">Hip Bridge</a></span><span class="mr"><b>5</b></span></div><div class="mvrow"><span class="mn"><a target="_blank" rel="noopener" href="${yts('kettlebell halo')}">Halo</a></span><span class="mr"><b>3</b> / way</span></div>`});
+  let L=66;
   if(sns){
     const nSets=light?5:10, nGet=light?3:5;
     blocks.push({t:'sets',letter:String.fromCharCode(L++),cat:'Strength / Power',name:'One-Hand Swings',key:'swings',
-      rx:`${nSets} × 10 @ ${STATE.swing_weight_lb} LB`,
-      vids:[['▶ Swing form',SF.swing],['▶ Setup',SF.swingSetup]],
+      rx:`${nSets} × 10 · ${STATE.swing_weight_lb} lb`,
+      vids:[['Swing form',SF.swing],['Setup',SF.swingSetup]],
       note:'Max power every rep. Alternate hands each set. Rest 30–60s.',
-      sets:Array.from({length:nSets},(_,i)=>({lbl:`${i+1} ${i%2?'R':'L'}`,reps:10,
+      sets:Array.from({length:nSets},(_,i)=>({lbl:`${i+1}·${i%2?'R':'L'}`,reps:10,
         lb:(!light&&i<STATE.swing_heavy_sets)?STATE.swing_next_weight_lb:STATE.swing_weight_lb,done:false}))});
     blocks.push({t:'sets',letter:String.fromCharCode(L++),cat:'Strength / Power',name:'Turkish Get-Ups',key:'getups',
-      rx:`${nGet} / SIDE @ ${STATE.getup_weight_lb} LB`,
-      vids:[['▶ Get-up (shoe drill)',SF.getup],['▶ Form tip',SF.getupTip]],
+      rx:`${nGet} / side · ${STATE.getup_weight_lb} lb`,
+      vids:[['Get-up walkthrough',SF.getup],['Form tip',SF.getupTip]],
       note:'Slow and owned. Eyes on the bell to the elbow.',
       sets:Array.from({length:nGet*2},(_,i)=>({lbl:`${i%2?'R':'L'}${Math.ceil((i+1)/2)}`,reps:1,
         lb:(!light&&Math.ceil((i+1)/2)<=STATE.getup_heavy_reps)?STATE.getup_next_weight_lb:STATE.getup_weight_lb,done:false}))});
   }
   const wk=STATE.core_week,dy=STATE.core_day;
   blocks.push({t:'check',letter:String.fromCharCode(L++),cat:'Core · Mayhem 30-Day Abs',name:STYLES[dy-1],key:'core',
-    rx:`WK${wk} · D${dy}`,score:true,html:linkify(CORE[wk][dy-1])});
+    rx:`Week ${wk} · Day ${dy}`,score:true,html:linkify(CORE[wk][dy-1])});
   if(engKey){
     const e=ENGINES[engKey],p=paces();
-    blocks.push({t:'engine',letter:String.fromCharCode(L++),cat:'Conditioning',name:`Engine ${engKey} — ${e.name}`,key:'engine',engKey,
+    blocks.push({t:'engine',letter:String.fromCharCode(L++),cat:'Conditioning',name:`${e.name}`,key:'engine',engKey,
       rx:e.time,html:e.rx.replace(/\n/g,'<br>')+(p?`<br><br>Target: <b>${p[e.zone]} cal/min</b> on the Echo.`:'<br><br>Log a 10:00 bike TT to unlock pace targets.')});
   }
-  if(iron)blocks.push({t:'check',letter:String.fromCharCode(L++),cat:'Shoulder Strength',name:'CS Iron Scap',key:'iron',rx:'AFTER TRAINING',
-    html:`<span class="ct">The Strength protocol — back of your CS chart</span>\nProgressive scap work at controlled 2-2-2-2 tempo, finishing with <b>ATYT performed fast</b>. Follow the phase and reps printed on your chart.\n\n<a class="vb" target="_blank" rel="noopener" href="${IRONSCAP_VID}">▶ Official Iron Scap video</a> <a class="vb" target="_blank" rel="noopener" href="${CSLIB}">Training Zone library</a>`});
-  if(rec)blocks.push({t:'check',letter:String.fromCharCode(L++),cat:'Cool-Down',name:'CS Recovery',key:'rec',rx:'LIGHT BANDS',
-    html:`Light bands, easy pace — flush the shoulders. Follow the Recovery column on your chart.`});
+  if(iron)blocks.push({t:'check',letter:String.fromCharCode(L++),cat:'Shoulder Strength',name:'Iron Scap',key:'iron',rx:'7 movements · after training',
+    html:`<span class="ct">Controlled 2-2-2-2 tempo · ATYT as fast as possible</span>`+mvrows(IRON)+
+      `<div style="margin-top:12px"><a class="vb" target="_blank" rel="noopener" href="${IRONSCAP_VID}">Full protocol video</a><a class="vb" target="_blank" rel="noopener" href="${CSLIB}">Training Zone</a></div>`});
+  if(rec)blocks.push({t:'check',letter:String.fromCharCode(L++),cat:'Cool-Down',name:'CS Recovery',key:'rec',rx:'Light bands',
+    html:`Light bands, easy pace, slow eccentrics — flush the shoulders after the hard work.`});
   return {title,sub,sns:sns||'none',engKey:engKey||'',blocks};
 }
 
-/* ---------- overview ---------- */
 function renderOverview(){
   const now=new Date(), isToday=selDow===now.getDay();
   const plan=buildBlocks(selDow);
   const body=$('todayBody');
-  if(!plan){body.innerHTML=`<div class="card" id="banner"><div class="big">Rest Day</div><div class="sub">Sundays are off. Go be with the family.</div></div>
-    <div class="off"><div class="big disp">Recover</div><p class="mut">Bells stay on the floor.</p></div>`;return;}
-  if(isToday&&todayLogged){body.innerHTML=`<div class="card" id="banner"><div class="big">Logged ✓</div><div class="sub">Session already recorded today.</div></div>
-    <div class="off"><div class="big disp">Done</div><p class="mut">Check History for the record.</p></div>`;return;}
-  let html=`<div class="card" id="banner"><div class="big">${plan.title}</div><div class="sub">${plan.sub}${isToday?'':' · preview'}</div>
-    ${isToday?'<button class="primary" style="margin-top:14px" onclick="Wiz.open()">Start Session</button>':''}</div>
-    <div class="card"><div class="blocks">`;
+  if(!plan){body.innerHTML=`<div class="card" id="banner"><div class="big">Rest Day</div><div class="sub">Sundays are off. Go be with the family.</div></div>`;return;}
+  if(isToday&&todayLogged){body.innerHTML=`<div class="card" id="banner"><div class="big">Session logged</div><div class="sub">Today's work is in the books — see History.</div></div>`;return;}
+  let html=`<div class="card" id="banner"><div class="eyebrow" style="margin-bottom:4px">${isToday?'Today':'Preview'}</div>
+    <div class="big">${plan.title}</div><div class="sub">${plan.sub}</div>
+    ${isToday?'<button class="primary" style="margin-top:16px" onclick="Wiz.open()">Start session</button>':''}</div>
+    <div class="card">`;
   for(const b of plan.blocks){
-    html+=`<div class="blk" id="ov-${b.key}"><div class="badge">${b.letter}</div>
+    html+=`<div class="blk"><div class="badge">${b.letter}</div>
       <div><div class="cat">${b.cat}</div><div class="nm">${b.name}</div><div class="rx">${b.rx}</div></div></div>`;
   }
-  html+=`</div></div>`;
+  html+=`</div>`;
   body.innerHTML=html;
 }
 
-/* ---------- wizard ---------- */
 const Wiz={
   plan:null,i:0,res:{},
   open(){
@@ -503,39 +524,31 @@ const Wiz={
   },
   close(){$('wiz').classList.remove('on');},
   steps(){return this.plan.blocks.length+1;},
-  nav(d){
-    this.capture();
-    this.i=Math.min(this.steps()-1,Math.max(0,this.i+d));
-    this.render();
-  },
+  nav(d){this.capture();this.i=Math.min(this.steps()-1,Math.max(0,this.i+d));this.render();},
   capture(){
     const b=this.plan.blocks[this.i];
     if(!b)return;
-    if(b.t==='sets'){
-      this.res.sets[b.key].forEach((s,j)=>{
-        const r=$(`in-r${j}`),l=$(`in-l${j}`);
-        if(r)s.reps=+r.value||0;if(l)s.lb=+l.value||0;});
-    }
+    if(b.t==='sets')this.res.sets[b.key].forEach((s,j)=>{
+      const r=$(`in-r${j}`),l=$(`in-l${j}`);
+      if(r)s.reps=+r.value||0;if(l)s.lb=+l.value||0;});
     if(b.score){const sc=$('in-score');if(sc)this.res.scores[b.key]=sc.value;}
-    if(b.t==='engine'){
-      const m=$('in-mod'),n=$('in-eng');
-      if(m)this.res.engMod=m.value;if(n)this.res.engNotes=n.value;
-    }
+    if(b.t==='engine'){const m=$('in-mod'),n=$('in-eng');
+      if(m)this.res.engMod=m.value;if(n)this.res.engNotes=n.value;}
   },
   render(){
     $('wizDots').innerHTML=Array.from({length:this.steps()},(_,j)=>
       `<i class="${j<this.i?'done':j===this.i?'cur':''}"></i>`).join('');
     const body=$('wizBody');
-    if(this.i===this.plan.blocks.length){ // finish screen
-      body.innerHTML=`<div class="cat">Wrap-Up</div><h3>Complete Session</h3>
+    if(this.i===this.plan.blocks.length){
+      body.innerHTML=`<div class="eyebrow">Wrap-up</div><h3>Complete session</h3>
         <label class="f">Session RPE (1–10)</label><input type="number" id="in-rpe" inputmode="numeric" min="1" max="10" value="${this.res.rpe||''}">
         <label class="f">Notes</label><textarea id="in-notes">${this.res.notes||''}</textarea>
-        <button class="primary" style="margin-top:16px" onclick="Wiz.save()">Complete Session</button>`;
+        <button class="primary" style="margin-top:16px" onclick="Wiz.save()">Complete session</button>`;
       return;
     }
     const b=this.plan.blocks[this.i];
-    let html=`<div class="cat">${b.letter} · ${b.cat}</div><h3>${b.name}</h3>`;
-    if(b.vids)html+=`<div style="margin-bottom:10px">${b.vids.map(([n,u])=>`<a class="vb" target="_blank" rel="noopener" href="${u}">${n}</a>`).join('')}</div>`;
+    let html=`<div class="eyebrow">${b.letter} · ${b.cat}</div><h3>${b.name}</h3>`;
+    if(b.vids)html+=`<div style="margin-bottom:12px">${b.vids.map(([n,u])=>`<a class="vb" target="_blank" rel="noopener" href="${u}">${n}</a>`).join('')}</div>`;
     if(b.html)html+=`<div class="rxtext">${b.html}</div>`;
     if(b.note)html+=`<p class="mut" style="margin-bottom:8px">${b.note}</p>`;
     if(b.t==='sets'){
@@ -549,26 +562,22 @@ const Wiz={
     }
     if(b.t==='engine'){
       html+=`<label class="f">Modality</label><select id="in-mod">${MODS.map(m=>`<option${this.res.engMod===m?' selected':''}>${m}</option>`).join('')}</select>
-        <label class="f">Result (optional)</label><input type="text" id="in-eng" value="${this.res.engNotes||''}" placeholder="e.g. 108 cal / even splits">`;
+        <label class="f">Result (optional)</label><input type="text" id="in-eng" value="${this.res.engNotes||''}" placeholder="e.g. 108 cal, even splits">`;
     }
     if(b.t==='check'||b.t==='engine'){
       const on=this.res.done[b.key];
-      html+=`<button class="primary" style="margin-top:16px;background:${on?'var(--gold-dim)':'var(--gold)'}" onclick="Wiz.markDone('${b.key}',this)">${on?'Completed ✓':'Mark As Completed'}</button>`;
+      html+=`<button class="primary${on?' done':''}" style="margin-top:16px" onclick="Wiz.markDone('${b.key}',this)">${on?'Completed ✓':'Mark as completed'}</button>`;
     }
     if(b.score)html+=`<label class="f">Score / time (optional)</label><input type="text" id="in-score" value="${this.res.scores[b.key]||''}" placeholder="e.g. 4:32 or 212 reps">`;
     body.innerHTML=html;
     $('wizBody').scrollTop=0;
   },
-  togSet(key,j,el){
-    this.capture();
-    const s=this.res.sets[key][j];s.done=!s.done;
-    el.classList.toggle('on',s.done);
-  },
+  togSet(key,j,el){this.capture();const s=this.res.sets[key][j];s.done=!s.done;el.classList.toggle('on',s.done);},
   markDone(key,el){
     this.capture();
     this.res.done[key]=!this.res.done[key];
-    el.textContent=this.res.done[key]?'Completed ✓':'Mark As Completed';
-    el.style.background=this.res.done[key]?'var(--gold-dim)':'var(--gold)';
+    el.textContent=this.res.done[key]?'Completed ✓':'Mark as completed';
+    el.classList.toggle('done',this.res.done[key]);
   },
   async save(){
     this.res.rpe=+$('in-rpe').value||null;this.res.notes=$('in-notes').value||null;
@@ -598,7 +607,6 @@ const Wiz={
   }
 };
 
-/* ---------- progression ---------- */
 function renderProg(){
   $('pOption').value=STATE.program_option;
   $('pSwingWts').textContent=`${STATE.swing_weight_lb} → ${STATE.swing_next_weight_lb} lb`;
@@ -613,7 +621,7 @@ function renderProg(){
   $('pGetupCur').value=STATE.getup_weight_lb;$('pGetupNext').value=STATE.getup_next_weight_lb;
   $('pCoreWeek').value=STATE.core_week;$('pCoreDay').value=STATE.core_day;
   const p=paces();
-  $('pTT').textContent=STATE.tt_cal_10min?`TT: ${STATE.tt_cal_10min} cal`:'';
+  $('pTT').textContent=STATE.tt_cal_10min?`TT ${STATE.tt_cal_10min} cal`:'';
   if(p)$('zoneGrid').innerHTML=`<div><b>${p.z2}</b>Zone 2 cal/min</div><div><b>${p.tmp}</b>Tempo cal/min</div>
     <div><b>${p.thr}</b>Threshold cal/min</div><div><b>${p.vo2}</b>VO2 cal/min</div>`;
 }
@@ -639,7 +647,6 @@ const saveWeights=()=>patchState({
   getup_weight_lb:+$('pGetupCur').value,getup_next_weight_lb:+$('pGetupNext').value}).then(()=>toast('Weights saved'));
 const saveCorePos=()=>patchState({core_week:+$('pCoreWeek').value,core_day:+$('pCoreDay').value}).then(()=>toast('Book position saved'));
 
-/* ---------- tests & benchmarks ---------- */
 const parseTime=s=>{if(!s)return null;const p=s.split(':');return p.length===2?(+p[0]*60)+ +p[1]:+s;};
 async function saveTest(){
   const st=parseTime($('tSwingTime').value), gt=parseTime($('tGetupTime').value);
@@ -661,7 +668,6 @@ async function saveTT(){
   $('ttCal').value='';loadHistory();
 }
 
-/* ---------- history ---------- */
 const fmtT=s=>s==null?'—':`${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
 async function loadHistory(){
   const sess=await api('/train_sessions?order=session_date.desc&limit=20');
@@ -670,17 +676,16 @@ async function loadHistory(){
   $('hList').innerHTML=sess.length?sess.map(s=>{
     const d=new Date(s.session_date+'T12:00').toLocaleDateString('en-US',{weekday:'short',month:'numeric',day:'numeric'});
     const sw=s.swings?`${s.swings.sets_done}×10 @ ${s.swings.weight_lb}${s.swings.heavy_sets?'/'+s.swings.heavy_weight_lb:''}`:'';
-    return `<div class="sess"><div class="l"><b>${d}${s.core_completed?'<span class="pill">core ✓</span>':''}</b>
+    return `<div class="sess"><div class="l"><b>${d}${s.core_completed?'<span class="pill">core</span>':''}</b>
       <div>${s.day_type}${s.endurance_choice?' · '+s.endurance_choice.replace(':',' — '):''}${s.rpe?' · RPE '+s.rpe:''}</div></div>
-      <div class="r">${sw}</div></div>`;}).join(''):'No sessions yet. Go swing something heavy.';
+      <div class="r">${sw}</div></div>`;}).join(''):'No sessions yet.';
   const tests=await api('/train_tests?order=test_date.desc&limit=10');
   if(tests.length)$('hTests').innerHTML=tests.map(t=>{
-    if(t.swing_weight_lb===0)return `<div class="sess"><div class="l"><b>${t.test_date}</b><div>${t.notes||''}</div></div><div class="r">BENCH</div></div>`;
+    if(t.swing_weight_lb===0)return `<div class="sess"><div class="l"><b>${t.test_date}</b><div>${t.notes||''}</div></div><div class="r">TT</div></div>`;
     return `<div class="sess"><div class="l"><b>${t.test_date}</b><div>SW ${t.swing_weight_lb}lb ${fmtT(t.swing_time_sec)} ${t.swing_passed?'✓':''} · TGU ${t.getup_weight_lb}lb ${fmtT(t.getup_time_sec)} ${t.getup_passed?'✓':''}</div></div>
      <div class="r">${t.swing_passed&&t.getup_passed?'PASS':''}</div></div>`;}).join('');
 }
 
-/* ---------- timer (shared: main tab + wizard bar) ---------- */
 const T={t0:null,iv:null,down:0,
  start(){this.stop();this.t0=Date.now();this.down=0;this.iv=setInterval(()=>this.tick(),200);this.hot(true);},
  count(sec){this.stop();this.t0=Date.now();this.down=sec;this.iv=setInterval(()=>this.tick(),200);this.hot(true);},
@@ -692,7 +697,6 @@ const T={t0:null,iv:null,down:0,
  stop(){clearInterval(this.iv);this.iv=null;this.hot(false);},
  reset(){this.stop();this.show('0:00');$('wbClock').textContent='Timer';}};
 
-/* ---------- freshness: network-first SW + refresh on resume ---------- */
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&STATE&&!$('wiz').classList.contains('on'))load();});
 window.addEventListener('pageshow',e=>{if(e.persisted&&STATE&&!$('wiz').classList.contains('on'))load();});
