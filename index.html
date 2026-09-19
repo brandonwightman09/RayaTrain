@@ -102,6 +102,18 @@ label.f{display:block;font-size:11px;font-weight:600;color:var(--muted);text-tra
 .setrow input{text-align:center;padding:11px 4px;font-size:15px}
 .setcirc{width:40px;height:40px;border-radius:99px;border:2px solid var(--border2);background:none;cursor:pointer;justify-self:center;transition:all .12s;display:flex;align-items:center;justify-content:center;color:transparent;font-weight:700;font-size:14px}
 .setcirc.on{background:var(--green);border-color:var(--green);color:#fff}
+.circrow{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
+.circrow:last-child{border-bottom:none}
+.circrow .cn{width:26px;font-size:13px;font-weight:600;color:var(--muted);text-align:center;flex-shrink:0}
+.circrow .cl{flex:1;min-width:0}
+.circrow .cl a{color:var(--text);text-decoration:none;font-weight:500;font-size:15px}
+.circrow .cl a::after{content:' ▶';font-size:9px;color:var(--gold)}
+.circrow .cr{font-size:13px;color:var(--muted);font-weight:500;flex-shrink:0}
+.circrow .cr b{color:var(--gold);font-weight:600}
+.circrow .setcirc{flex-shrink:0}
+.circrow.on .cl a{color:var(--muted);text-decoration:line-through}
+.lastline{font-size:12px;color:var(--muted);margin:6px 0 2px}
+.lastline b{color:var(--text);font-weight:600}
 .swapbtn{flex-shrink:0;background:var(--surface2);border:1px solid var(--border2);color:var(--gold);font-weight:600;font-size:13px;padding:8px 12px;border-radius:9px;cursor:pointer;font-family:'Inter'}
 #wizBar{border-top:1px solid var(--border);background:rgba(245,243,238,.97);padding:10px 22px calc(env(safe-area-inset-bottom) + 12px);display:flex;justify-content:space-between;align-items:center}
 #wizBar button{background:none;border:none;color:var(--text);font-size:14px;font-weight:600;cursor:pointer;padding:8px 4px}
@@ -195,7 +207,7 @@ nav button.on{color:var(--gold)}
   <div class="card">
     <h2>Working Maxes <span class="wt">est. 1RM</span></h2>
     <div id="maxList"></div>
-    <p class="mut" style="margin-top:10px">Every % in the program computes off these. Log a heavy set on Test day and the app estimates your 1RM. Or set manually below.</p>
+    <p class="mut" style="margin-top:10px">Every % in the program computes off these. Enter your max for each lift and the workouts fill in with the right weights. Beat a max in a session and it updates automatically.</p>
     <label class="f">Set a max manually</label>
     <div class="row">
       <div><select id="mxLift"><option value="belt_squat">Belt Squat</option><option value="press">Vertical Press</option><option value="trap_bar">Trap-Bar DL</option><option value="bench">Bench</option></select></div>
@@ -215,7 +227,7 @@ nav button.on{color:var(--gold)}
     <h2>Program</h2>
     <label class="f" style="margin-top:0">Program week</label>
     <select id="pWeek" onchange="setWeek(+this.value)">
-      <option value="1">Week 1 — Eccentric (establish maxes)</option>
+      <option value="1">Week 1 — Eccentric</option>
       <option value="2">Week 2 — Eccentric</option>
       <option value="3">Week 3 — Isometric</option>
       <option value="4">Week 4 — Isometric</option>
@@ -353,35 +365,32 @@ function buildDay(week,dow){
    6:{focus:'Upper Strength + Run',primary:'bench',iron:true,run:true},0:null}[dow];
   if(!D)return null;
   const blocks=[];
-  blocks.push({t:'check',key:'activation',cat:'Prep',name:'CS Activation',rx:'6 movements ×8',
-    html:`<span class="ct">Eye → knee level · 2-2-2-2 tempo</span>`+CS_ACT.map(([n,b])=>`<div class="mvrow"><span class="mn"><a target="_blank" rel="noopener" href="${VID_ACT}">${n}</a></span><span class="mr"><b>8</b> · ${b} band</span></div>`).join('')+`<div style="margin-top:10px"><a class="vb" target="_blank" rel="noopener" href="${VID_ACT}">Follow-along</a></div>`});
-  if(D.hip)blocks.push({t:'check',key:'hip',cat:'Prep · Hips',name:'Hip Stability Sequence',rx:'4 movements',
-    html:`<span class="ct">Squat U — stability-biased</span>`+HIP.map(([n,r,u])=>`<div class="mvrow"><span class="mn"><a target="_blank" rel="noopener" href="${u}">${n}</a></span><span class="mr"><b>${r}</b></span></div>`).join('')});
+  blocks.push({t:'circuit',key:'activation',cat:'Prep',name:'CS Activation',rx:'6 movements ×8',
+    html:`<span class="ct">Eye → knee level · 2-2-2-2 tempo</span><div style="margin-top:6px"><a class="vb" target="_blank" rel="noopener" href="${VID_ACT}">Follow-along</a></div>`,
+    items:CS_ACT.map(([n,b])=>[n,`<b>8</b> · ${b} band`,VID_ACT])});
+  if(D.hip)blocks.push({t:'circuit',key:'hip',cat:'Prep · Hips',name:'Hip Stability Sequence',rx:'4 movements',
+    html:`<span class="ct">Squat U — stability-biased</span>`,items:HIP.map(([n,r,u])=>[n,`<b>${r}</b>`,u])});
   if(D.primary){
-    if(week===1){
-      blocks.push({t:'heavy5',key:'primary',cat:'Strength · Primary',lift:D.primary,swap:D.primary,name:LIFTNAME[D.primary],rx:'Work to a heavy 5',
-        html:`<span class="ct">Week 1 · establish your max</span>Warm up, then work to a <b>heavy 5</b> — hard but clean, not a grind. The app estimates your 1RM from it and every % after keys off that.\n\nTempo this week: controlled, quality reps.`});
-    } else {
-      const rx=primaryRx(week,D.primary);
-      blocks.push({t:'primary',key:'primary',cat:`Strength · ${ph.name}`,lift:D.primary,swap:D.primary,rxObj:rx,name:LIFTNAME[D.primary],
-        rx:`${rx.sets}×${rx.reps} @ ${rx.pct}%`,tempo:rx.tempo,html:isPeak?peakHtml(D.primary):`<span class="ct">${ph.name} — tempo is the point</span>`});
-    }
+    const rx=primaryRx(week,D.primary);
+    blocks.push({t:'primary',key:'primary',cat:`Strength · ${ph.name}`,lift:D.primary,swap:D.primary,rxObj:rx,name:LIFTNAME[D.primary],
+      rx:`${rx.sets}×${rx.reps} @ ${rx.pct}%`,tempo:rx.tempo,html:isPeak?peakHtml(D.primary):`<span class="ct">${ph.name} — tempo is the point</span>`});
   }
   if(D.primary&&!isPeak&&!isDeload){
     const acc={belt_squat:[['Romanian Deadlift','3×8 @ RPE 7',VID.rdl],['Walking Lunge','3×10/leg',VID.lunge]],
       trap_bar:[['Belt Squat (secondary)','3×8 @ RPE 7',VID.belt_squat],['Nordic / Ham Curl','3×8',VID.nordic]],
       press:[['Weighted Pull-Up','4×6',VID.pullup],['DB Incline Press','3×10',VID.incdb],['Curl + Face Pull','3×12 ea',yts('face pull')]],
       bench:[['Bent-Over Row','4×8',VID.row],['DB Shoulder Press','3×10',yts('dumbbell shoulder press')]]}[D.primary];
-    blocks.push({t:'acc',key:'acc',cat:'Strength · Accessory',name:'Accessory Work',rx:`${acc.length} lifts`,
-      html:acc.map(([n,r,u])=>`<div class="mvrow"><span class="mn"><a target="_blank" rel="noopener" href="${u}">${n}</a></span><span class="mr"><b>${r}</b></span></div>`).join('')});
+    acc.forEach(([n,r,u],i)=>{const m=r.match(/(\d+)×(\d+)/);
+      blocks.push({t:'sets',key:'acc'+i,cat:'Strength · Accessory',name:n,rx:r,vid:u,rxObj:{sets:m?+m[1]:3,reps:m?+m[2]:8}});});
   }
   if(D.primary&&!isDeload&&!isPeak){const f=FINISH[{1:'mon',3:'wed',5:'fri'}[dow]];
     if(f)blocks.push({t:'check',key:'finish',cat:'Capacity',name:f.name+' Finisher',rx:'timed',html:`<div class="rxtext" style="margin:0">${f.rx}</div>`});}
   if(D.cond){const c=CONDITION[D.cond];
     blocks.push({t:'cond',key:'cond',cat:'Conditioning',name:c.name,swap:'conditioning',mod:c.mod,rx:'log result',html:`<div class="rxtext" style="margin:0 0 8px">${c.rx}</div>`});}
   if(D.run)blocks.push({t:'cond',key:'run',cat:'Conditioning · Run',name:'Run',swap:'conditioning',mod:'Run',rx:'log result',html:`<div class="rxtext" style="margin:0 0 8px">3–4 miles moderate, OR 6×400m if legs are fresh.</div>`});
-  if(D.iron)blocks.push({t:'check',key:'iron',cat:'Shoulder',name:'Iron Scap',rx:'7 movements · after',
-    html:`<span class="ct">Controlled tempo · ATYT fast</span>`+IRON.map(([n,r])=>`<div class="mvrow"><span class="mn"><a target="_blank" rel="noopener" href="${VID_IRON}">${n}</a></span><span class="mr"><b>${r}</b></span></div>`).join('')+`<div style="margin-top:10px"><a class="vb" target="_blank" rel="noopener" href="${VID_IRON}">Protocol demo</a></div>`});
+  if(D.iron)blocks.push({t:'circuit',key:'iron',cat:'Shoulder',name:'Iron Scap',rx:'7 movements · after',
+    html:`<span class="ct">Controlled tempo · ATYT fast</span><div style="margin-top:6px"><a class="vb" target="_blank" rel="noopener" href="${VID_IRON}">Protocol demo</a></div>`,
+    items:IRON.map(([n,r])=>[n,`<b>${r}</b>`,VID_IRON])});
   const title=isDeload&&(dow===5||dow===6)?`Retest — ${D.focus}`:D.focus;
   return {focus:title,dow,week,phase:ph,blocks,hasStrength:!!D.primary};
 }
@@ -437,19 +446,29 @@ function renderToday(){
   html+=`</div>`;body.innerHTML=html;
 }
 
+function lastFor(name){
+  for(let i=SESS.length-1;i>=0;i--){const bl=SESS[i].blocks||{};
+    for(const k in bl){const b=bl[k];if(b&&b.name===name&&Array.isArray(b.sets)){
+      const done=b.sets.filter(s=>s&&(+s.lb>0));if(!done.length)continue;
+      const top=done.reduce((a,s)=>(e1rm(+s.lb,+s.reps)>e1rm(+a.lb,+a.reps)?s:a));
+      return {lb:+top.lb,reps:+top.reps,date:SESS[i].session_date};}}}
+  return null;}
+
 const Wiz={
  plan:null,i:0,res:{},t0:null,active:false,saving:false,editId:null,
  open(dow){this.plan=buildDay(programWeek(),dow);if(!this.plan)return;
-   this.i=0;this.res={done:{},sets:{},logs:{}};this.t0=Date.now();this.active=true;this.saving=false;this.editId=null;
+   this.i=0;this.res={done:{},sets:{},logs:{},circ:{}};this.t0=Date.now();this.active=true;this.saving=false;this.editId=null;
    for(const b of this.plan.blocks){if(b.t==='primary'){const rx=b.rxObj,w=wtFromMax(MAXES[b.lift]?.working_max,rx.pct);
      this.res.sets[b.key]=Array.from({length:rx.sets},()=>({reps:rx.reps,lb:w||'',done:false}));}
-     if(b.t==='heavy5')this.res.sets[b.key]=[{reps:5,lb:'',done:false}];}
+     if(b.t==='heavy5')this.res.sets[b.key]=[{reps:5,lb:'',done:false}];
+     if(b.t==='sets'){const last=lastFor(b.name);this.res.sets[b.key]=Array.from({length:b.rxObj.sets},()=>({reps:b.rxObj.reps,lb:last?last.lb:'',done:false}));}
+     if(b.t==='circuit')this.res.circ[b.key]=b.items.map(()=>false);}
    $('wiz').classList.add('on');this.render();},
  close(){this.active=false;$('wiz').classList.remove('on');$('tsheet').classList.remove('on');},
  steps(){return this.plan.blocks.length+1;},
  nav(d){this.capture();this.i=Math.min(this.steps()-1,Math.max(0,this.i+d));this.render();},
  capture(){const b=this.plan.blocks[this.i];if(!b)return;
-   if(b.t==='primary'||b.t==='heavy5')this.res.sets[b.key].forEach((s,j)=>{const r=$(`in-r${j}`),l=$(`in-l${j}`);if(r)s.reps=+r.value||0;if(l)s.lb=+l.value||0;});
+   if(b.t==='primary'||b.t==='heavy5'||b.t==='sets')this.res.sets[b.key].forEach((s,j)=>{const r=$(`in-r${j}`),l=$(`in-l${j}`);if(r)s.reps=+r.value||0;if(l)s.lb=+l.value||0;});
    if(b.t==='acc'){const n=$('in-accnote');if(n)this.res.logs.acc=n.value;}
    if(b.t==='cond'){const n=$('in-condnote');if(n)this.res.logs[b.key]=n.value;const m=$('in-condmod');if(m)this.res['mod_'+b.key]=m.value;}},
  render(){
@@ -466,27 +485,35 @@ const Wiz={
        <h3 style="flex:1">${swapName||b.name}</h3>${b.swap?`<button class="swapbtn" onclick="Wiz.openSwap('${b.swap}','${b.key}')">⇄ Swap</button>`:''}</div>`;
    if(b.tempo)html+=`<div class="subhead">Tempo <span class="tempo">${b.tempo}</span> &nbsp;(ecc-iso-con-pause sec)</div>`;
    if(b.html)html+=b.html.startsWith('<span')||b.html.startsWith('<div')?`<div class="rxtext">${b.html}</div>`:b.html;
-   if(b.t==='primary'||b.t==='heavy5'){
+   if(b.t==='primary'||b.t==='heavy5'||b.t==='sets'){
      if(b.t==='primary'){const mx=MAXES[b.lift]?.working_max;
        html+=mx?`<div class="target">Working weight: <b>${wtFromMax(mx,b.rxObj.pct)} lb</b> &nbsp;·&nbsp; ${b.rxObj.pct}% of ${Math.round(mx)}</div>`
          :`<div class="target">No max for ${LIFTNAME[b.lift]} yet — enter weights manually, or set a max in the Maxes tab.</div>`;}
+     if(b.t==='sets')html+=`<div class="subhead">Rx <span class="tempo">${b.rx}</span></div>`;
+     const last=lastFor(swapName||b.name);
+     if(last)html+=`<div class="lastline">Last: <b>${last.lb} × ${last.reps}</b> · ${fmtD(last.date)}</div>`;
      const vids={belt_squat:VID.belt_squat,trap_bar:VID.trap_bar,press:VID.press,bench:VID.bench};
-     if(vids[b.lift]&&!swapName)html+=`<div style="margin-bottom:10px"><a class="vb" target="_blank" rel="noopener" href="${vids[b.lift]}">Form</a></div>`;
+     const vurl=b.vid||(vids[b.lift]&&!swapName?vids[b.lift]:null);
+     if(vurl)html+=`<div style="margin-bottom:10px"><a class="vb" target="_blank" rel="noopener" href="${vurl}">Form</a></div>`;
      html+=`<div class="sethead"><span>Set</span><span>Reps</span><span>Lb</span><span></span></div>`;
      this.res.sets[b.key].forEach((s,j)=>{html+=`<div class="setrow"><div class="n">${j+1}</div>
        <input id="in-r${j}" type="number" inputmode="numeric" value="${s.reps}">
        <input id="in-l${j}" type="number" inputmode="numeric" value="${s.lb}">
        <button class="setcirc${s.done?' on':''}" onclick="Wiz.togSet('${b.key}',${j},this)">✓</button></div>`;});
-     if(b.t==='primary')html+=`<div style="display:flex;gap:8px;margin-top:6px"><button class="ghost" style="flex:1;padding:9px" onclick="Wiz.addSet('${b.key}')">+ Set</button><button class="ghost" style="flex:1;padding:9px" onclick="Wiz.rmSet('${b.key}')">− Set</button></div>`;
+     if(b.t==='primary'||b.t==='sets')html+=`<div style="display:flex;gap:8px;margin-top:6px"><button class="ghost" style="flex:1;padding:9px" onclick="Wiz.addSet('${b.key}')">+ Set</button><button class="ghost" style="flex:1;padding:9px" onclick="Wiz.rmSet('${b.key}')">− Set</button></div>`;
    }
-   if(b.t==='acc')html+=`<label class="f">Log (optional)</label><input type="text" id="in-accnote" value="${this.res.logs.acc||''}" placeholder="weights used">`;
+   if(b.t==='circuit'){const d=this.res.circ[b.key];
+     html+=`<div style="margin-top:10px">`;
+     b.items.forEach(([n,r,u],j)=>{html+=`<div class="circrow${d[j]?' on':''}" id="circ-${b.key}-${j}"><div class="cn">${j+1}</div><div class="cl"><a target="_blank" rel="noopener" href="${u}">${n}</a></div><div class="cr">${r}</div><button class="setcirc${d[j]?' on':''}" onclick="Wiz.togCirc('${b.key}',${j},this)">✓</button></div>`;});
+     html+=`</div>`;}
    if(b.t==='cond')html+=`<label class="f">Modality</label><select id="in-condmod">${SUBS.conditioning.map(o=>`<option${(this.res['mod_'+b.key]||b.mod)===o.name?' selected':''}>${o.name}</option>`).join('')}</select>
        <label class="f">Result</label><input type="text" id="in-condnote" value="${this.res.logs[b.key]||''}" placeholder="time, distance, cal, avg HR">`;
-   if(b.t==='check'||b.t==='cond'||b.t==='acc'){const on=this.res.done[b.key];
+   if(b.t==='check'||b.t==='cond'){const on=this.res.done[b.key];
      html+=`<button class="primary${on?' done':''}" style="margin-top:16px" onclick="Wiz.markDone('${b.key}',this)">${on?'Completed ✓':'Mark as completed'}</button>`;}
    body.innerHTML=html;$('wizBody').scrollTop=0;
  },
  togSet(key,j,el){this.capture();const s=this.res.sets[key][j];s.done=!s.done;el.classList.toggle('on',s.done);},
+ togCirc(key,j,el){const d=this.res.circ[key];d[j]=!d[j];el.classList.toggle('on',d[j]);const row=$(`circ-${key}-${j}`);if(row)row.classList.toggle('on',d[j]);},
  addSet(key){this.capture();const a=this.res.sets[key],l=a[a.length-1]||{reps:3,lb:''};a.push({reps:l.reps,lb:l.lb,done:false});this.render();},
  rmSet(key){this.capture();const a=this.res.sets[key];if(a.length>1){a.pop();this.render();}},
  markDone(key,el){this.capture();this.res.done[key]=!this.res.done[key];el.textContent=this.res.done[key]?'Completed ✓':'Mark as completed';el.classList.toggle('done',this.res.done[key]);},
@@ -504,16 +531,18 @@ const Wiz={
    const chosenDate=$('in-date')?$('in-date').value:new Date().toISOString().slice(0,10);
    const p=this.plan,r=this.res;const dur=Math.max(1,Math.round((Date.now()-this.t0)/60000));
    let vol=0,reps=0;const newMaxes=[];
-   for(const b of p.blocks){if(b.t==='primary'||b.t==='heavy5'){const sets=r.sets[b.key]||[];let bestE=0;
+   for(const b of p.blocks){if(b.t==='primary'||b.t==='heavy5'||b.t==='sets'){const sets=r.sets[b.key]||[];let bestE=0;
      sets.forEach(s=>{const counts=(b.t==='heavy5')||s.done;if(counts){vol+=(+s.reps||0)*(+s.lb||0);reps+=(+s.reps||0);const e=e1rm(+s.lb||0,+s.reps||0);if(e>bestE)bestE=e;}});
-     if(bestE>0){const cur=MAXES[b.lift]?.working_max||0;if(bestE>cur)newMaxes.push([b.lift,bestE]);}}}
-   const blocksLog={};for(const b of p.blocks)blocksLog[b.key]={name:(r.swapName&&r.swapName[b.key])||b.name,done:!!r.done[b.key],sets:r.sets[b.key]||null,log:r.logs[b.key]||(b.key==='acc'?r.logs.acc:null)||null,mod:r['mod_'+b.key]||null};
+     if(bestE>0&&b.lift){const cur=MAXES[b.lift]?.working_max||0;if(bestE>cur)newMaxes.push([b.lift,bestE]);}}}
+   const blocksLog={};for(const b of p.blocks)blocksLog[b.key]={name:(r.swapName&&r.swapName[b.key])||b.name,
+     done:b.t==='circuit'?(r.circ[b.key]||[]).every(Boolean):(b.t==='sets'?(r.sets[b.key]||[]).some(s=>s.done):!!r.done[b.key]),
+     sets:r.sets[b.key]||null,circ:r.circ[b.key]||null,log:r.logs[b.key]||null,mod:r['mod_'+b.key]||null};
    const payload={session_date:chosenDate,program_week:p.week,day_dow:p.dow,title:p.focus,phase:p.phase.key,blocks:blocksLog,volume_lb:vol,reps,duration_min:dur,rpe:r.rpe,notes:r.notes};
    try{
      if(this.editId)await api('/lift_sessions?id=eq.'+this.editId,{method:'PATCH',body:JSON.stringify(payload)});
      else await api('/lift_sessions',{method:'POST',body:JSON.stringify(payload)});
      for(const [lift,e] of newMaxes){
-       await api('/lift_maxes?lift=eq.'+lift,{method:'POST',headers:{'Prefer':'resolution=merge-duplicates'},body:JSON.stringify({lift,working_max:e,method:p.week===1?'heavy_5':'auto',updated_at:new Date().toISOString()})});
+       await api('/lift_maxes?lift=eq.'+lift,{method:'POST',headers:{'Prefer':'resolution=merge-duplicates'},body:JSON.stringify({lift,working_max:e,method:'auto',updated_at:new Date().toISOString()})});
        await api('/lift_prs',{method:'POST',body:JSON.stringify({lift,kind:'e1rm',value:e,achieved_on:chosenDate})});}
    }catch(e){this.saving=false;toast('Save failed — retry');return;}
    this.active=false;
@@ -532,7 +561,7 @@ const Wiz={
 
 function renderProg(){
   $('pWeek').value=programWeek();
-  const lifts=[['belt_squat','Belt Squat','heavy-5 or tested'],['press','Vertical Press','heavy-5 or tested'],['trap_bar','Trap-Bar Deadlift','heavy-5 or tested'],['bench','Bench Press','heavy-5 or tested']];
+  const lifts=[['belt_squat','Belt Squat','entered or auto-updated'],['press','Vertical Press','entered or auto-updated'],['trap_bar','Trap-Bar Deadlift','entered or auto-updated'],['bench','Bench Press','entered or auto-updated']];
   $('maxList').innerHTML=lifts.map(([k,n,d])=>{const m=MAXES[k];
     return `<div class="maxrow"><div class="mn">${n}<small>${m?('via '+(m.method||'log')+' · '+fmtD(m.updated_at.slice(0,10))):d}</small></div><div class="mv${m?'':' empty'}">${m?Math.round(m.working_max)+' lb':'not set'}</div></div>`;}).join('');
 }
@@ -569,9 +598,10 @@ function renderStats(){
     <div class="chartmeta"><span>${fmtD(first)}</span><span>${fmtD(last)}</span></div></div>
   <div class="card"><h2>Session Log</h2>`;
   [...done].reverse().forEach(s=>{const d=new Date(s.session_date+'T12:00').toLocaleDateString('en-US',{weekday:'short',month:'numeric',day:'numeric'});
-    const pr=s.blocks?.primary;const pset=pr&&pr.sets?pr.sets.map(x=>`${x.reps}×${x.lb}`).join(', '):'';
+    const lifts=Object.values(s.blocks||{}).filter(b=>b&&Array.isArray(b.sets)&&b.sets.some(x=>+x.lb>0||x.done));
+    const liftHtml=lifts.map(b=>`<br><b>${b.name}</b> ${b.sets.filter(x=>+x.lb>0||x.done).map(x=>`${x.reps}×${x.lb||'—'}`).join(', ')}`).join('');
     html+=`<div class="sess" onclick="this.classList.toggle('open')"><div class="top"><div class="l"><b>${d} · ${s.title||''}</b><div>${s.phase||''}${s.rpe?' · RPE '+s.rpe:''}${s.duration_min?' · '+s.duration_min+'min':''}</div></div><div class="r">${fmtN(+s.volume_lb||0)} lb</div></div>
-      <div class="det"><b>Volume</b> ${fmtN(+s.volume_lb||0)} lb · <b>Reps</b> ${s.reps||0}${pr?`<br><b>${pr.name}</b> ${pset}`:''}${s.notes?`<br><b>Notes</b> ${s.notes}`:''}
+      <div class="det"><b>Volume</b> ${fmtN(+s.volume_lb||0)} lb · <b>Reps</b> ${s.reps||0}${liftHtml}${s.notes?`<br><b>Notes</b> ${s.notes}`:''}
         <div style="display:flex;gap:8px;margin-top:10px" onclick="event.stopPropagation()"><button class="ghost" style="flex:1;padding:8px;color:var(--red);border-color:rgba(198,80,63,.3)" onclick="delSession(${s.id})">Delete</button></div></div></div>`;});
   html+=`</div>`;body.innerHTML=html;
 }
@@ -594,7 +624,7 @@ async function renderHistory(){
       <div class="sub" style="margin-top:8px">${fmtD(sum.date_from)} → ${fmtD(sum.date_to)} · imported from TrainHeroic</div></div>
     <div class="card"><h2>All-Time Bests <span class="wt">est. 1RM</span></h2>`;
     (sum.prs||[]).forEach(p=>{h+=`<div class="trow"><div class="tl"><div class="n">${p.lift}</div><div class="vv">${Math.round(p.e1rm)} lb</div></div><div class="td">${p.w}×${p.r} · ${fmtD(p.date)}</div></div>`;});
-    h+=`<p class="mut" style="margin-top:8px;font-size:12px">Reference only — your live working maxes come from your Week-1 heavy-5s.</p></div>
+    h+=`<p class="mut" style="margin-top:8px;font-size:12px">Reference only — your live working maxes are the ones you enter on the Maxes tab.</p></div>
     <div class="card"><h2>Training History <span class="wt">${rows.length} logged sessions</span></h2>`;
     rows.forEach(s=>{h+=`<div class="sess" onclick="this.classList.toggle('open')"><div class="top"><div class="l"><b>${fmtD(s.session_date)} · ${s.title||''}</b><div>${s.reps||0} reps</div></div><div class="r">${fmtN(+s.volume_lb||0)} lb</div></div>
       <div class="det">${s.highlights?s.highlights.replace(/ · /g,'<br>'):'—'}</div></div>`;});
