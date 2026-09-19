@@ -114,6 +114,9 @@ label.f{display:block;font-size:11px;font-weight:600;color:var(--muted);text-tra
 .circrow.on .cl a{color:var(--muted);text-decoration:line-through}
 .lastline{font-size:12px;color:var(--muted);margin:6px 0 2px}
 .lastline b{color:var(--text);font-weight:600}
+.cue{font-size:14px;line-height:1.45;margin-top:7px;color:var(--text)}
+.cue b{color:var(--gold);font-weight:600}
+.cue.warn b{color:var(--red)}
 .swapbtn{flex-shrink:0;background:var(--surface2);border:1px solid var(--border2);color:var(--gold);font-weight:600;font-size:13px;padding:8px 12px;border-radius:9px;cursor:pointer;font-family:'Inter'}
 #wizBar{border-top:1px solid var(--border);background:rgba(245,243,238,.97);padding:10px 22px calc(env(safe-area-inset-bottom) + 12px);display:flex;justify-content:space-between;align-items:center}
 #wizBar button{background:none;border:none;color:var(--text);font-size:14px;font-weight:600;cursor:pointer;padding:8px 4px}
@@ -340,11 +343,47 @@ function primaryRx(week,lift){
     trap_bar:{ecc:'6-0-X-1',iso:'pause below knee',con:'X explosive'},
     press:{ecc:'5-0-X-1',iso:'3-2-X-1',con:'2-0-X-0'},
     bench:{ecc:'5-0-X-1',iso:'3-2-X-1 (pause on chest)',con:'2-0-X-0'}}[lift];
-  if(p==='eccentric')return {sets:5,reps:3,pct:80,tempo:T.ecc};
-  if(p==='isometric')return {sets:5,reps:3,pct:84,tempo:T.iso};
-  if(p==='concentric')return {sets:6,reps:3,pct:80,tempo:T.con+' · max intent'};
+  // Dietz: every triphasic block lives ABOVE 80%; intensity climbs through each 2-week block,
+  // and the concentric (reactive) block carries the heaviest loads to express the strength built.
+  if(p==='eccentric')return week===1?{sets:5,reps:3,pct:80,tempo:T.ecc}:{sets:5,reps:3,pct:82.5,tempo:T.ecc};
+  if(p==='isometric')return week===3?{sets:4,reps:3,pct:82.5,tempo:T.iso}:{sets:4,reps:2,pct:85,tempo:T.iso};
+  if(p==='concentric')return week===5?{sets:4,reps:2,pct:85,tempo:T.con+' · max intent'}:{sets:3,reps:2,pct:87.5,tempo:T.con+' · max intent'};
   if(p==='peak')return {sets:3,reps:2,pct:85,tempo:'contrast'};
   return {sets:2,reps:5,pct:60,tempo:'normal'};
+}
+function phaseCues(pk,lift){
+  const L={belt_squat:'Belt Squat',trap_bar:'Trap-Bar Deadlift',press:'Vertical Press',bench:'Bench Press'}[lift];
+  const ecc={belt_squat:'Sit back and down evenly, knees tracking over toes, tension in the belt the whole way. No bounce at the bottom — control it all the way down, then drive up hard.',
+    trap_bar:'Hinge and bend the knees together, bar close, chest up. Lower it like you\'re setting it down quietly — plates kiss the floor, never slam. Re-brace before every rep.',
+    press:'Lower the bar to the collarbone on a 5-count. Elbows slightly forward, ribs down, glutes tight. Drive up fast and push your head through at the top.',
+    bench:'5-count down to the chest, elbows about 45°, shoulder blades pinned. Touch — no bounce off the chest — then explode up.'}[lift];
+  const iso={belt_squat:'Hold dead-still at parallel or just below. Stay tight — no sinking, no relaxing — then explode out.',
+    trap_bar:'Pause 2 seconds with the bar just off the floor, below the knee. It does not touch down. Hold the position, then rip it.',
+    press:'Pause 2 seconds with the bar on the collarbone, fully braced. Then drive.',
+    bench:'Pause 2 seconds on the chest, no sinking into it. Then punch it up.'}[lift];
+  const con={belt_squat:'Quick controlled lower, no pause, then move as fast as you physically can out of the hole. Every rep is a max-speed rep.',
+    trap_bar:'Dead stop on the floor each rep. Reset your brace, then rip it — think "drive the floor away," not "lift the bar."',
+    press:'Quick lower, no pause, then punch the bar overhead as fast as possible. Speed is the goal, not grinding.',
+    bench:'Quick lower, touch, then throw it. Maximum intent on every rep even though the bar is heavy.'}[lift];
+  if(pk==='eccentric')return `<span class="ct">Eccentric — the slow lower IS the work</span>
+    <div class="cue"><b>Why:</b> Building the ability to absorb and control force. This is where the whole program's strength gets loaded in.</div>
+    <div class="cue"><b>How:</b> Count the lower out — the full ${lift==='press'||lift==='bench'?'5':'6'} seconds, don't rush the last third. No pause at the bottom; drive up as fast as you can (the X). One second to reset and brace at the top, then go.</div>
+    <div class="cue"><b>${L}:</b> ${ecc}</div>
+    <div class="cue warn"><b>Load check:</b> Rep 1 feels light — that's fine. If you can't hold the full count on the last rep, drop 5%. Losing the tempo defeats the phase.</div>`;
+  if(pk==='isometric')return `<span class="ct">Isometric — own the sticking point</span>
+    <div class="cue"><b>Why:</b> Strength at the hardest joint angle. This builds the position where lifts usually stall.</div>
+    <div class="cue"><b>How:</b> Controlled 3-count lower, then a dead-still 2-second hold at the bottom. Nothing moves, nothing relaxes. Then explode up.</div>
+    <div class="cue"><b>${L}:</b> ${iso}</div>
+    <div class="cue warn"><b>Load check:</b> The hold is the hard part. If you drift or bounce, the weight is too heavy for the phase — drop 5%.</div>`;
+  if(pk==='concentric')return `<span class="ct">Concentric — express it. Bar speed is everything</span>
+    <div class="cue"><b>Why:</b> Converting the strength from the first four weeks into power. This block carries the heaviest loads on purpose.</div>
+    <div class="cue"><b>How:</b> Quick 2-count lower, no pause, then move the bar as FAST as possible. Think "throw it." Full rest between sets so every rep is fast.</div>
+    <div class="cue"><b>${L}:</b> ${con}</div>
+    <div class="cue warn"><b>Load check:</b> If the bar slows to a grind, you've lost the point — that rep is done, cut the set.</div>`;
+  if(pk==='deload')return `<span class="ct">Deload — crisp and easy</span>
+    <div class="cue"><b>How:</b> Normal tempo, 60%, sharp clean reps. Leave plenty in the tank — you're recovering into your retest, not training.</div>
+    <div class="cue"><b>Retest days:</b> Friday and Saturday this week work up to a true heavy set on each lift and enter the new number on the Maxes tab. That seeds the next cycle.</div>`;
+  return '';
 }
 const LIFTNAME={belt_squat:'Belt Squat',trap_bar:'Trap-Bar Deadlift',press:'Vertical Press',bench:'Bench Press'};
 const FINISH={
@@ -373,7 +412,7 @@ function buildDay(week,dow){
   if(D.primary){
     const rx=primaryRx(week,D.primary);
     blocks.push({t:'primary',key:'primary',cat:`Strength · ${ph.name}`,lift:D.primary,swap:D.primary,rxObj:rx,name:LIFTNAME[D.primary],
-      rx:`${rx.sets}×${rx.reps} @ ${rx.pct}%`,tempo:rx.tempo,html:isPeak?peakHtml(D.primary):`<span class="ct">${ph.name} — tempo is the point</span>`});
+      rx:`${rx.sets}×${rx.reps} @ ${rx.pct}%`,tempo:rx.tempo,html:isPeak?peakHtml(D.primary):phaseCues(ph.key,D.primary)});
   }
   if(D.primary&&!isPeak&&!isDeload){
     const acc={belt_squat:[['Romanian Deadlift','3×8 @ RPE 7',VID.rdl],['Walking Lunge','3×10/leg',VID.lunge]],
@@ -398,7 +437,8 @@ function peakHtml(lift){const c={belt_squat:'Belt Squat 3×2 @85% → Box Jump �
    trap_bar:'Trap-Bar 3×2 @85% → KB Swing ×5 → Vertical Jump ×3 · 4 rounds',
    press:'Vertical Press 3×2 @85% → Explosive Push-Up ×3 → Med-Ball Chest Throw ×5 · 4 rounds',
    bench:'Bench 3×2 @85% → Plyo Push-Up ×3 → Med-Ball Slam ×5 · 4 rounds'}[lift];
-  return `<span class="ct">French contrast — heavy → explosive → plyo</span><div class="rxtext" style="margin:0">${c}</div>`;}
+  return `<span class="ct">French contrast — heavy → explosive → plyo</span><div class="rxtext" style="margin:0">${c}</div>
+    <div class="cue"><b>How:</b> Do the heavy set, then go straight into the explosive pairings with minimal rest between them — the heavy lift primes the fast ones. Then rest a full 2–3 minutes before the next round. Every explosive rep is max effort.</div>`;}
 
 let STATE=null,MAXES={},selDow=null,SESS=[],PRS=[];
 const $=id=>document.getElementById(id);
