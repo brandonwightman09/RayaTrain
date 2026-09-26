@@ -113,6 +113,22 @@ label.f{display:block;font-size:11px;font-weight:600;color:var(--muted);text-tra
 .circrow .setcirc{flex-shrink:0}
 .circrow.on .cl a{color:var(--muted);text-decoration:line-through}
 .lastline{font-size:12px;color:var(--muted);margin:6px 0 2px}
+.blk{cursor:pointer}.blk .chev{margin-left:auto;color:var(--faint);font-size:12px;flex-shrink:0;align-self:center;transition:transform .15s}
+.blk.open .chev{transform:rotate(90deg)}
+.blkdet{display:none;padding:0 2px 14px 52px;border-bottom:1px solid var(--border);font-size:13.5px;line-height:1.5;color:var(--text)}
+.blkdet.on{display:block}
+.blkdet .pl{display:flex;justify-content:space-between;gap:8px;padding:4px 0;border-bottom:1px dashed var(--border)}
+.blkdet .pl:last-child{border-bottom:0}.blkdet .pl b{font-weight:600}.blkdet .pl span:last-child{color:var(--gold);font-weight:600;white-space:nowrap}
+.blkdet .hint{font-size:12px;color:var(--muted);margin-top:6px}
+.sugg{font-size:12px;color:var(--muted);margin:2px 0 6px}.sugg b{color:var(--gold);font-weight:600}
+.caprow{display:grid;grid-template-columns:1fr 64px 72px;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)}
+.caprow .cn{font-size:14px;font-weight:500}.caprow .cn small{display:block;font-size:11px;color:var(--muted);font-weight:400}
+.caprow input{width:100%;padding:8px 6px;font-size:15px;text-align:center;border:1px solid var(--border2);border-radius:8px;background:var(--field);color:var(--text)}
+.caphead{display:grid;grid-template-columns:1fr 64px 72px;gap:8px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-top:12px}
+.captime{display:flex;gap:8px;align-items:center;margin-top:12px}.captime input{width:72px;padding:10px 6px;font-size:18px;text-align:center;border:1px solid var(--border2);border-radius:8px;background:var(--field);color:var(--text);font-weight:600}
+.captime .lb{font-size:12px;color:var(--muted)}
+.capsum{display:flex;gap:14px;margin-top:10px}.capsum div{flex:1;background:var(--surface2);border-radius:10px;padding:8px 10px}.capsum .l{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}.capsum .v{font-size:18px;font-weight:700;font-family:'Barlow Condensed'}.capsum .d{font-size:11px;color:var(--muted)}
+.capsum .d.up{color:var(--green)}.capsum .d.dn{color:var(--red)}
 .lastline b{color:var(--text);font-weight:600}
 .cue{font-size:14px;line-height:1.45;margin-top:7px;color:var(--text)}
 .cue b{color:var(--gold);font-weight:600}
@@ -431,9 +447,30 @@ function phaseCues(pk,lift){
 }
 const LIFTNAME={belt_squat:'Belt Squat',trap_bar:'Trap-Bar Deadlift',press:'Vertical Press',bench:'Bench Press'};
 const FINISH={
- mon:{name:'Sandbag',rx:'5 rounds: 10 sandbag shoulder / 10 sandbag front squat / 200m carry'},
- wed:{name:'Chipper',rx:'For time: 40 push-ups / 40 walking lunges / 40 sit-ups / 40 air squats'},
- fri:{name:'Suitcase',rx:'5 rounds: 8 suitcase DL/side / 15 KB swings / 15 cal bike'}};
+ mon:{name:'Sandbag',rx:'5 rounds: 10 sandbag shoulder / 10 sandbag front squat / 200m carry',rounds:5,
+   moves:[{n:'Sandbag Shoulder',reps:10,load:1},{n:'Sandbag Front Squat',reps:10,load:1},{n:'Sandbag Carry',reps:1,unit:'200m',load:1}]},
+ wed:{name:'Chipper',rx:'For time: 40 push-ups / 40 walking lunges / 40 sit-ups / 40 air squats',rounds:1,
+   moves:[{n:'Push-Up',reps:40,load:1,bw:1},{n:'Walking Lunge',reps:40,load:1,bw:1},{n:'Sit-Up',reps:40,load:1,bw:1},{n:'Air Squat',reps:40,load:1,bw:1}]},
+ fri:{name:'Suitcase',rx:'5 rounds: 8 suitcase DL/side / 15 KB swings / 15 cal bike',rounds:5,
+   moves:[{n:'Suitcase Deadlift',reps:16,unit:'8/side',load:1},{n:'KB Swing',reps:15,load:1},{n:'Echo Bike',reps:15,unit:'15 cal',load:0}]}};
+// ---- weight suggestions for accessories (any lift with a set table) ----
+const SEED={'Romanian Deadlift':['trap_bar',.55],'Walking Lunge':['belt_squat',.15],'Belt Squat (secondary)':['belt_squat',.6],'Nordic / Ham Curl':[null,0],
+  'Weighted Pull-Up':[null,0],'DB Incline Press':['bench',.25],'Curl + Face Pull':['press',.15],'Bent-Over Row':['bench',.5],'DB Shoulder Press':['press',.22]};
+const LOWER=/deadlift|squat|lunge|nordic|ham/i;
+function lastBlock(name){for(let i=SESS.length-1;i>=0;i--){const bl=SESS[i].blocks||{};for(const k in bl){const b=bl[k];if(b&&b.name===name&&Array.isArray(b.sets)&&b.sets.some(s=>+s.lb>0))return {b,date:SESS[i].session_date};}}return null;}
+function suggestFor(name,rxObj){
+  const L=lastBlock(name);
+  if(L){const done=L.b.sets.filter(s=>s.done&&+s.lb>0);const lb=Math.max(...L.b.sets.map(s=>+s.lb||0));
+    const hit=done.length>=(rxObj?rxObj.sets:1)&&done.every(s=>+s.reps>=(rxObj?rxObj.reps:1));
+    const inc=LOWER.test(name)?10:5;
+    return hit?{lb:lb+inc,why:`+${inc} — hit all ${rxObj?rxObj.sets+'×'+rxObj.reps:'sets'} last time at ${lb}`}:{lb,why:`repeat ${lb} — missed reps last time`};}
+  const sd=SEED[name];if(sd&&sd[0]&&MAXES[sd[0]]?.working_max){const w=Math.max(5,Math.round(MAXES[sd[0]].working_max*sd[1]/5)*5);return {lb:w,why:`starting point · ${Math.round(sd[1]*100)}% of ${LIFTNAME[sd[0]]} max`};}
+  if(sd&&!sd[0])return {lb:'',why:'bodyweight to start — add load when all reps are clean'};
+  return null;}
+function lastCap(name){for(let i=SESS.length-1;i>=0;i--){const bl=SESS[i].blocks||{};for(const k in bl){const b=bl[k];if(b&&b.name===name&&b.cap&&(b.cap.time_sec||b.cap.load_lb))return {cap:b.cap,date:SESS[i].session_date};}}return null;}
+function lastCond(name){for(let i=SESS.length-1;i>=0;i--){const bl=SESS[i].blocks||{};for(const k in bl){const b=bl[k];if(b&&b.name===name&&b.log)return {log:b.log,mod:b.mod,date:SESS[i].session_date};}}return null;}
+const fmtT=sec=>sec?`${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')}`:'—';
+function capTotals(f,cap){let load=0;f.moves.forEach((m,j)=>{if(m.load)load+=(+cap.lb[j]||0)*m.reps*f.rounds;});return load;}
 const CONDITION={
  tue:{name:'Lactate Threshold',rx:'4–5 × 3:00 @ 88–92% max HR / 2:00 easy. Even splits.',mod:'Echo bike'},
  thu:{name:'Weighted Incline Walk',rx:'30–45 min @ 10–15% grade, vest, Zone 2 (nose-breathing).',mod:'Weighted incline walk'}};
@@ -467,7 +504,7 @@ function buildDay(week,dow){
       blocks.push({t:'sets',key:'acc'+i,cat:'Strength · Accessory',name:n,rx:r,vid:u,rxObj:{sets:m?+m[1]:3,reps:m?+m[2]:8}});});
   }
   if(D.primary&&!isDeload&&!isPeak){const f=FINISH[{1:'mon',3:'wed',5:'fri'}[dow]];
-    if(f)blocks.push({t:'check',key:'finish',cat:'Capacity',name:f.name+' Finisher',rx:'timed',html:`<div class="rxtext" style="margin:0">${f.rx}</div>`});}
+    if(f)blocks.push({t:'cap',key:'finish',cat:'Capacity',name:f.name+' Finisher',rx:'for time',fin:f,html:`<div class="rxtext" style="margin:0 0 4px">${f.rx}</div>`});}
   if(D.cond){const c=CONDITION[D.cond];
     blocks.push({t:'cond',key:'cond',cat:'Conditioning',name:c.name,swap:'conditioning',mod:c.mod,rx:'log result',html:`<div class="rxtext" style="margin:0 0 8px">${c.rx}</div>`});}
   if(D.run)blocks.push({t:'cond',key:'run',cat:'Conditioning · Run',name:'Run',swap:'conditioning',mod:'Run',rx:'log result',html:`<div class="rxtext" style="margin:0 0 8px">3–4 miles moderate, OR 6×400m if legs are fresh.</div>`});
@@ -540,6 +577,7 @@ function calDetailHtml(iso,logged){
           <div><span class="tick" style="background:var(--yellow)"></span><div class="lbl">Reps</div><div class="val">${s.reps||0}</div></div>
           <div><span class="tick" style="background:var(--teal)"></span><div class="lbl">Min</div><div class="val">${s.duration_min||0}</div></div></div>
         ${lifts.map(b=>`<div class="mvrow"><span class="mn">${b.name}</span><span class="mr"><b>${b.sets.filter(x=>+x.lb>0||x.done).map(x=>x.reps+'×'+(x.lb||'—')).join(', ')}</b></span></div>`).join('')}
+        ${Object.values(s.blocks||{}).filter(b=>b&&b.cap&&(b.cap.time_sec||b.cap.load_lb)).map(b=>`<div class="mvrow"><span class="mn">${b.name}</span><span class="mr"><b>${fmtT(b.cap.time_sec)} · ${fmtN(b.cap.load_lb||0)} lb</b></span></div>`).join('')}
         ${s.rpe?`<div class="sub" style="margin-top:8px">RPE ${s.rpe}${s.readiness?' · Readiness '+readinessScore(s.readiness)+'/5':''}</div>`:''}
         ${s.notes?`<div class="sub" style="margin-top:4px">${s.notes}</div>`:''}
         <div style="display:flex;gap:8px;margin-top:12px"><button class="ghost" style="flex:1;padding:9px" onclick="Wiz.openEdit(${s.id})">Edit session</button>
@@ -548,7 +586,7 @@ function calDetailHtml(iso,logged){
   const pd=programDay(iso);
   if(pd){const plan=buildDay(pd.week,pd.dow);let L2=65;
     return `<div class="card"><div class="eyebrow">${label} · Week ${pd.week} · ${plan.phase.name}</div><h2 style="margin-top:4px">${plan.focus}</h2>
-      ${plan.blocks.map(b=>`<div class="blk"><div class="badge">${String.fromCharCode(L2++)}</div><div><div class="cat">${b.cat}</div><div class="nm">${b.name}</div><div class="rx">${b.rx}</div></div></div>`).join('')}
+      ${previewHtml(plan)}
       <button class="primary" style="margin-top:14px" onclick="Wiz.open(${pd.dow},${pd.week},'${iso}')">${iso<new Date().toISOString().slice(0,10)?'Log this session':'Start session'}</button></div>`;}
   const H=CAL.hist[iso];
   if(H)return H.map(r=>`<div class="card"><div class="eyebrow">${label} · Past history</div><h2 style="margin-top:4px">${r.title||'Session'}</h2>
@@ -597,10 +635,27 @@ function renderToday(){
       <span class="phasebadge" style="background:var(${ph.col})">${ph.name}</span></div>
     <div class="big">${plan.focus}</div>
     <button class="primary" style="margin-top:16px" onclick="Wiz.open(${selDow})">Start session</button></div><div class="card">`;
-  let L=65;
-  for(const b of plan.blocks)html+=`<div class="blk"><div class="badge">${String.fromCharCode(L++)}</div><div><div class="cat">${b.cat}</div><div class="nm">${b.name}</div><div class="rx">${b.rx}${b.tempo?` · <span style="color:var(--con)">${b.tempo}</span>`:''}</div></div></div>`;
-  html+=`</div>`;body.innerHTML=html;
+  html+=previewHtml(plan)+`</div>`;body.innerHTML=html;
 }
+
+function togBlk(el){el.classList.toggle('open');const d=el.nextElementSibling;if(d)d.classList.toggle('on',el.classList.contains('open'));}
+function blockDetail(b){
+  if(b.t==='primary'){const mx=MAXES[b.lift]?.working_max,w=wtFromMax(mx,b.rxObj.pct);
+    const rows=Array.from({length:b.rxObj.sets},(_,j)=>`<div class="pl"><span>Set ${j+1}</span><span>${b.rxObj.reps} × ${w?w+' lb':'set max'}</span></div>`).join('');
+    return `${rows}<div class="hint">${w?`${b.rxObj.pct}% of ${Math.round(mx)} working max`:'No max entered yet — set it on the Maxes tab'} · tempo ${b.tempo}</div>`;}
+  if(b.t==='sets'){const sg=suggestFor(b.name,b.rxObj);const last=lastFor(b.name);
+    return `<div class="pl"><span>${b.rxObj.sets} sets × ${b.rxObj.reps}</span><span>${sg&&sg.lb!==''?sg.lb+' lb':sg?'BW':'—'}</span></div>
+      <div class="hint">${sg?sg.why:'no history yet — pick a weight you can hit every rep clean'}${last?` · last ${last.lb}×${last.reps} on ${fmtD(last.date)}`:''}</div>`;}
+  if(b.t==='circuit')return b.items.map(([n,r])=>`<div class="pl"><span>${n}</span><span>${r}</span></div>`).join('');
+  if(b.t==='cap'){const f=b.fin,lc=lastCap(b.name);const rows=f.moves.map((m,j)=>`<div class="pl"><span>${m.n}</span><span>${m.unit||m.reps}${lc&&lc.cap.lb&&+lc.cap.lb[j]?` @ ${lc.cap.lb[j]} lb`:''}</span></div>`).join('');
+    return `<div class="pl"><b>${f.rounds>1?f.rounds+' rounds':'1 round, for time'}</b><span></span></div>${rows}<div class="hint">${lc?`Last: <b>${fmtT(lc.cap.time_sec)}</b> · ${fmtN(lc.cap.load_lb||0)} lb moved · ${fmtD(lc.date)}`:'First time — log time + loads to set the mark'}</div>`;}
+  if(b.t==='cond'){const lc=lastCond(b.name);return `<div>${(b.html||'').replace(/<[^>]+>/g,'')}</div><div class="hint">${lc?`Last: <b>${lc.log}</b>${lc.mod?' · '+lc.mod:''} · ${fmtD(lc.date)}`:'No result logged yet'}</div>`;}
+  return '';}
+function previewHtml(plan){let L=65,h='';
+  for(const b of plan.blocks){const det=blockDetail(b);
+    h+=`<div class="blk" onclick="togBlk(this)"><div class="badge">${String.fromCharCode(L++)}</div><div style="flex:1"><div class="cat">${b.cat}</div><div class="nm">${b.name}</div><div class="rx">${b.rx}${b.tempo?` · <span style="color:var(--con)">${b.tempo}</span>`:''}</div></div>${det?'<div class="chev">▶</div>':''}</div>`;
+    if(det)h+=`<div class="blkdet">${det}</div>`;}
+  return h;}
 
 function lastFor(name){
   for(let i=SESS.length-1;i>=0;i--){const bl=SESS[i].blocks||{};
@@ -613,25 +668,27 @@ function lastFor(name){
 const Wiz={
  plan:null,i:0,res:{},t0:null,active:false,saving:false,editId:null,readyDone:false,
  open(dow,week,dateISO){this.plan=buildDay(week||programWeek(),dow);if(!this.plan)return;
-   this.i=0;this.res={done:{},sets:{},logs:{},circ:{},readiness:{}};this.t0=Date.now();this.active=true;this.saving=false;this.editId=null;this.readyDone=false;
+   this.i=0;this.res={done:{},sets:{},logs:{},circ:{},cap:{},readiness:{}};this.t0=Date.now();this.active=true;this.saving=false;this.editId=null;this.readyDone=false;
    if(dateISO)this.res.editDate=dateISO;
    for(const b of this.plan.blocks){if(b.t==='primary'){const rx=b.rxObj,w=wtFromMax(MAXES[b.lift]?.working_max,rx.pct);
      this.res.sets[b.key]=Array.from({length:rx.sets},()=>({reps:rx.reps,lb:w||'',done:false}));}
      if(b.t==='heavy5')this.res.sets[b.key]=[{reps:5,lb:'',done:false}];
-     if(b.t==='sets'){const last=lastFor(b.name);this.res.sets[b.key]=Array.from({length:b.rxObj.sets},()=>({reps:b.rxObj.reps,lb:last?last.lb:'',done:false}));}
+     if(b.t==='sets'){const sg=suggestFor(b.name,b.rxObj);this.res.sets[b.key]=Array.from({length:b.rxObj.sets},()=>({reps:b.rxObj.reps,lb:sg&&sg.lb!==''?sg.lb:'',done:false}));}
+     if(b.t==='cap'){const lc=lastCap(b.name);this.res.cap[b.key]={time_sec:0,lb:b.fin.moves.map((m,j)=>lc&&lc.cap.lb?(+lc.cap.lb[j]||''):'')};}
      if(b.t==='circuit')this.res.circ[b.key]=b.items.map(()=>false);}
    $('wiz').classList.add('on');this.render();},
  openEdit(id){const s=SESS.find(x=>x.id===id);if(!s)return;
    this.plan=buildDay(s.program_week||programWeek(),s.day_dow);if(!this.plan)return;
    this.i=0;this.active=true;this.saving=false;this.editId=id;this.readyDone=true;this.t0=Date.now()-((s.duration_min||0)*60000);
-   this.res={done:{},sets:{},logs:{},circ:{},readiness:s.readiness||{},rpe:s.rpe,notes:s.notes,editDate:s.session_date,swapName:{}};
+   this.res={done:{},sets:{},logs:{},circ:{},cap:{},readiness:s.readiness||{},rpe:s.rpe,notes:s.notes,editDate:s.session_date,swapName:{}};
    const bl=s.blocks||{};
    for(const b of this.plan.blocks){const L=bl[b.key]||{};
      if(L.name&&L.name!==b.name)this.res.swapName[b.key]=L.name;
      if(b.t==='primary'||b.t==='heavy5'||b.t==='sets'){this.res.sets[b.key]=Array.isArray(L.sets)&&L.sets.length?L.sets.map(x=>({reps:+x.reps||0,lb:x.lb===''?'':+x.lb||0,done:!!x.done})):
        (b.t==='sets'?Array.from({length:b.rxObj.sets},()=>({reps:b.rxObj.reps,lb:'',done:false})):[{reps:b.rxObj?b.rxObj.reps:5,lb:'',done:false}]);}
      if(b.t==='circuit')this.res.circ[b.key]=Array.isArray(L.circ)?L.circ.slice():b.items.map(()=>false);
-     if(b.t==='check'||b.t==='cond')this.res.done[b.key]=!!L.done;
+     if(b.t==='check'||b.t==='cond'||b.t==='cap')this.res.done[b.key]=!!L.done;
+     if(b.t==='cap')this.res.cap[b.key]=L.cap?{time_sec:+L.cap.time_sec||0,lb:(L.cap.lb||[]).slice()}:{time_sec:0,lb:b.fin.moves.map(()=>'')};
      if(L.log)this.res.logs[b.key]=L.log;if(L.mod)this.res['mod_'+b.key]=L.mod;}
    $('wiz').classList.add('on');this.render();toast('Editing logged session');},
  setReady(k,v){this.res.readiness[k]=v;document.querySelectorAll(`[data-rk="${k}"]`).forEach(b=>b.classList.toggle('on',+b.dataset.rv===v));},
@@ -642,6 +699,8 @@ const Wiz={
  capture(){const b=this.plan.blocks[this.i];if(!b)return;
    if(b.t==='primary'||b.t==='heavy5'||b.t==='sets')this.res.sets[b.key].forEach((s,j)=>{const r=$(`in-r${j}`),l=$(`in-l${j}`);if(r)s.reps=+r.value||0;if(l)s.lb=+l.value||0;});
    if(b.t==='acc'){const n=$('in-accnote');if(n)this.res.logs.acc=n.value;}
+   if(b.t==='cap'){const c=this.res.cap[b.key];const mm=$('in-capm'),ss=$('in-caps');if(mm)c.time_sec=(+mm.value||0)*60+(+(ss&&ss.value)||0);
+     b.fin.moves.forEach((m,j)=>{const i=$(`in-cap${j}`);if(i)c.lb[j]=i.value===''?'':+i.value||0;});}
    if(b.t==='cond'){const n=$('in-condnote');if(n)this.res.logs[b.key]=n.value;const m=$('in-condmod');if(m)this.res['mod_'+b.key]=m.value;}},
  render(){
    $('wizDots').innerHTML=Array.from({length:this.steps()},(_,j)=>`<i class="${j<this.i?'done':j===this.i?'cur':''}"></i>`).join('');
@@ -667,7 +726,7 @@ const Wiz={
      if(b.t==='primary'){const mx=MAXES[b.lift]?.working_max;
        html+=mx?`<div class="target wm-edit" onclick="Wiz.editMax('${b.lift}')">Working weight: <b>${wtFromMax(mx,b.rxObj.pct)} lb</b> &nbsp;·&nbsp; ${b.rxObj.pct}% of ${Math.round(mx)}<small>Tap to update this max</small></div>`
          :`<div class="target wm-edit" onclick="Wiz.editMax('${b.lift}')">No max for ${LIFTNAME[b.lift]} yet — <b style="font-size:15px">tap to set one</b><small>Percentages fill in once it's set</small></div>`;}
-     if(b.t==='sets')html+=`<div class="subhead">Rx <span class="tempo">${b.rx}</span></div>`;
+     if(b.t==='sets'){html+=`<div class="subhead">Rx <span class="tempo">${b.rx}</span></div>`;const sg=suggestFor(swapName||b.name,b.rxObj);if(sg)html+=`<div class="sugg">Suggested: <b>${sg.lb===''?'bodyweight':sg.lb+' lb'}</b> · ${sg.why}</div>`;}
      const last=lastFor(swapName||b.name);
      if(last)html+=`<div class="lastline">Last: <b>${last.lb} × ${last.reps}</b> · ${fmtD(last.date)}</div>`;
      const vids={belt_squat:VID.belt_squat,trap_bar:VID.trap_bar,press:VID.press,bench:VID.bench};
@@ -686,7 +745,13 @@ const Wiz={
      html+=`</div>`;}
    if(b.t==='cond')html+=`<label class="f">Modality</label><select id="in-condmod">${SUBS.conditioning.map(o=>`<option${(this.res['mod_'+b.key]||b.mod)===o.name?' selected':''}>${o.name}</option>`).join('')}</select>
        <label class="f">Result</label><input type="text" id="in-condnote" value="${this.res.logs[b.key]||''}" placeholder="time, distance, cal, avg HR">`;
-   if(b.t==='check'||b.t==='cond'){const on=this.res.done[b.key];
+   if(b.t==='cap'){const f=b.fin,c=this.res.cap[b.key],lc=lastCap(b.name);
+     html+=`<div class="caphead"><span>${f.rounds>1?f.rounds+' rounds':'For time'}</span><span>Reps</span><span>Lb</span></div>`;
+     f.moves.forEach((m,j)=>{html+=`<div class="caprow"><div class="cn">${m.n}${m.unit?`<small>${m.unit}${f.rounds>1?' each round':''}</small>`:''}</div><div style="text-align:center;font-weight:600">${m.reps}</div>${m.load?`<input id="in-cap${j}" type="number" inputmode="numeric" value="${c.lb[j]}" placeholder="${m.bw?'0':'lb'}">`:'<div style="text-align:center;color:var(--faint)">—</div>'}</div>`;});
+     html+=`<div class="captime"><input id="in-capm" type="number" inputmode="numeric" placeholder="min" value="${c.time_sec?Math.floor(c.time_sec/60):''}"><span style="font-weight:700">:</span><input id="in-caps" type="number" inputmode="numeric" placeholder="sec" value="${c.time_sec?String(c.time_sec%60).padStart(2,'0'):''}"><span class="lb">total time</span></div>`;
+     if(lc)html+=`<div class="capsum"><div><div class="l">Last time</div><div class="v">${fmtT(lc.cap.time_sec)}</div><div class="d">${fmtD(lc.date)}</div></div><div><div class="l">Last load</div><div class="v">${fmtN(lc.cap.load_lb||0)}</div><div class="d">lb moved</div></div></div>`;
+     else html+=`<div class="hint" style="font-size:12px;color:var(--muted);margin-top:8px">First time through — this sets the mark to beat.</div>`;}
+   if(b.t==='check'||b.t==='cond'||b.t==='cap'){const on=this.res.done[b.key];
      html+=`<button class="primary${on?' done':''}" style="margin-top:16px" onclick="Wiz.markDone('${b.key}',this)">${on?'Completed ✓':'Mark as completed'}</button>`;}
    body.innerHTML=html;$('wizBody').scrollTop=0;
  },
@@ -718,7 +783,12 @@ const Wiz={
      sets.forEach(s=>{const counts=(b.t==='heavy5')||s.done;if(counts){vol+=(+s.reps||0)*(+s.lb||0);reps+=(+s.reps||0);const e=e1rm(+s.lb||0,+s.reps||0);if(e>bestE)bestE=e;}});
      if(bestE>0&&b.lift){const cur=MAXES[b.lift];const fixed=cur&&cur.method==='manual';
        if(!fixed&&bestE>((cur&&cur.working_max)||0))newMaxes.push([b.lift,bestE]);}}}
-   const blocksLog={};for(const b of p.blocks)blocksLog[b.key]={name:(r.swapName&&r.swapName[b.key])||b.name,
+   let capLoad=0,capLines=[];
+   for(const b of p.blocks){if(b.t==='cap'){const c=r.cap[b.key];if(!c)continue;const load=capTotals(b.fin,c);c.load_lb=load;capLoad+=load;
+     if(c.time_sec||load){const lc=lastCap(b.name);const dt=lc&&lc.cap.time_sec&&c.time_sec?c.time_sec-lc.cap.time_sec:null;
+       capLines.push(`${b.name}: <b>${fmtT(c.time_sec)}</b> · ${fmtN(load)} lb${dt!==null?` <span style="color:var(${dt<=0?'--green':'--red'})">(${dt<=0?'−':'+'}${fmtT(Math.abs(dt))} vs last)</span>`:''}`);}}}
+   vol+=capLoad;
+   const blocksLog={};for(const b of p.blocks)blocksLog[b.key]={name:(r.swapName&&r.swapName[b.key])||b.name,cap:b.t==='cap'?(r.cap[b.key]||null):undefined,
      done:b.t==='circuit'?(r.circ[b.key]||[]).every(Boolean):(b.t==='sets'?(r.sets[b.key]||[]).some(s=>s.done):!!r.done[b.key]),
      sets:r.sets[b.key]||null,circ:r.circ[b.key]||null,log:r.logs[b.key]||null,mod:r['mod_'+b.key]||null};
    const payload={session_date:chosenDate,program_week:p.week,day_dow:p.dow,title:p.focus,phase:p.phase.key,blocks:blocksLog,volume_lb:vol,reps,duration_min:dur,rpe:r.rpe,notes:r.notes,readiness:(r.readiness&&Object.keys(r.readiness).length)?r.readiness:null};
@@ -737,6 +807,7 @@ const Wiz={
        <div><span class="tick" style="background:var(--green)"></span><div class="lbl">Volume</div><div class="val">${fmtN(vol)}</div></div>
        <div><span class="tick" style="background:var(--yellow)"></span><div class="lbl">Reps</div><div class="val">${reps}</div></div>
        <div><span class="tick" style="background:var(--teal)"></span><div class="lbl">Min</div><div class="val">${dur}</div></div></div></div>
+     ${capLines.length?`<div class="target" style="border-color:var(--teal);background:rgba(31,158,147,.1)">${capLines.join('<br>')}</div>`:''}
      ${newMaxes.length?`<div class="target">New max: <b>${LIFTNAME[newMaxes[0][0]]} ${Math.round(newMaxes[0][1])} lb</b> e1RM — percentages updated.</div>`:''}
      <button class="primary" style="margin-top:14px" onclick="Wiz.close();load();">Done</button>`;
    toast('Session logged');
