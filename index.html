@@ -121,6 +121,10 @@ label.f{display:block;font-size:11px;font-weight:600;color:var(--muted);text-tra
 .blkdet .pl:last-child{border-bottom:0}.blkdet .pl b{font-weight:600}.blkdet .pl span:last-child{color:var(--gold);font-weight:600;white-space:nowrap}
 .blkdet .hint{font-size:12px;color:var(--muted);margin-top:6px}
 .sugg{font-size:12px;color:var(--muted);margin:2px 0 6px}.sugg b{color:var(--gold);font-weight:600}
+.rpelab{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:12px}
+.rpepick{display:flex;gap:4px;margin-top:6px}.rpepick button{flex:1;padding:8px 0;font-size:12px;font-weight:600;border:1px solid var(--border2);border-radius:8px;background:var(--field);color:var(--muted)}
+.rpepick button.on{background:var(--gold);border-color:var(--gold);color:#fff}
+.rpehint{font-size:11px;color:var(--faint);margin-top:5px}
 .caprow{display:grid;grid-template-columns:1fr 64px 72px;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)}
 .caprow .cn{font-size:14px;font-weight:500}.caprow .cn small{display:block;font-size:11px;color:var(--muted);font-weight:400}
 .caprow input{width:100%;padding:8px 6px;font-size:15px;text-align:center;border:1px solid var(--border2);border-radius:8px;background:var(--field);color:var(--text)}
@@ -453,20 +457,35 @@ const FINISH={
    moves:[{n:'Push-Up',reps:40,load:1,bw:1},{n:'Walking Lunge',reps:40,load:1,bw:1},{n:'Sit-Up',reps:40,load:1,bw:1},{n:'Air Squat',reps:40,load:1,bw:1}]},
  fri:{name:'Suitcase',rx:'5 rounds: 8 suitcase DL/side / 15 KB swings / 15 cal bike',rounds:5,
    moves:[{n:'Suitcase Deadlift',reps:16,unit:'8/side',load:1},{n:'KB Swing',reps:15,load:1},{n:'Echo Bike',reps:15,unit:'15 cal',load:0}]}};
-// ---- weight suggestions for accessories (any lift with a set table) ----
-const SEED={'Romanian Deadlift':['trap_bar',.55],'Walking Lunge':['belt_squat',.15],'Belt Squat (secondary)':['belt_squat',.6],'Nordic / Ham Curl':[null,0],
-  'Weighted Pull-Up':[null,0],'DB Incline Press':['bench',.25],'Curl + Face Pull':['press',.15],'Bent-Over Row':['bench',.5],'DB Shoulder Press':['press',.22]};
+// ---- accessory load engine: RIR-based autoregulation (Helms 2016/2018, Graham & Cleather 2019) with APRE reps fallback (Mann 2010) ----
 const LOWER=/deadlift|squat|lunge|nordic|ham/i;
-function lastBlock(name){for(let i=SESS.length-1;i>=0;i--){const bl=SESS[i].blocks||{};for(const k in bl){const b=bl[k];if(b&&b.name===name&&Array.isArray(b.sets)&&b.sets.some(s=>+s.lb>0))return {b,date:SESS[i].session_date};}}return null;}
-function suggestFor(name,rxObj){
-  const L=lastBlock(name);
-  if(L){const done=L.b.sets.filter(s=>s.done&&+s.lb>0);const lb=Math.max(...L.b.sets.map(s=>+s.lb||0));
-    const hit=done.length>=(rxObj?rxObj.sets:1)&&done.every(s=>+s.reps>=(rxObj?rxObj.reps:1));
-    const inc=LOWER.test(name)?10:5;
-    return hit?{lb:lb+inc,why:`+${inc} — hit all ${rxObj?rxObj.sets+'×'+rxObj.reps:'sets'} last time at ${lb}`}:{lb,why:`repeat ${lb} — missed reps last time`};}
-  const sd=SEED[name];if(sd&&sd[0]&&MAXES[sd[0]]?.working_max){const w=Math.max(5,Math.round(MAXES[sd[0]].working_max*sd[1]/5)*5);return {lb:w,why:`starting point · ${Math.round(sd[1]*100)}% of ${LIFTNAME[sd[0]]} max`};}
-  if(sd&&!sd[0])return {lb:'',why:'bodyweight to start — add load when all reps are clean'};
-  return null;}
+const BW_ONLY=/pull-up|nordic|ham curl|face pull/i;           // load = added weight, e1RM math not valid → reps rule only
+const RIR_T={eccentric:2,isometric:2,concentric:3,peak:3,deload:4};  // target reps-in-reserve for accessories by triphasic block
+const RPE_OPTS=[6,6.5,7,7.5,8,8.5,9,9.5,10];
+const pctAt=(reps,rir)=>1/(1+(reps+rir)/30);                    // Epley inverted: %1RM at (reps, reps-in-reserve)
+const e1rmRPE=(lb,reps,rpe)=>lb*(1+(reps+(10-rpe))/30);       // Epley with RIR folded in (RPE-chart basis)
+const rnd5=x=>Math.max(5,Math.round(x/5)*5);
+function lastBlock(name){for(let i=SESS.length-1;i>=0;i--){const bl=SESS[i].blocks||{};for(const k in bl){const b=bl[k];if(b&&b.name===name&&Array.isArray(b.sets)&&b.sets.some(s=>s.done||+s.lb>0))return {b,date:SESS[i].session_date,phase:SESS[i].phase};}}return null;}
+function accE1(b){ // best RPE-adjusted e1RM from a logged block (needs rpe); null if not computable
+  if(!b||!b.rpe||BW_ONLY.test(b.name))return null;const done=b.sets.filter(s=>s.done&&+s.lb>0&&+s.reps>0);if(!done.length)return null;
+  const last=done[done.length-1];return e1rmRPE(+last.lb,+last.reps,+b.rpe);}
+function suggestFor(name,rxObj,phaseKey){
+  phaseKey=phaseKey||(STATE?PHASE[programWeek()].key:'eccentric');const deload=phaseKey==='deload';const rirT=deload?2:(RIR_T[phaseKey]??2),rpeT=10-rirT;
+  const L=lastBlock(name);const inc=LOWER.test(name)?10:5;const tr=rxObj?rxObj.reps:8,ts=rxObj?rxObj.sets:3;
+  if(!L){return BW_ONLY.test(name)?{lb:'',why:'bodyweight first — add load once every rep is clean at 2–3 in reserve, then log RPE'}
+    :{lb:'',why:`calibration set — pick a load you can hit for all ${ts}×${tr} with ${rirT} reps in reserve (RPE ${rpeT}), log RPE, engine takes over next time`};}
+  const done=L.b.sets.filter(s=>s.done&&+s.reps>0);const lastSet=done[done.length-1]||L.b.sets[L.b.sets.length-1];
+  const lb=+lastSet.lb||0,reps=+lastSet.reps||0,rpe=+L.b.rpe||0;
+  let next,why;
+  if(rpe&&lb>0&&!BW_ONLY.test(name)){ // RIR engine
+    const e1=e1rmRPE(lb,reps,rpe);let raw=e1*pctAt(tr,rirT);
+    raw=Math.min(lb*1.10,Math.max(lb*0.90,raw));next=rnd5(raw);
+    const dv=rpe-rpeT,shift=L.phase&&L.phase!==phaseKey&&!deload;why=`last ${reps}×${lb} @ RPE ${rpe} → e1RM ${Math.round(e1)} · target RPE ${rpeT}${shift?' (new block target)':dv<-0.4?' (had room, up)':dv>0.4?' (too hard, back off)':' (on target)'}`;
+  }else{ // APRE reps rule
+    const d=reps-tr;const adj=d<=-2?-inc:d>=4?2*inc:d>=2?inc:0;next=lb>0?Math.max(0,lb+adj):'';
+    why=lb>0?`reps rule: last set ${reps} vs ${tr} target → ${adj>0?'+'+adj:adj<0?adj:'hold'}${BW_ONLY.test(name)?' (added load)':' · log RPE for finer control'}`:`bodyweight — ${d>=2?'add load next time':'hold'}`;}
+  if(deload&&next!==''){next=rnd5(next*0.8);why='deload −20% of working load · keep RPE ≤6';}
+  return {lb:next,why};}
 function lastCap(name){for(let i=SESS.length-1;i>=0;i--){const bl=SESS[i].blocks||{};for(const k in bl){const b=bl[k];if(b&&b.name===name&&b.cap&&(b.cap.time_sec||b.cap.load_lb))return {cap:b.cap,date:SESS[i].session_date};}}return null;}
 function lastCond(name){for(let i=SESS.length-1;i>=0;i--){const bl=SESS[i].blocks||{};for(const k in bl){const b=bl[k];if(b&&b.name===name&&b.log)return {log:b.log,mod:b.mod,date:SESS[i].session_date};}}return null;}
 const fmtT=sec=>sec?`${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')}`:'—';
@@ -501,7 +520,7 @@ function buildDay(week,dow){
       press:[['Weighted Pull-Up','4×6',VID.pullup],['DB Incline Press','3×10',VID.incdb],['Curl + Face Pull','3×12 ea',yts('face pull')]],
       bench:[['Bent-Over Row','4×8',VID.row],['DB Shoulder Press','3×10',yts('dumbbell shoulder press')]]}[D.primary];
     acc.forEach(([n,r,u],i)=>{const m=r.match(/(\d+)×(\d+)/);
-      blocks.push({t:'sets',key:'acc'+i,cat:'Strength · Accessory',name:n,rx:r,vid:u,rxObj:{sets:m?+m[1]:3,reps:m?+m[2]:8}});});
+      blocks.push({t:'sets',key:'acc'+i,cat:'Strength · Accessory',name:n,rx:r,vid:u,week,rxObj:{sets:m?+m[1]:3,reps:m?+m[2]:8}});});
   }
   if(D.primary&&!isDeload&&!isPeak){const f=FINISH[{1:'mon',3:'wed',5:'fri'}[dow]];
     if(f)blocks.push({t:'cap',key:'finish',cat:'Capacity',name:f.name+' Finisher',rx:'for time',fin:f,html:`<div class="rxtext" style="margin:0 0 4px">${f.rx}</div>`});}
@@ -643,8 +662,8 @@ function blockDetail(b){
   if(b.t==='primary'){const mx=MAXES[b.lift]?.working_max,w=wtFromMax(mx,b.rxObj.pct);
     const rows=Array.from({length:b.rxObj.sets},(_,j)=>`<div class="pl"><span>Set ${j+1}</span><span>${b.rxObj.reps} × ${w?w+' lb':'set max'}</span></div>`).join('');
     return `${rows}<div class="hint">${w?`${b.rxObj.pct}% of ${Math.round(mx)} working max`:'No max entered yet — set it on the Maxes tab'} · tempo ${b.tempo}</div>`;}
-  if(b.t==='sets'){const sg=suggestFor(b.name,b.rxObj);const last=lastFor(b.name);
-    return `<div class="pl"><span>${b.rxObj.sets} sets × ${b.rxObj.reps}</span><span>${sg&&sg.lb!==''?sg.lb+' lb':sg?'BW':'—'}</span></div>
+  if(b.t==='sets'){const sg=suggestFor(b.name,b.rxObj,PHASE[b.week||programWeek()]?.key);const last=lastFor(b.name);
+    return `<div class="pl"><span>${b.rxObj.sets} sets × ${b.rxObj.reps}</span><span>${sg&&sg.lb!==''?sg.lb+' lb':sg?'set it':'—'}</span></div>
       <div class="hint">${sg?sg.why:'no history yet — pick a weight you can hit every rep clean'}${last?` · last ${last.lb}×${last.reps} on ${fmtD(last.date)}`:''}</div>`;}
   if(b.t==='circuit')return b.items.map(([n,r])=>`<div class="pl"><span>${n}</span><span>${r}</span></div>`).join('');
   if(b.t==='cap'){const f=b.fin,lc=lastCap(b.name);const rows=f.moves.map((m,j)=>`<div class="pl"><span>${m.n}</span><span>${m.unit||m.reps}${lc&&lc.cap.lb&&+lc.cap.lb[j]?` @ ${lc.cap.lb[j]} lb`:''}</span></div>`).join('');
@@ -668,19 +687,19 @@ function lastFor(name){
 const Wiz={
  plan:null,i:0,res:{},t0:null,active:false,saving:false,editId:null,readyDone:false,
  open(dow,week,dateISO){this.plan=buildDay(week||programWeek(),dow);if(!this.plan)return;
-   this.i=0;this.res={done:{},sets:{},logs:{},circ:{},cap:{},readiness:{}};this.t0=Date.now();this.active=true;this.saving=false;this.editId=null;this.readyDone=false;
+   this.i=0;this.res={done:{},sets:{},logs:{},circ:{},cap:{},rpe_:{},readiness:{}};this.t0=Date.now();this.active=true;this.saving=false;this.editId=null;this.readyDone=false;
    if(dateISO)this.res.editDate=dateISO;
    for(const b of this.plan.blocks){if(b.t==='primary'){const rx=b.rxObj,w=wtFromMax(MAXES[b.lift]?.working_max,rx.pct);
      this.res.sets[b.key]=Array.from({length:rx.sets},()=>({reps:rx.reps,lb:w||'',done:false}));}
      if(b.t==='heavy5')this.res.sets[b.key]=[{reps:5,lb:'',done:false}];
-     if(b.t==='sets'){const sg=suggestFor(b.name,b.rxObj);this.res.sets[b.key]=Array.from({length:b.rxObj.sets},()=>({reps:b.rxObj.reps,lb:sg&&sg.lb!==''?sg.lb:'',done:false}));}
+     if(b.t==='sets'){const sg=suggestFor(b.name,b.rxObj,this.plan.phase.key);this.res.sets[b.key]=Array.from({length:b.rxObj.sets},()=>({reps:b.rxObj.reps,lb:sg&&sg.lb!==''?sg.lb:'',done:false}));}
      if(b.t==='cap'){const lc=lastCap(b.name);this.res.cap[b.key]={time_sec:0,lb:b.fin.moves.map((m,j)=>lc&&lc.cap.lb?(+lc.cap.lb[j]||''):'')};}
      if(b.t==='circuit')this.res.circ[b.key]=b.items.map(()=>false);}
    $('wiz').classList.add('on');this.render();},
  openEdit(id){const s=SESS.find(x=>x.id===id);if(!s)return;
    this.plan=buildDay(s.program_week||programWeek(),s.day_dow);if(!this.plan)return;
    this.i=0;this.active=true;this.saving=false;this.editId=id;this.readyDone=true;this.t0=Date.now()-((s.duration_min||0)*60000);
-   this.res={done:{},sets:{},logs:{},circ:{},cap:{},readiness:s.readiness||{},rpe:s.rpe,notes:s.notes,editDate:s.session_date,swapName:{}};
+   this.res={done:{},sets:{},logs:{},circ:{},cap:{},rpe_:{},readiness:s.readiness||{},rpe:s.rpe,notes:s.notes,editDate:s.session_date,swapName:{}};
    const bl=s.blocks||{};
    for(const b of this.plan.blocks){const L=bl[b.key]||{};
      if(L.name&&L.name!==b.name)this.res.swapName[b.key]=L.name;
@@ -689,7 +708,7 @@ const Wiz={
      if(b.t==='circuit')this.res.circ[b.key]=Array.isArray(L.circ)?L.circ.slice():b.items.map(()=>false);
      if(b.t==='check'||b.t==='cond'||b.t==='cap')this.res.done[b.key]=!!L.done;
      if(b.t==='cap')this.res.cap[b.key]=L.cap?{time_sec:+L.cap.time_sec||0,lb:(L.cap.lb||[]).slice()}:{time_sec:0,lb:b.fin.moves.map(()=>'')};
-     if(L.log)this.res.logs[b.key]=L.log;if(L.mod)this.res['mod_'+b.key]=L.mod;}
+     if(L.log)this.res.logs[b.key]=L.log;if(L.mod)this.res['mod_'+b.key]=L.mod;if(L.rpe)this.res.rpe_[b.key]=+L.rpe;}
    $('wiz').classList.add('on');this.render();toast('Editing logged session');},
  setReady(k,v){this.res.readiness[k]=v;document.querySelectorAll(`[data-rk="${k}"]`).forEach(b=>b.classList.toggle('on',+b.dataset.rv===v));},
  finishReady(){const n=$('in-rdynote');if(n)this.res.readiness.note=n.value||'';this.readyDone=true;this.render();},
@@ -699,6 +718,7 @@ const Wiz={
  capture(){const b=this.plan.blocks[this.i];if(!b)return;
    if(b.t==='primary'||b.t==='heavy5'||b.t==='sets')this.res.sets[b.key].forEach((s,j)=>{const r=$(`in-r${j}`),l=$(`in-l${j}`);if(r)s.reps=+r.value||0;if(l)s.lb=+l.value||0;});
    if(b.t==='acc'){const n=$('in-accnote');if(n)this.res.logs.acc=n.value;}
+   // rpe is stored on tap (setRpe), nothing to capture
    if(b.t==='cap'){const c=this.res.cap[b.key];const mm=$('in-capm'),ss=$('in-caps');if(mm)c.time_sec=(+mm.value||0)*60+(+(ss&&ss.value)||0);
      b.fin.moves.forEach((m,j)=>{const i=$(`in-cap${j}`);if(i)c.lb[j]=i.value===''?'':+i.value||0;});}
    if(b.t==='cond'){const n=$('in-condnote');if(n)this.res.logs[b.key]=n.value;const m=$('in-condmod');if(m)this.res['mod_'+b.key]=m.value;}},
@@ -726,7 +746,7 @@ const Wiz={
      if(b.t==='primary'){const mx=MAXES[b.lift]?.working_max;
        html+=mx?`<div class="target wm-edit" onclick="Wiz.editMax('${b.lift}')">Working weight: <b>${wtFromMax(mx,b.rxObj.pct)} lb</b> &nbsp;·&nbsp; ${b.rxObj.pct}% of ${Math.round(mx)}<small>Tap to update this max</small></div>`
          :`<div class="target wm-edit" onclick="Wiz.editMax('${b.lift}')">No max for ${LIFTNAME[b.lift]} yet — <b style="font-size:15px">tap to set one</b><small>Percentages fill in once it's set</small></div>`;}
-     if(b.t==='sets'){html+=`<div class="subhead">Rx <span class="tempo">${b.rx}</span></div>`;const sg=suggestFor(swapName||b.name,b.rxObj);if(sg)html+=`<div class="sugg">Suggested: <b>${sg.lb===''?'bodyweight':sg.lb+' lb'}</b> · ${sg.why}</div>`;}
+     if(b.t==='sets'){html+=`<div class="subhead">Rx <span class="tempo">${b.rx}</span></div>`;const sg=suggestFor(swapName||b.name,b.rxObj,this.plan.phase.key);if(sg)html+=`<div class="sugg">Suggested: <b>${sg.lb===''?'set it':sg.lb+' lb'}</b> · ${sg.why}</div>`;}
      const last=lastFor(swapName||b.name);
      if(last)html+=`<div class="lastline">Last: <b>${last.lb} × ${last.reps}</b> · ${fmtD(last.date)}</div>`;
      const vids={belt_squat:VID.belt_squat,trap_bar:VID.trap_bar,press:VID.press,bench:VID.bench};
@@ -738,6 +758,8 @@ const Wiz={
        <input id="in-l${j}" type="number" inputmode="numeric" value="${s.lb}">
        <button class="setcirc${s.done?' on':''}" onclick="Wiz.togSet('${b.key}',${j},this)">✓</button></div>`;});
      if(b.t==='primary'||b.t==='sets')html+=`<div style="display:flex;gap:8px;margin-top:6px"><button class="ghost" style="flex:1;padding:9px" onclick="Wiz.addSet('${b.key}')">+ Set</button><button class="ghost" style="flex:1;padding:9px" onclick="Wiz.rmSet('${b.key}')">− Set</button></div>`;
+     if(b.t==='sets'){const cur=this.res.rpe_[b.key];const rirT=RIR_T[this.plan.phase.key]??2;
+       html+=`<div class="rpelab">RPE of last set <span style="font-weight:400;text-transform:none;letter-spacing:0">· target ${10-rirT} (${rirT} in reserve)</span></div><div class="rpepick">${RPE_OPTS.map(v=>`<button class="${cur===v?'on':''}" onclick="Wiz.setRpe('${b.key}',${v},this)">${v}</button>`).join('')}</div><div class="rpehint">10 = nothing left · 9 = 1 rep left · 8 = 2 left · 7 = 3 left</div>`;}
    }
    if(b.t==='circuit'){const d=this.res.circ[b.key];
      html+=`<div style="margin-top:10px">`;
@@ -755,6 +777,7 @@ const Wiz={
      html+=`<button class="primary${on?' done':''}" style="margin-top:16px" onclick="Wiz.markDone('${b.key}',this)">${on?'Completed ✓':'Mark as completed'}</button>`;}
    body.innerHTML=html;$('wizBody').scrollTop=0;
  },
+ setRpe(key,v,el){this.capture();this.res.rpe_[key]=this.res.rpe_[key]===v?null:v;[...el.parentNode.children].forEach(x=>x.classList.toggle('on',+x.textContent===this.res.rpe_[key]));},
  togSet(key,j,el){this.capture();const s=this.res.sets[key][j];s.done=!s.done;el.classList.toggle('on',s.done);},
  togCirc(key,j,el){const d=this.res.circ[key];d[j]=!d[j];el.classList.toggle('on',d[j]);const row=$(`circ-${key}-${j}`);if(row)row.classList.toggle('on',d[j]);},
  async editMax(lift){this.capture();const cur=MAXES[lift]?.working_max;const v=+prompt(`${LIFTNAME[lift]} — working max (1RM, lb):`,cur?Math.round(cur):'');if(!v)return;
@@ -788,7 +811,7 @@ const Wiz={
      if(c.time_sec||load){const lc=lastCap(b.name);const dt=lc&&lc.cap.time_sec&&c.time_sec?c.time_sec-lc.cap.time_sec:null;
        capLines.push(`${b.name}: <b>${fmtT(c.time_sec)}</b> · ${fmtN(load)} lb${dt!==null?` <span style="color:var(${dt<=0?'--green':'--red'})">(${dt<=0?'−':'+'}${fmtT(Math.abs(dt))} vs last)</span>`:''}`);}}}
    vol+=capLoad;
-   const blocksLog={};for(const b of p.blocks)blocksLog[b.key]={name:(r.swapName&&r.swapName[b.key])||b.name,cap:b.t==='cap'?(r.cap[b.key]||null):undefined,
+   const blocksLog={};for(const b of p.blocks)blocksLog[b.key]={name:(r.swapName&&r.swapName[b.key])||b.name,cap:b.t==='cap'?(r.cap[b.key]||null):undefined,rpe:b.t==='sets'?(r.rpe_[b.key]||null):undefined,
      done:b.t==='circuit'?(r.circ[b.key]||[]).every(Boolean):(b.t==='sets'?(r.sets[b.key]||[]).some(s=>s.done):!!r.done[b.key]),
      sets:r.sets[b.key]||null,circ:r.circ[b.key]||null,log:r.logs[b.key]||null,mod:r['mod_'+b.key]||null};
    const payload={session_date:chosenDate,program_week:p.week,day_dow:p.dow,title:p.focus,phase:p.phase.key,blocks:blocksLog,volume_lb:vol,reps,duration_min:dur,rpe:r.rpe,notes:r.notes,readiness:(r.readiness&&Object.keys(r.readiness).length)?r.readiness:null};
@@ -847,7 +870,14 @@ function renderStats(){
   let html=`<div class="card"><h2>Working Maxes</h2>`;
   ['belt_squat','press','trap_bar','bench'].forEach(k=>{const m=MAXES[k];
     html+=`<div class="trow"><div class="tl"><div class="n">${LIFTNAME[k]}</div><div class="vv">${m?Math.round(m.working_max)+' lb':'—'}</div></div><div class="td"><span class="tcup">🏆</span>${m?'e1RM':''}</div></div>`;});
-  html+=`</div><div class="card"><h2>Lifetime <span class="wt">since ${fmtD(first)}</span>${weekStreak()?`<span class="streak">🔥 ${weekStreak()}-week streak</span>`:''}</h2>
+  html+=`</div>`;
+  const accNames=[];done.forEach(s=>Object.values(s.blocks||{}).forEach(b=>{if(b&&b.rpe&&Array.isArray(b.sets)&&!accNames.includes(b.name)&&!Object.values(LIFTNAME).includes(b.name))accNames.push(b.name);}));
+  if(accNames.length){html+=`<div class="card"><h2>Accessory e1RM <span class="wt">RPE-adjusted</span></h2>`;
+    accNames.forEach(n=>{const pts=[];done.forEach(s=>Object.values(s.blocks||{}).forEach(b=>{if(b&&b.name===n){const e=accE1(b);if(e)pts.push(Math.round(e));}}));if(!pts.length)return;
+      const cur=pts[pts.length-1],prev=pts.length>1?pts[0]:null,dl=prev?cur-prev:0;
+      html+=`<div class="trow"><div class="tl"><div class="n">${n}</div><div class="vv">${cur} lb</div></div><div class="td">${prev?`<span style="color:var(${dl>=0?'--green':'--red'})">${dl>=0?'+':''}${dl}</span> over ${pts.length} sessions`:'1 session'}</div></div>`;});
+    html+=`</div>`;}
+  html+=`<div class="card"><h2>Lifetime <span class="wt">since ${fmtD(first)}</span>${weekStreak()?`<span class="streak">🔥 ${weekStreak()}-week streak</span>`:''}</h2>
     <div class="statgrid"><div><span class="tick" style="background:var(--green)"></span><div class="lbl">Volume</div><div class="val">${fmtN(totV)}</div></div>
       <div><span class="tick" style="background:var(--teal)"></span><div class="lbl">Sessions</div><div class="val">${totS}</div></div>
       <div><span class="tick" style="background:var(--gold)"></span><div class="lbl">Hours</div><div class="val">${hrs}</div></div></div>
