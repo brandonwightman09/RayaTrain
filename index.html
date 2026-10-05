@@ -293,13 +293,15 @@ nav button.on{color:var(--gold)}
     <select id="pWeek" onchange="setWeek(+this.value)">
       <option value="1">Week 1 — Eccentric</option>
       <option value="2">Week 2 — Eccentric</option>
-      <option value="3">Week 3 — Isometric</option>
+      <option value="3">Week 3 — Eccentric → Isometric</option>
       <option value="4">Week 4 — Isometric</option>
-      <option value="5">Week 5 — Concentric</option>
-      <option value="6">Week 6 — Concentric</option>
-      <option value="7">Week 7 — Peak / Power</option>
-      <option value="8">Week 8 — Deload</option>
-      <option value="9">Week 9 — Retest</option>
+      <option value="5">Week 5 — Isometric</option>
+      <option value="6">Week 6 — Isometric → Concentric</option>
+      <option value="7">Week 7 — Concentric</option>
+      <option value="8">Week 8 — Concentric</option>
+      <option value="9">Week 9 — Peak / Power</option>
+      <option value="10">Week 10 — Deload</option>
+      <option value="11">Week 11 — Retest</option>
     </select>
     <label class="f">Appearance</label>
     <div class="rdy" style="margin-top:0"><div class="scale" id="themeSeg">
@@ -397,12 +399,15 @@ const SUBS={
   {name:'Ski erg',note:'Vertical pull',u:yts('ski erg')},
   {name:'Weighted incline walk',note:'Low-impact Z2',u:yts('weighted incline treadmill walk')}]};
 
-const PHASE={
- 1:{name:'Eccentric',key:'eccentric',col:'--ecc'},2:{name:'Eccentric',key:'eccentric',col:'--ecc'},
- 3:{name:'Isometric',key:'isometric',col:'--iso'},4:{name:'Isometric',key:'isometric',col:'--iso'},
- 5:{name:'Concentric',key:'concentric',col:'--con'},6:{name:'Concentric',key:'concentric',col:'--con'},
- 7:{name:'Peak / Power',key:'peak',col:'--peak'},8:{name:'Deload',key:'deload',col:'--deload'},9:{name:'Retest',key:'retest',col:'--peak'}};
-const WEEKS=9;
+const PH={eccentric:{name:'Eccentric',key:'eccentric',col:'--ecc'},isometric:{name:'Isometric',key:'isometric',col:'--iso'},
+ concentric:{name:'Concentric',key:'concentric',col:'--con'},peak:{name:'Peak / Power',key:'peak',col:'--peak'},
+ deload:{name:'Deload',key:'deload',col:'--deload'},retest:{name:'Retest',key:'retest',col:'--peak'}};
+const WEEKS=11;
+// Tempo phase follows LIFT EXPOSURES, not calendar weeks: 4 lifts x 2 sessions = 8 lifting sessions per phase
+// (3 lift days/week -> sessions 1-8 eccentric, 9-16 isometric, 17-24 concentric = weeks 1-8), then peak wk 9, deload wk 10, retest wk 11.
+function liftIdx(week,dow){return (week-1)*3+(dow>=5?2:dow>=3?1:0);}   // most recent lift slot on/before this day (Sun counts as Mon)
+function phaseFor(week,dow){if(week>=11)return PH.retest;if(week===10)return PH.deload;if(week===9)return PH.peak;
+  const n=liftIdx(Math.max(1,week),dow==null?1:dow);return n<8?PH.eccentric:n<16?PH.isometric:PH.concentric;}
 // 5-day layout: Mon/Wed/Fri lifts rotating through one fixed order (alternates upper/lower), Tue/Thu conditioning, Sat optional.
 const ROT=['bench','belt_squat','press','trap_bar'];
 const LOWER_LIFT={belt_squat:1,trap_bar:1};
@@ -413,17 +418,17 @@ const RESET=[['World\'s Greatest Stretch','5/side',yts('worlds greatest stretch 
  ['Weighted Goblet Squat Hold','60s',yts('goblet squat hold mobility')],
  ['Kneeling KB Windmill','5/side',yts('kneeling kettlebell windmill squat university')]];
 const VID_RESET='https://youtu.be/dBYjU7iBpck';
-function primaryRx(week,lift){
-  const p=PHASE[week].key;
+function primaryRx(week,lift,dow){
+  const p=phaseFor(week,dow).key,second=liftIdx(week,dow==null?1:dow)%8>=4;   // second = this lift's 2nd session of the phase
   const T={belt_squat:{ecc:'6-0-X-1',iso:'3-2-X-1',con:'2-0-X-0'},
     trap_bar:{ecc:'6-0-X-1',iso:'pause below knee',con:'X explosive'},
     press:{ecc:'5-0-X-1',iso:'3-2-X-1',con:'2-0-X-0'},
     bench:{ecc:'5-0-X-1',iso:'3-2-X-1 (pause on chest)',con:'2-0-X-0'}}[lift];
-  // Dietz: every triphasic block lives ABOVE 80%; intensity climbs through each 2-week block,
+  // Dietz: every triphasic block lives ABOVE 80%; intensity climbs from a lift's 1st to 2nd session of each block,
   // and the concentric (reactive) block carries the heaviest loads to express the strength built.
-  if(p==='eccentric')return week===1?{sets:5,reps:3,pct:80,tempo:T.ecc}:{sets:5,reps:3,pct:82.5,tempo:T.ecc};
-  if(p==='isometric')return week===3?{sets:4,reps:3,pct:82.5,tempo:T.iso}:{sets:4,reps:2,pct:85,tempo:T.iso};
-  if(p==='concentric')return week===5?{sets:4,reps:2,pct:85,tempo:T.con+' · max intent'}:{sets:3,reps:2,pct:87.5,tempo:T.con+' · max intent'};
+  if(p==='eccentric')return !second?{sets:5,reps:3,pct:80,tempo:T.ecc}:{sets:5,reps:3,pct:82.5,tempo:T.ecc};
+  if(p==='isometric')return !second?{sets:4,reps:3,pct:82.5,tempo:T.iso}:{sets:4,reps:2,pct:85,tempo:T.iso};
+  if(p==='concentric')return !second?{sets:4,reps:2,pct:85,tempo:T.con+' · max intent'}:{sets:3,reps:2,pct:87.5,tempo:T.con+' · max intent'};
   if(p==='peak')return {sets:3,reps:2,pct:85,tempo:'contrast'};
   if(p==='retest')return {sets:1,reps:1,pct:100,tempo:'work up — heavy single or triple'};
   return {sets:2,reps:5,pct:60,tempo:'normal'};
@@ -453,7 +458,7 @@ function phaseCues(pk,lift){
     <div class="cue"><b>${L}:</b> ${iso}</div>
     <div class="cue warn"><b>Load check:</b> The hold is the hard part. If you drift or bounce, the weight is too heavy for the phase — drop 5%.</div>`;
   if(pk==='concentric')return `<span class="ct">Concentric — express it. Bar speed is everything</span>
-    <div class="cue"><b>Why:</b> Converting the strength from the first four weeks into power. This block carries the heaviest loads on purpose.</div>
+    <div class="cue"><b>Why:</b> Converting the strength from the eccentric and isometric blocks into power. This block carries the heaviest loads on purpose.</div>
     <div class="cue"><b>How:</b> Quick 2-count lower, no pause, then move the bar as FAST as possible. Think "throw it." Full rest between sets so every rep is fast.</div>
     <div class="cue"><b>${L}:</b> ${con}</div>
     <div class="cue warn"><b>Load check:</b> If the bar slows to a grind, you've lost the point — that rep is done, cut the set.</div>`;
@@ -488,7 +493,7 @@ function accE1(b){ // best RPE-adjusted e1RM from a logged block (needs rpe); nu
   if(!b||!b.rpe||BW_ONLY.test(b.name))return null;const done=b.sets.filter(s=>s.done&&+s.lb>0&&+s.reps>0);if(!done.length)return null;
   const last=done[done.length-1];return e1rmRPE(+last.lb,+last.reps,+b.rpe);}
 function suggestFor(name,rxObj,phaseKey){
-  phaseKey=phaseKey||(STATE?PHASE[programWeek()].key:'eccentric');const deload=phaseKey==='deload';const rirT=deload?2:(RIR_T[phaseKey]??2),rpeT=10-rirT;
+  phaseKey=phaseKey||(STATE?phaseFor(programWeek(),new Date().getDay()).key:'eccentric');const deload=phaseKey==='deload';const rirT=deload?2:(RIR_T[phaseKey]??2),rpeT=10-rirT;
   const L=lastBlock(name);const inc=LOWER.test(name)?10:5;const tr=rxObj?rxObj.reps:8,ts=rxObj?rxObj.sets:3;
   if(!L){return BW_ONLY.test(name)?{lb:'',why:'bodyweight first — add load once every rep is clean at 2–3 in reserve, then log RPE'}
     :{lb:'',why:`calibration set — pick a load you can hit for all ${ts}×${tr} with ${rirT} reps in reserve (RPE ${rpeT}), log RPE, engine takes over next time`};}
@@ -513,7 +518,7 @@ const CONDITION={
  thu:{name:'Weighted Incline Walk',rx:'30–45 min @ 10–15% grade, vest, Zone 2 (nose-breathing).',mod:'Weighted incline walk'}};
 
 function buildDay(week,dow,legacy){
-  const ph=PHASE[week]||PHASE[8];const isPeak=ph.key==='peak',isDeload=ph.key==='deload',isRetest=ph.key==='retest';
+  const ph=phaseFor(week,dow);const isPeak=ph.key==='peak',isDeload=ph.key==='deload',isRetest=ph.key==='retest';
   let D;
   if(legacy){D={1:{focus:'Lower Strength',primary:'belt_squat',hip:true},
    2:{focus:'Conditioning',cond:'tue'},
@@ -539,7 +544,7 @@ function buildDay(week,dow,legacy){
   if(D.hip)blocks.push({t:'circuit',key:'hip',cat:'Prep · Hips',name:'Hip Stability Sequence',rx:'4 movements',
     html:`<span class="ct">Squat U — stability-biased</span>`,items:HIP.map(([n,r,u])=>[n,`<b>${r}</b>`,u])});
   if(D.primary){
-    const rx=primaryRx(week,D.primary);
+    const rx=primaryRx(week,D.primary,dow);
     blocks.push({t:'primary',key:'primary',cat:`Strength · ${ph.name}`,lift:D.primary,swap:D.primary,rxObj:rx,name:LIFTNAME[D.primary],
       rx:`${rx.sets}×${rx.reps} @ ${rx.pct}%`,tempo:rx.tempo,html:isPeak?peakHtml(D.primary):phaseCues(ph.key,D.primary)});
   }
@@ -549,7 +554,7 @@ function buildDay(week,dow,legacy){
       press:[['Weighted Pull-Up','4×6',VID.pullup],['DB Incline Press','3×10',VID.incdb],['Curl + Face Pull','3×12 ea',yts('face pull')]],
       bench:[['Bent-Over Row','4×8',VID.row],['DB Shoulder Press','3×10',yts('dumbbell shoulder press')]]}[D.primary];
     acc.forEach(([n,r,u],i)=>{const m=r.match(/(\d+)×(\d+)/);
-      blocks.push({t:'sets',key:'acc'+i,cat:'Strength · Accessory',name:n,rx:r,vid:u,week,rxObj:{sets:m?+m[1]:3,reps:m?+m[2]:8}});});
+      blocks.push({t:'sets',key:'acc'+i,cat:'Strength · Accessory',name:n,rx:r,vid:u,week,dow,rxObj:{sets:m?+m[1]:3,reps:m?+m[2]:8}});});
   }
   if((D.primary&&!isDeload&&!isPeak&&!isRetest)||D.fin){const f=FINISH[D.fin||{1:'mon',3:'wed',5:'fri'}[dow]];
     if(f)blocks.push({t:'cap',key:'finish',cat:'Capacity',name:f.name+' Finisher',rx:'for time',fin:f,html:`<div class="rxtext" style="margin:0 0 4px">${f.rx}</div>`});}
@@ -690,7 +695,7 @@ function blockDetail(b){
   if(b.t==='primary'){const mx=MAXES[b.lift]?.working_max,w=wtFromMax(mx,b.rxObj.pct);
     const rows=Array.from({length:b.rxObj.sets},(_,j)=>`<div class="pl"><span>Set ${j+1}</span><span>${b.rxObj.reps} × ${w?w+' lb':'set max'}</span></div>`).join('');
     return `${rows}<div class="hint">${w?`${b.rxObj.pct}% of ${Math.round(mx)} working max`:'No max entered yet — set it on the Maxes tab'} · tempo ${b.tempo}</div>`;}
-  if(b.t==='sets'){const sg=suggestFor(b.name,b.rxObj,PHASE[b.week||programWeek()]?.key);const last=lastFor(b.name);
+  if(b.t==='sets'){const sg=suggestFor(b.name,b.rxObj,phaseFor(b.week||programWeek(),b.dow==null?new Date().getDay():b.dow).key);const last=lastFor(b.name);
     return `<div class="pl"><span>${b.rxObj.sets} sets × ${b.rxObj.reps}</span><span>${sg&&sg.lb!==''?sg.lb+' lb':sg?'set it':'—'}</span></div>
       <div class="hint">${sg?sg.why:'no history yet — pick a weight you can hit every rep clean'}${last?` · last ${last.lb}×${last.reps} on ${fmtD(last.date)}`:''}</div>`;}
   if(b.t==='circuit')return b.items.map(([n,r])=>`<div class="pl"><span>${n}</span><span>${r}</span></div>`).join('');
