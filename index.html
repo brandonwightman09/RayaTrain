@@ -472,14 +472,37 @@ function phaseCues(pk,lift){
 }
 const LIFTNAME={belt_squat:'Belt Squat',trap_bar:'Trap-Bar Deadlift',press:'Vertical Press',bench:'Bench Press'};
 const FINISH={
- mon:{name:'Sandbag',rx:'5 rounds: 10 sandbag shoulder / 10 sandbag front squat / 200m carry',rounds:5,
+ mon:[{name:'Sandbag',rx:'5 rounds: 10 sandbag shoulder / 10 sandbag front squat / 200m carry',rounds:5,
    moves:[{n:'Sandbag Shoulder',reps:10,load:1},{n:'Sandbag Front Squat',reps:10,load:1},{n:'Sandbag Carry',reps:1,unit:'200m',load:1}]},
- wed:{name:'Chipper',rx:'For time: 40 push-ups / 40 walking lunges / 40 sit-ups / 40 air squats',rounds:1,
+  {name:'KB Rack',rx:'5 rounds: 10 single-arm KB cleans/side / 10 double KB front squat / 200m front-rack carry',rounds:5,
+   moves:[{n:'Single-Arm KB Clean',reps:20,unit:'10/side',load:1},{n:'Double KB Front Squat',reps:10,load:1},{n:'Front-Rack Carry',reps:1,unit:'200m',load:1}]},
+  {name:'Bear Hug',rx:'5 rounds: 10 sandbag clean / 10 bear-hug squat / 200m bear-hug carry',rounds:5,
+   moves:[{n:'Sandbag Clean',reps:10,load:1},{n:'Bear-Hug Squat',reps:10,load:1},{n:'Bear-Hug Carry',reps:1,unit:'200m',load:1}]},
+  {name:'Zercher',rx:'5 rounds: 10 sandbag over-shoulder / 10 Zercher squat / 200m Zercher carry',rounds:5,
+   moves:[{n:'Sandbag Over-Shoulder',reps:10,load:1},{n:'Zercher Squat',reps:10,load:1},{n:'Zercher Carry',reps:1,unit:'200m',load:1}]}],
+ wed:[{name:'Chipper',rx:'For time: 40 push-ups / 40 walking lunges / 40 sit-ups / 40 air squats',rounds:1,
    moves:[{n:'Push-Up',reps:40,load:1,bw:1},{n:'Walking Lunge',reps:40,load:1,bw:1},{n:'Sit-Up',reps:40,load:1,bw:1},{n:'Air Squat',reps:40,load:1,bw:1}]},
- sat:{name:'Carry + Bike',rx:'4 rounds: 20 cal bike / 100m farmer carry / 10 burpees',rounds:4,
+  {name:'21-15-9',rx:'21-15-9 for time: hand-release push-ups / reverse lunges / V-ups / squat jumps',rounds:1,
+   moves:[{n:'Hand-Release Push-Up',reps:45,unit:'21-15-9',load:1,bw:1},{n:'Reverse Lunge',reps:45,unit:'21-15-9',load:1,bw:1},{n:'V-Up',reps:45,unit:'21-15-9',load:1,bw:1},{n:'Squat Jump',reps:45,unit:'21-15-9',load:1,bw:1}]},
+  {name:'Burpee Chipper',rx:'For time: 30 burpees / 40 reverse lunges / 30 leg raises / 40 air squats',rounds:1,
+   moves:[{n:'Burpee',reps:30,load:1,bw:1},{n:'Reverse Lunge',reps:40,load:1,bw:1},{n:'Leg Raise',reps:30,load:1,bw:1},{n:'Air Squat',reps:40,load:1,bw:1}]},
+  {name:'Round-Robin',rx:'4 rounds: 10 feet-elevated push-ups / 10 walking lunges / 10 hollow rocks / 10 air squats',rounds:4,
+   moves:[{n:'Feet-Elevated Push-Up',reps:10,load:1,bw:1},{n:'Walking Lunge',reps:10,load:1,bw:1},{n:'Hollow Rock',reps:10,load:1,bw:1},{n:'Air Squat',reps:10,load:1,bw:1}]}],
+ sat:[{name:'Carry + Bike',rx:'4 rounds: 20 cal bike / 100m farmer carry / 10 burpees',rounds:4,
    moves:[{n:'Echo Bike',reps:20,unit:'20 cal',load:0},{n:'Farmer Carry',reps:1,unit:'100m',load:1},{n:'Burpee',reps:10,load:1,bw:1}]},
- fri:{name:'Suitcase',rx:'5 rounds: 8 suitcase DL/side / 15 KB swings / 15 cal bike',rounds:5,
-   moves:[{n:'Suitcase Deadlift',reps:16,unit:'8/side',load:1},{n:'KB Swing',reps:15,load:1},{n:'Echo Bike',reps:15,unit:'15 cal',load:0}]}};
+  {name:'Sandbag + Bike',rx:'4 rounds: 20 cal bike / 100m sandbag bear-hug carry / 10 burpees',rounds:4,
+   moves:[{n:'Echo Bike',reps:20,unit:'20 cal',load:0},{n:'Bear-Hug Carry',reps:1,unit:'100m',load:1},{n:'Burpee',reps:10,load:1,bw:1}]},
+  {name:'Suitcase + Bike',rx:'4 rounds: 20 cal bike / 50m suitcase carry/side / 10 burpees',rounds:4,
+   moves:[{n:'Echo Bike',reps:20,unit:'20 cal',load:0},{n:'Suitcase Carry',reps:2,unit:'50m/side',load:1},{n:'Burpee',reps:10,load:1,bw:1}]}],
+ fri:[{name:'Suitcase',rx:'5 rounds: 8 suitcase DL/side / 15 KB swings / 15 cal bike',rounds:5,
+   moves:[{n:'Suitcase Deadlift',reps:16,unit:'8/side',load:1},{n:'KB Swing',reps:15,load:1},{n:'Echo Bike',reps:15,unit:'15 cal',load:0}]},
+  {name:'Suitcase Carry',rx:'5 rounds: 50m suitcase carry/side / 15 KB swings / 15 cal bike',rounds:5,
+   moves:[{n:'Suitcase Carry',reps:2,unit:'50m/side',load:1},{n:'KB Swing',reps:15,load:1},{n:'Echo Bike',reps:15,unit:'15 cal',load:0}]},
+  {name:'Staggered',rx:'5 rounds: 8 staggered-stance KB deadlift/side / 8 single-arm KB swings/side / 15 cal bike',rounds:5,
+   moves:[{n:'Staggered-Stance KB Deadlift',reps:16,unit:'8/side',load:1},{n:'Single-Arm KB Swing',reps:16,unit:'8/side',load:1},{n:'Echo Bike',reps:15,unit:'15 cal',load:0}]}]};
+// Finishers rotate by week so the same one only comes back every 3-4 weeks. Weeks 1-3 keep the original (as logged); rotation starts week 4.
+const FIN_ROT_START=4;
+function finFor(slot,week){const a=FINISH[slot];if(!a)return null;return a[week<FIN_ROT_START?0:(week-FIN_ROT_START+1)%a.length];}
 // ---- accessory load engine: RIR-based autoregulation (Helms 2016/2018, Graham & Cleather 2019) with APRE reps fallback (Mann 2010) ----
 const LOWER=/deadlift|squat|lunge|nordic|ham/i;
 const BW_ONLY=/pull-up|nordic|ham curl|face pull/i;           // load = added weight, e1RM math not valid → reps rule only
@@ -556,7 +579,7 @@ function buildDay(week,dow,legacy){
     acc.forEach(([n,r,u],i)=>{const m=r.match(/(\d+)×(\d+)/);
       blocks.push({t:'sets',key:'acc'+i,cat:'Strength · Accessory',name:n,rx:r,vid:u,week,dow,rxObj:{sets:m?+m[1]:3,reps:m?+m[2]:8}});});
   }
-  if((D.primary&&!isDeload&&!isPeak&&!isRetest)||D.fin){const f=FINISH[D.fin||{1:'mon',3:'wed',5:'fri'}[dow]];
+  if((D.primary&&!isDeload&&!isPeak&&!isRetest)||D.fin){const f=finFor(D.fin||{1:'mon',3:'wed',5:'fri'}[dow],week);
     if(f)blocks.push({t:'cap',key:'finish',cat:'Capacity',name:f.name+' Finisher',rx:'for time',fin:f,html:`<div class="rxtext" style="margin:0 0 4px">${f.rx}</div>`});}
   if(D.cond){const c=CONDITION[D.cond];
     blocks.push({t:'cond',key:'cond',cat:'Conditioning',name:c.name,swap:'conditioning',mod:c.mod,rx:'log result',html:`<div class="rxtext" style="margin:0 0 8px">${c.rx}</div>`});}
