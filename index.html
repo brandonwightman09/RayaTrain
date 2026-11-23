@@ -374,6 +374,7 @@ const HIP=[['90/90 Hip Switches','2×8/side',yts('90 90 hip switch squat univers
  ['Goblet Deep Squat Hold','2×30s',yts('goblet squat hold mobility')]];
 
 const e1rm=(w,r)=>r<=1?w:Math.round(w*(1+r/30));
+const localISO=d=>{d=d||new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};   // local calendar date (toISOString is UTC: wrong day in the evening)
 const wtFromMax=(max,pct)=>max?Math.round(max*pct/100/5)*5:null;
 
 const SUBS={
@@ -618,19 +619,19 @@ function programDay(iso){ // returns {week,dow} if iso falls inside the 8-week p
   if(!STATE)return null;const s=mondayOf(new Date(STATE.start_date+'T12:00')),d=new Date(iso+'T12:00');
   const w=Math.floor((mondayOf(d)-s)/(7*864e5))+1;if(w<1||w>WEEKS)return null;const dow=d.getDay();if(dow===0)return null;return {week:w,dow};}
 async function renderCalendar(){
-  const now=new Date();if(CAL.y===null){CAL.y=now.getFullYear();CAL.m=now.getMonth();CAL.sel=now.toISOString().slice(0,10);}
+  const now=new Date();if(CAL.y===null){CAL.y=now.getFullYear();CAL.m=now.getMonth();CAL.sel=localISO(now);}
   const body=$('calBody');const first=new Date(CAL.y,CAL.m,1),last=new Date(CAL.y,CAL.m+1,0);
-  const fromISO=new Date(CAL.y,CAL.m,1,12).toISOString().slice(0,10),toISO=new Date(CAL.y,CAL.m+1,0,12).toISOString().slice(0,10);
+  const fromISO=localISO(new Date(CAL.y,CAL.m,1,12)),toISO=localISO(new Date(CAL.y,CAL.m+1,0,12));
   const rk=fromISO+'|'+toISO;
   if(CAL.histRange!==rk){try{const rows=await api(`/lift_history_sessions?session_date=gte.${fromISO}&session_date=lte.${toISO}&volume_lb=gt.0&select=session_date,title,volume_lb,reps,highlights`);
     CAL.hist={};rows.forEach(r=>{(CAL.hist[r.session_date]=CAL.hist[r.session_date]||[]).push(r);});CAL.histRange=rk;}catch(e){CAL.hist={};}}
   const logged={};SESS.forEach(s=>{(logged[s.session_date]=logged[s.session_date]||[]).push(s);});
-  const todayISO=now.toISOString().slice(0,10);
+  const todayISO=localISO(now);
   let h=`<div class="card"><div class="calhead"><button onclick="calMove(-1)">‹</button><div class="mo">${first.toLocaleDateString('en-US',{month:'long',year:'numeric'})}</div><button onclick="calMove(1)">›</button></div>
     <div class="calgrid">${['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(d=>`<div class="dh">${d}</div>`).join('')}`;
   const lead=(first.getDay()+6)%7;
   for(let i=0;i<lead;i++){const d=new Date(CAL.y,CAL.m,1-lead+i,12);h+=`<div class="dc out">${d.getDate()}<div class="d"></div></div>`;}
-  for(let day=1;day<=last.getDate();day++){const d=new Date(CAL.y,CAL.m,day,12),iso=d.toISOString().slice(0,10);
+  for(let day=1;day<=last.getDate();day++){const d=new Date(CAL.y,CAL.m,day,12),iso=localISO(d);
     const pd=programDay(iso);let cls='rest';
     if(logged[iso])cls='done';else if(pd)cls='plan';else if(CAL.hist[iso])cls='hist';
     h+=`<div class="dc${iso===todayISO?' today':''}${iso===CAL.sel?' sel':''}" onclick="calPick('${iso}')">${day}<div class="d ${cls}"></div></div>`;}
@@ -640,7 +641,7 @@ async function renderCalendar(){
   body.innerHTML=h;
 }
 function calMove(d){CAL.m+=d;if(CAL.m<0){CAL.m=11;CAL.y--;}if(CAL.m>11){CAL.m=0;CAL.y++;}renderCalendar();}
-function calToday(){const n=new Date();CAL.y=n.getFullYear();CAL.m=n.getMonth();CAL.sel=n.toISOString().slice(0,10);renderCalendar();}
+function calToday(){const n=new Date();CAL.y=n.getFullYear();CAL.m=n.getMonth();CAL.sel=localISO(n);renderCalendar();}
 function calPick(iso){CAL.sel=iso;renderCalendar();}
 function calDetailHtml(iso,logged){
   const d=new Date(iso+'T12:00'),label=d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
@@ -662,7 +663,7 @@ function calDetailHtml(iso,logged){
   if(pd){const plan=buildDay(pd.week,pd.dow);let L2=65;
     return `<div class="card"><div class="eyebrow">${label} · Week ${pd.week} · ${plan.phase.name}</div><h2 style="margin-top:4px">${plan.focus}</h2>
       ${previewHtml(plan)}
-      <button class="primary" style="margin-top:14px" onclick="Wiz.open(${pd.dow},${pd.week},'${iso}')">${iso<new Date().toISOString().slice(0,10)?'Log this session':'Start session'}</button></div>`;}
+      <button class="primary" style="margin-top:14px" onclick="Wiz.open(${pd.dow},${pd.week},'${iso}')">${iso<localISO(new Date())?'Log this session':'Start session'}</button></div>`;}
   const H=CAL.hist[iso];
   if(H)return H.map(r=>`<div class="card"><div class="eyebrow">${label} · Past history</div><h2 style="margin-top:4px">${r.title||'Session'}</h2>
       <div class="sub">${fmtN(+r.volume_lb)} lb · ${r.reps} reps</div>${r.highlights?`<div class="sub" style="margin-top:6px">${r.highlights.replace(/ · /g,'<br>')}</div>`:''}</div>`).join('');
@@ -671,8 +672,8 @@ function calDetailHtml(iso,logged){
 }
 function readinessScore(r){if(!r)return '';const v=[r.sleep,r.energy,r.soreness,r.stress].filter(x=>x);return v.length?(v.reduce((a,b)=>a+b,0)/v.length).toFixed(1):'';}
 function weekStreak(){ // consecutive weeks (Mon-based) back from this week with ≥1 logged session
-  const wk=new Set(SESS.map(s=>mondayOf(new Date(s.session_date+'T12:00')).toISOString().slice(0,10)));
-  let n=0,m=mondayOf(new Date());for(let i=0;i<200;i++){if(wk.has(m.toISOString().slice(0,10)))n++;else if(i>0)break;m.setDate(m.getDate()-7);}
+  const wk=new Set(SESS.map(s=>localISO(mondayOf(new Date(s.session_date+'T12:00')))));
+  let n=0,m=mondayOf(new Date());for(let i=0;i<200;i++){if(wk.has(localISO(m)))n++;else if(i>0)break;m.setDate(m.getDate()-7);}
   return n;}
 const fmtN=n=>n>=1e6?(n/1e6).toFixed(2)+'M':n>=1e4?Math.round(n/1e3)+'K':Math.round(n).toLocaleString();
 const fmtD=s=>new Date(s+'T12:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'2-digit'});
@@ -694,7 +695,7 @@ function renderCal(){
   const now=new Date(),dow=now.getDay();const mon=new Date(now);mon.setDate(now.getDate()-((dow+6)%7));
   const logged=new Set(SESS.map(s=>s.session_date));let html='';
   for(let i=0;i<7;i++){const d=new Date(mon);d.setDate(mon.getDate()+i);
-    const dd=d.getDay(),isToday=d.toDateString()===now.toDateString(),iso=d.toISOString().slice(0,10);
+    const dd=d.getDay(),isToday=d.toDateString()===now.toDateString(),iso=localISO(d);
     const has=dd!==0,done=logged.has(iso);
     html+=`<div class="cday${isToday?' today':''}${dd===selDow&&!isToday?' sel':''}" onclick="pick(${dd})"><small>${d.toLocaleDateString('en-US',{weekday:'short'})}</small>${d.getDate()}<div class="dot${done?' done':has?'':' none'}"></div></div>`;}
   $('calstrip').innerHTML=html;
@@ -703,7 +704,7 @@ function pick(dd){selDow=dd;renderCal();renderToday();}
 function renderToday(){
   const now=new Date(),isToday=selDow===now.getDay(),wk=programWeek();
   const plan=buildDay(wk,selDow);const body=$('todayBody');
-  if(!plan){const iso=new Date().toISOString().slice(0,10);const [q,a]=quoteFor(iso);body.innerHTML=`<div class="card" id="banner"><div class="big">Rest Day</div><div class="sub">Sundays off. Recover.</div><div class="quote">“${q}”${a?`<small>— ${a}</small>`:''}</div></div>`;return;}
+  if(!plan){const iso=localISO(new Date());const [q,a]=quoteFor(iso);body.innerHTML=`<div class="card" id="banner"><div class="big">Rest Day</div><div class="sub">Sundays off. Recover.</div><div class="quote">“${q}”${a?`<small>— ${a}</small>`:''}</div></div>`;return;}
   const ph=plan.phase;
   let html=`<div class="card" id="banner"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
       <div class="eyebrow">${isToday?'Today':['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][selDow]} · Wk ${wk}/${WEEKS}</div>
@@ -743,7 +744,7 @@ function lastFor(name){
 const Wiz={
  plan:null,i:0,res:{},t0:null,active:false,saving:false,editId:null,readyDone:false,
  open(dow,week,dateISO){this.plan=buildDay(week||programWeek(),dow);if(!this.plan)return;
-   this.i=0;this.res=this.blank();this.t0=Date.now();this.active=true;this.saving=false;this.editId=null;this.readyDone=false;this.startISO=new Date().toISOString().slice(0,10);
+   this.i=0;this.res=this.blank();this.t0=Date.now();this.active=true;this.saving=false;this.editId=null;this.readyDone=false;this.startISO=localISO(new Date());
    if(dateISO)this.res.editDate=dateISO;
    $('wiz').classList.add('on');this.render();},
  blank(){const res={done:{},sets:{},logs:{},circ:{},cap:{},rpe_:{},readiness:{}};
@@ -799,7 +800,7 @@ const Wiz={
        <label class="f">Note (optional)</label><input type="text" id="in-rdynote" value="${r.note||''}" placeholder="anything worth remembering">
        <button class="primary" style="margin-top:16px" onclick="Wiz.finishReady()">Start training</button>
        <button class="ghost" style="margin-top:8px" onclick="Wiz.readyDone=true;Wiz.render()">Skip</button></div>`;$('wizBody').scrollTop=0;return;}
-   if(this.i===this.plan.blocks.length){const d=this.res.editDate||this.startISO||new Date().toISOString().slice(0,10);
+   if(this.i===this.plan.blocks.length){const d=this.res.editDate||this.startISO||localISO(new Date());
      body.innerHTML=`<div class="eyebrow">Wrap-up</div><h3>Complete session</h3>
        <label class="f">Session date</label><input type="date" id="in-date" value="${d}">
        <label class="f">RPE (1–10)</label><input type="number" id="in-rpe" inputmode="numeric" min="1" max="10" value="${this.res.rpe||''}">
@@ -867,7 +868,7 @@ const Wiz={
  async save(){
    if(this.saving)return;this.saving=true;
    this.res.rpe=+$('in-rpe').value||null;this.res.notes=$('in-notes').value||null;
-   const chosenDate=$('in-date')?$('in-date').value:new Date().toISOString().slice(0,10);
+   const chosenDate=$('in-date')?$('in-date').value:localISO(new Date());
    const p=this.plan,r=this.res;const dur=Math.max(1,Math.round((Date.now()-this.t0)/60000));
    let vol=0,reps=0;const newMaxes=[];
    for(const b of p.blocks){if(b.t==='primary'||b.t==='heavy5'||b.t==='sets'){const sets=r.sets[b.key]||[];let bestE=0;
@@ -964,8 +965,8 @@ async function saveMaxManual(){const lift=$('mxLift').value,v=+$('mxVal').value;
 function calcE1(){const w=+$('e1w').value,r=+$('e1r').value;if(!w||!r){toast('Enter weight and reps');return;}
   const e=e1rm(w,r);$('e1out').style.display='block';$('e1out').innerHTML=`Estimated 1RM: <b>${e} lb</b> &nbsp;<span class="mut">(${w}×${r})</span>`;}
 async function setWeek(w){const m=mondayOf(new Date());m.setDate(m.getDate()-(w-1)*7);
-  await api('/lift_state?id=eq.1',{method:'PATCH',body:JSON.stringify({start_date:m.toISOString().slice(0,10),updated_at:new Date().toISOString()})});
-  STATE.start_date=m.toISOString().slice(0,10);toast('Week set to '+w);renderCal();renderToday();}
+  await api('/lift_state?id=eq.1',{method:'PATCH',body:JSON.stringify({start_date:localISO(m),updated_at:new Date().toISOString()})});
+  STATE.start_date=localISO(m);toast('Week set to '+w);renderCal();renderToday();}
 
 function svgChart(vals,color){if(!vals.length)return '';const W=320,Hh=80,n=vals.length,mx=Math.max(...vals,1);
   let cum=0;const cums=vals.map(v=>cum+=v),mc=cum||1,bw=Math.max(1.5,Math.min(8,W/n*.6)),step=W/Math.max(n,1);let bars='';
