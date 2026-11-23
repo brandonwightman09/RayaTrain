@@ -743,18 +743,30 @@ function lastFor(name){
 const Wiz={
  plan:null,i:0,res:{},t0:null,active:false,saving:false,editId:null,readyDone:false,
  open(dow,week,dateISO){this.plan=buildDay(week||programWeek(),dow);if(!this.plan)return;
-   this.i=0;this.res={done:{},sets:{},logs:{},circ:{},cap:{},rpe_:{},readiness:{}};this.t0=Date.now();this.active=true;this.saving=false;this.editId=null;this.readyDone=false;
+   this.i=0;this.res=this.blank();this.t0=Date.now();this.active=true;this.saving=false;this.editId=null;this.readyDone=false;this.startISO=new Date().toISOString().slice(0,10);
    if(dateISO)this.res.editDate=dateISO;
-   for(const b of this.plan.blocks){if(b.t==='primary'){const rx=b.rxObj,w=wtFromMax(MAXES[b.lift]?.working_max,rx.pct);
-     this.res.sets[b.key]=Array.from({length:rx.sets},()=>({reps:rx.reps,lb:w||'',done:false}));}
-     if(b.t==='heavy5')this.res.sets[b.key]=[{reps:5,lb:'',done:false}];
-     if(b.t==='sets'){const sg=suggestFor(b.name,b.rxObj,this.plan.phase.key);this.res.sets[b.key]=Array.from({length:b.rxObj.sets},()=>({reps:b.rxObj.reps,lb:sg&&sg.lb!==''?sg.lb:'',done:false}));}
-     if(b.t==='cap'){const lc=lastCap(b.name);this.res.cap[b.key]={time_sec:0,lb:b.fin.moves.map((m,j)=>lc&&lc.cap.lb?(+lc.cap.lb[j]||''):'')};}
-     if(b.t==='circuit')this.res.circ[b.key]=b.items.map(()=>false);}
    $('wiz').classList.add('on');this.render();},
+ blank(){const res={done:{},sets:{},logs:{},circ:{},cap:{},rpe_:{},readiness:{}};
+   for(const b of this.plan.blocks){if(b.t==='primary'){const rx=b.rxObj,w=wtFromMax(MAXES[b.lift]?.working_max,rx.pct);
+     res.sets[b.key]=Array.from({length:rx.sets},()=>({reps:rx.reps,lb:w||'',done:false}));}
+     if(b.t==='heavy5')res.sets[b.key]=[{reps:5,lb:'',done:false}];
+     if(b.t==='sets'){const sg=suggestFor(b.name,b.rxObj,this.plan.phase.key);res.sets[b.key]=Array.from({length:b.rxObj.sets},()=>({reps:b.rxObj.reps,lb:sg&&sg.lb!==''?sg.lb:'',done:false}));}
+     if(b.t==='cap'){const lc=lastCap(b.name);res.cap[b.key]={time_sec:0,lb:b.fin.moves.map((m,j)=>lc&&lc.cap.lb?(+lc.cap.lb[j]||''):'')};}
+     if(b.t==='circuit')res.circ[b.key]=b.items.map(()=>false);}
+   return res;},
+ // DRAFT 11/23: reopen a session that was saved on this phone when the page closed
+ resume(){const d=Draft.get();if(!d)return false;let plan=null;try{plan=buildDay(d.week,d.dow,d.legacy);}catch(e){}
+   if(!plan){Draft.clear();return false;}
+   this.plan=plan;const def=this.blank(),sv=d.res||{};this.res=Object.assign({},def,sv);
+   ['done','sets','logs','circ','cap','rpe_','readiness'].forEach(k=>{this.res[k]=Object.assign({},def[k],sv[k]||{});});
+   this.i=Math.min(Math.max(0,d.i||0),plan.blocks.length);this.t0=d.t0||Date.now();this.active=true;this.saving=false;
+   this.editId=d.editId||null;this.readyDone=!!d.readyDone;this.startISO=d.startISO||null;
+   $('wiz').classList.add('on');this.render();Draft.save();toast('Session restored');return true;},
+ captureExtra(){const n=$('in-rdynote');if(n)this.res.readiness.note=n.value||'';
+   const r=$('in-rpe'),t=$('in-notes'),dt=$('in-date');if(r)this.res.rpe=+r.value||null;if(t)this.res.notes=t.value||null;if(dt&&dt.value)this.res.editDate=dt.value;},
  openEdit(id){const s=SESS.find(x=>x.id===id);if(!s)return;
    this.plan=buildDay(s.program_week||programWeek(),s.day_dow,!(s.blocks&&s.blocks._layout==='rot'));if(!this.plan)return;
-   this.i=0;this.active=true;this.saving=false;this.editId=id;this.readyDone=true;this.t0=Date.now()-((s.duration_min||0)*60000);
+   this.i=0;this.active=true;this.saving=false;this.editId=id;this.readyDone=true;this.startISO=s.session_date;this.t0=Date.now()-((s.duration_min||0)*60000);
    this.res={done:{},sets:{},logs:{},circ:{},cap:{},rpe_:{},readiness:s.readiness||{},rpe:s.rpe,notes:s.notes,editDate:s.session_date,swapName:{}};
    const bl=s.blocks||{};
    for(const b of this.plan.blocks){const L=bl[b.key]||{};
@@ -787,7 +799,7 @@ const Wiz={
        <label class="f">Note (optional)</label><input type="text" id="in-rdynote" value="${r.note||''}" placeholder="anything worth remembering">
        <button class="primary" style="margin-top:16px" onclick="Wiz.finishReady()">Start training</button>
        <button class="ghost" style="margin-top:8px" onclick="Wiz.readyDone=true;Wiz.render()">Skip</button></div>`;$('wizBody').scrollTop=0;return;}
-   if(this.i===this.plan.blocks.length){const d=this.res.editDate||new Date().toISOString().slice(0,10);
+   if(this.i===this.plan.blocks.length){const d=this.res.editDate||this.startISO||new Date().toISOString().slice(0,10);
      body.innerHTML=`<div class="eyebrow">Wrap-up</div><h3>Complete session</h3>
        <label class="f">Session date</label><input type="date" id="in-date" value="${d}">
        <label class="f">RPE (1–10)</label><input type="number" id="in-rpe" inputmode="numeric" min="1" max="10" value="${this.res.rpe||''}">
@@ -878,7 +890,7 @@ const Wiz={
        await api('/lift_maxes?lift=eq.'+lift,{method:'POST',headers:{'Prefer':'resolution=merge-duplicates'},body:JSON.stringify({lift,working_max:e,method:'auto',updated_at:new Date().toISOString()})});
        await api('/lift_prs',{method:'POST',body:JSON.stringify({lift,kind:'e1rm',value:e,achieved_on:chosenDate})});}
    }catch(e){this.saving=false;toast('Save failed — retry');return;}
-   this.active=false;
+   this.active=false;Draft.clear();
    if(newMaxes.length){const [l,e]=newMaxes[0];prToast(`${LIFTNAME[l]} e1RM ${Math.round(e)} lb`);}
    $('wizDots').innerHTML='';
    $('wizBody').innerHTML=`<div class="eyebrow">Session summary</div><h3>In the books</h3>
@@ -892,6 +904,49 @@ const Wiz={
    toast('Session logged');
  }
 };
+
+// ---- DRAFT 11/23: an in-progress session survives the page closing --------------------
+const DRAFT_KEY='rl-draft-v1';
+const Draft={
+ t:null,
+ get(){try{const d=JSON.parse(localStorage.getItem(DRAFT_KEY)||'null');if(!d||!d.res||d.dow==null)return null;
+   if(Date.now()-(d.savedAt||0)>4*864e5){this.clear();return null;}return d;}catch(e){return null;}},
+ save(extra){if(!Wiz.active||Wiz.saving||!Wiz.plan)return;
+   try{Wiz.capture();Wiz.captureExtra();const p=Wiz.plan;
+     localStorage.setItem(DRAFT_KEY,JSON.stringify(Object.assign({v:1,dow:p.dow,week:p.week,legacy:!!p.legacy,title:p.focus,i:Wiz.i,res:Wiz.res,t0:Wiz.t0,
+       readyDone:Wiz.readyDone,editId:Wiz.editId,startISO:Wiz.startISO||null,savedAt:Date.now()},extra||{})));}catch(e){}},
+ soon(ms){clearTimeout(this.t);this.t=setTimeout(()=>this.save(),ms||0);},
+ clear(){clearTimeout(this.t);try{localStorage.removeItem(DRAFT_KEY);}catch(e){}},
+ discard(){if(!confirm('Discard the unfinished session? This cannot be undone.'))return;this.clear();renderToday();toast('Discarded');},
+ card(){const d=this.get();if(!d||Wiz.active)return '';let n=0;const s=(d.res&&d.res.sets)||{};for(const k in s)(s[k]||[]).forEach(x=>{if(x&&x.done)n++;});
+   const when=new Date(d.t0||d.savedAt).toLocaleString('en-US',{weekday:'short',hour:'numeric',minute:'2-digit'});
+   return `<div class="card" id="draftCard" style="border:1px solid var(--gold)"><div class="eyebrow">Session in progress</div>
+     <div class="big" style="font-size:20px">${d.title||'Workout'}</div><div class="sub">Started ${when} · ${n} set${n===1?'':'s'} checked off · saved on this phone</div>
+     <button class="primary" style="margin-top:14px" onclick="Wiz.resume()">Resume session</button>
+     <button class="ghost" style="margin-top:8px;width:100%;padding:11px" onclick="Draft.discard()">Discard</button></div>`;}
+};
+(function(){
+  const _open=Wiz.open,_edit=Wiz.openEdit,_close=Wiz.close,_today=renderToday;
+  // Starting a session while one is saved: reopen it if it is the same workout, otherwise ask first
+  Wiz.open=function(dow,week,dateISO){const d=Draft.get();
+    if(d&&!this.active){if(!d.editId&&d.dow===dow&&d.week===(week||programWeek())&&(!dateISO||(d.res&&d.res.editDate===dateISO)))return this.resume();
+      if(!confirm('You have an unfinished session saved. Start a new one and discard it?'))return;Draft.clear();}
+    const r=_open.apply(this,arguments);Draft.save();return r;};
+  Wiz.openEdit=function(id){const d=Draft.get();
+    if(d&&!this.active){if(d.editId===id)return this.resume();
+      if(!confirm('You have an unfinished session saved. Edit this one and discard it?'))return;Draft.clear();}
+    const r=_edit.apply(this,arguments);Draft.save();return r;};
+  // Closing with the X keeps the session; it waits on the Today page
+  Wiz.close=function(){const live=this.active&&!this.saving;if(live)Draft.save({closed:true});const r=_close.apply(this,arguments);
+    if(live&&STATE){try{renderToday();}catch(e){}}return r;};
+  renderToday=function(){_today.apply(this,arguments);const h=Draft.card();if(h)$('todayBody').insertAdjacentHTML('afterbegin',h);};
+  const w=$('wiz');
+  w.addEventListener('click',()=>Draft.soon(0));
+  w.addEventListener('input',()=>Draft.soon(300));
+  w.addEventListener('change',()=>Draft.soon(0));
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)Draft.save();});
+  window.addEventListener('pagehide',()=>Draft.save());
+})();
 
 function renderProg(){
   $('pWeek').value=programWeek();
@@ -1024,7 +1079,7 @@ if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&safeReload())load();});
 window.addEventListener('pageshow',e=>{if(e.persisted&&safeReload())load();});
 
-load();
+load().catch(e=>{console.log('load failed',e);}).then(()=>{try{const d=Draft.get();if(d&&!d.closed&&!Wiz.active&&Date.now()-(d.savedAt||0)<12*36e5)Wiz.resume();}catch(e){console.log('resume failed',e);}});
 </script>
 </body>
 </html>
