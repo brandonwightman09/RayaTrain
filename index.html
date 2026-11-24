@@ -250,6 +250,17 @@ nav button.on{color:var(--gold)}
 .wm-edit{cursor:pointer}
 .wm-edit small{display:block;font-size:11px;color:var(--muted);font-weight:400;margin-top:3px}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}}
+.peakbox{background:rgba(184,137,31,.14);border:2px solid var(--peak);border-radius:12px;padding:12px 14px;margin:10px 0 12px;font-size:14.5px;line-height:1.5;color:var(--text)}
+.peakbox .pk-t{font-family:'Barlow Condensed';font-size:20px;font-weight:700;color:var(--peak);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.peakbox b{color:var(--text);font-weight:700}
+.pkprev{font-size:13.5px;font-weight:600;color:var(--peak);margin:6px 0 4px;line-height:1.4}
+.round{border:1px solid var(--border);border-left:4px solid var(--peak);border-radius:12px;padding:10px 12px 8px;margin:12px 0}
+.round .rhd{font-family:'Barlow Condensed';font-size:18px;font-weight:700;margin-bottom:4px}
+.round .rstep{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:6px 0 4px}
+.round .rstep.pk{color:var(--peak);font-size:12px}
+.round .ctr .cx{font-weight:600;font-size:15px}
+.round .ctr.on .cx{color:var(--muted);text-decoration:line-through}
+.round .rrest{font-size:12px;color:var(--muted);text-align:right;margin-top:4px}
 </style>
 </head>
 <body>
@@ -430,7 +441,7 @@ function primaryRx(week,lift,dow){
   if(p==='eccentric')return !second?{sets:5,reps:3,pct:80,tempo:T.ecc}:{sets:5,reps:3,pct:82.5,tempo:T.ecc};
   if(p==='isometric')return !second?{sets:4,reps:3,pct:82.5,tempo:T.iso}:{sets:4,reps:2,pct:85,tempo:T.iso};
   if(p==='concentric')return !second?{sets:4,reps:2,pct:85,tempo:T.con+' · max intent'}:{sets:3,reps:2,pct:87.5,tempo:T.con+' · max intent'};
-  if(p==='peak')return {sets:3,reps:2,pct:85,tempo:'contrast'};
+  if(p==='peak')return {sets:4,reps:2,pct:85,tempo:'contrast'};
   if(p==='retest')return {sets:1,reps:1,pct:100,tempo:'work up — heavy single or triple'};
   return {sets:2,reps:5,pct:60,tempo:'normal'};
 }
@@ -541,6 +552,10 @@ const CONDITION={
  tue:{name:'Lactate Threshold',rx:'4–5 × 3:00 @ 88–92% max HR / 2:00 easy. Even splits.',mod:'Echo bike'},
  thu:{name:'Weighted Incline Walk',rx:'30–45 min @ 10–15% grade, vest, Zone 2 (nose-breathing).',mod:'Weighted incline walk'}};
 
+// PEAK 11/23: explosive moves done straight after each heavy set (French contrast)
+const CONTRAST={belt_squat:[['Box Jump',3],['Broad Jump',3],['20m Sprint',1]],trap_bar:[['KB Swing',5],['Vertical Jump',3]],
+  press:[['Explosive Push-Up',3],['Med-Ball Chest Throw',5]],bench:[['Plyo Push-Up',3],['Med-Ball Slam',5]]};
+const ctrText=L=>(CONTRAST[L]||[]).map(([n,r])=>n+' ×'+r).join(' → ');
 function buildDay(week,dow,legacy){
   const ph=phaseFor(week,dow);const isPeak=ph.key==='peak',isDeload=ph.key==='deload',isRetest=ph.key==='retest';
   let D;
@@ -570,7 +585,7 @@ function buildDay(week,dow,legacy){
   if(D.primary){
     const rx=primaryRx(week,D.primary,dow);
     blocks.push({t:'primary',key:'primary',cat:`Strength · ${ph.name}`,lift:D.primary,swap:D.primary,rxObj:rx,name:LIFTNAME[D.primary],
-      rx:`${rx.sets}×${rx.reps} @ ${rx.pct}%`,tempo:rx.tempo,html:isPeak?peakHtml(D.primary):phaseCues(ph.key,D.primary)});
+      rx:isPeak?`${rx.sets} rounds · ${rx.reps} @ ${rx.pct}% → ${ctrText(D.primary)}`:`${rx.sets}×${rx.reps} @ ${rx.pct}%`,tempo:rx.tempo,contrast:isPeak&&CONTRAST[D.primary]?CONTRAST[D.primary]:null,html:isPeak?peakHtml(D.primary):phaseCues(ph.key,D.primary)});
   }
   if(D.primary&&!isPeak&&!isDeload&&!isRetest){
     const acc={belt_squat:[['Romanian Deadlift','3×8 @ RPE 7',VID.rdl],['Walking Lunge','3×10/leg',VID.lunge]],
@@ -594,8 +609,7 @@ function peakHtml(lift){const c={belt_squat:'Belt Squat 3×2 @85% → Box Jump �
    trap_bar:'Trap-Bar 3×2 @85% → KB Swing ×5 → Vertical Jump ×3 · 4 rounds',
    press:'Vertical Press 3×2 @85% → Explosive Push-Up ×3 → Med-Ball Chest Throw ×5 · 4 rounds',
    bench:'Bench 3×2 @85% → Plyo Push-Up ×3 → Med-Ball Slam ×5 · 4 rounds'}[lift];
-  return `<span class="ct">French contrast — heavy → explosive → plyo</span><div class="rxtext" style="margin:0">${c}</div>
-    <div class="cue"><b>How:</b> Do the heavy set, then go straight into the explosive pairings with minimal rest between them — the heavy lift primes the fast ones. Then rest a full 2–3 minutes before the next round. Every explosive rep is max effort.</div>`;}
+  return `<div class="peakbox"><div class="pk-t">⚡ Peak week · contrast rounds</div>Every round: <b>heavy set → explosive moves straight after, no rest between</b>. Then rest 2–3 min. The explosive moves are the point of today — every rep max effort. Check them off in each round below.</div>`;}
 
 let STATE=null,MAXES={},selDow=null,SESS=[],PRS=[];
 const $=id=>document.getElementById(id);
@@ -654,6 +668,7 @@ function calDetailHtml(iso,logged){
           <div><span class="tick" style="background:var(--teal)"></span><div class="lbl">Min</div><div class="val">${s.duration_min||0}</div></div></div>
         ${lifts.map(b=>`<div class="mvrow"><span class="mn">${b.name}</span><span class="mr"><b>${b.sets.filter(x=>+x.lb>0||x.done).map(x=>x.reps+'×'+(x.lb||'—')).join(', ')}</b></span></div>`).join('')}
         ${Object.values(s.blocks||{}).filter(b=>b&&b.cap&&(b.cap.time_sec||b.cap.load_lb)).map(b=>`<div class="mvrow"><span class="mn">${b.name}</span><span class="mr"><b>${fmtT(b.cap.time_sec)} · ${fmtN(b.cap.load_lb||0)} lb</b></span></div>`).join('')}
+        ${Object.values(s.blocks||{}).filter(b=>b&&Array.isArray(b.contrast)&&b.contrast.length).map(b=>`<div class="mvrow"><span class="mn">Explosive rounds</span><span class="mr"><b>${b.contrast.filter(r=>r&&r.length&&r.every(Boolean)).length} of ${b.contrast.length}</b></span></div>`).join('')}
         ${s.rpe?`<div class="sub" style="margin-top:8px">RPE ${s.rpe}${s.readiness?' · Readiness '+readinessScore(s.readiness)+'/5':''}</div>`:''}
         ${s.notes?`<div class="sub" style="margin-top:4px">${s.notes}</div>`:''}
         <div style="display:flex;gap:8px;margin-top:12px"><button class="ghost" style="flex:1;padding:9px" onclick="Wiz.openEdit(${s.id})">Edit session</button>
@@ -718,7 +733,7 @@ function togBlk(el){el.classList.toggle('open');const d=el.nextElementSibling;if
 function blockDetail(b){
   if(b.t==='primary'){const mx=MAXES[b.lift]?.working_max,w=wtFromMax(mx,b.rxObj.pct);
     const rows=Array.from({length:b.rxObj.sets},(_,j)=>`<div class="pl"><span>Set ${j+1}</span><span>${b.rxObj.reps} × ${w?w+' lb':'set max'}</span></div>`).join('');
-    return `${rows}<div class="hint">${w?`${b.rxObj.pct}% of ${Math.round(mx)} working max`:'No max entered yet — set it on the Maxes tab'} · tempo ${b.tempo}</div>`;}
+    return `${rows}${b.contrast?`<div class="pkprev">⚡ After EVERY heavy set, no rest: ${b.contrast.map(([n,r])=>n+' ×'+r).join(' → ')}</div>`:''}<div class="hint">${w?`${b.rxObj.pct}% of ${Math.round(mx)} working max`:'No max entered yet — set it on the Maxes tab'} · tempo ${b.tempo}</div>`;}
   if(b.t==='sets'){const sg=suggestFor(b.name,b.rxObj,phaseFor(b.week||programWeek(),b.dow==null?new Date().getDay():b.dow).key);const last=lastFor(b.name);
     return `<div class="pl"><span>${b.rxObj.sets} sets × ${b.rxObj.reps}</span><span>${sg&&sg.lb!==''?sg.lb+' lb':sg?'set it':'—'}</span></div>
       <div class="hint">${sg?sg.why:'no history yet — pick a weight you can hit every rep clean'}${last?` · last ${last.lb}×${last.reps} on ${fmtD(last.date)}`:''}</div>`;}
@@ -747,9 +762,9 @@ const Wiz={
    this.i=0;this.res=this.blank();this.t0=Date.now();this.active=true;this.saving=false;this.editId=null;this.readyDone=false;this.startISO=localISO(new Date());
    if(dateISO)this.res.editDate=dateISO;
    $('wiz').classList.add('on');this.render();},
- blank(){const res={done:{},sets:{},logs:{},circ:{},cap:{},rpe_:{},readiness:{}};
+ blank(){const res={done:{},sets:{},logs:{},circ:{},cap:{},rpe_:{},readiness:{},contrast:{}};
    for(const b of this.plan.blocks){if(b.t==='primary'){const rx=b.rxObj,w=wtFromMax(MAXES[b.lift]?.working_max,rx.pct);
-     res.sets[b.key]=Array.from({length:rx.sets},()=>({reps:rx.reps,lb:w||'',done:false}));}
+     res.sets[b.key]=Array.from({length:rx.sets},()=>({reps:rx.reps,lb:w||'',done:false}));if(b.contrast)res.contrast[b.key]=Array.from({length:rx.sets},()=>b.contrast.map(()=>false));}
      if(b.t==='heavy5')res.sets[b.key]=[{reps:5,lb:'',done:false}];
      if(b.t==='sets'){const sg=suggestFor(b.name,b.rxObj,this.plan.phase.key);res.sets[b.key]=Array.from({length:b.rxObj.sets},()=>({reps:b.rxObj.reps,lb:sg&&sg.lb!==''?sg.lb:'',done:false}));}
      if(b.t==='cap'){const lc=lastCap(b.name);res.cap[b.key]={time_sec:0,lb:b.fin.moves.map((m,j)=>lc&&lc.cap.lb?(+lc.cap.lb[j]||''):'')};}
@@ -759,7 +774,7 @@ const Wiz={
  resume(){const d=Draft.get();if(!d)return false;let plan=null;try{plan=buildDay(d.week,d.dow,d.legacy);}catch(e){}
    if(!plan){Draft.clear();return false;}
    this.plan=plan;const def=this.blank(),sv=d.res||{};this.res=Object.assign({},def,sv);
-   ['done','sets','logs','circ','cap','rpe_','readiness'].forEach(k=>{this.res[k]=Object.assign({},def[k],sv[k]||{});});
+   ['done','sets','logs','circ','cap','rpe_','readiness','contrast'].forEach(k=>{this.res[k]=Object.assign({},def[k],sv[k]||{});});
    this.i=Math.min(Math.max(0,d.i||0),plan.blocks.length);this.t0=d.t0||Date.now();this.active=true;this.saving=false;
    this.editId=d.editId||null;this.readyDone=!!d.readyDone;this.startISO=d.startISO||null;
    $('wiz').classList.add('on');this.render();Draft.save();toast('Session restored');return true;},
@@ -768,13 +783,14 @@ const Wiz={
  openEdit(id){const s=SESS.find(x=>x.id===id);if(!s)return;
    this.plan=buildDay(s.program_week||programWeek(),s.day_dow,!(s.blocks&&s.blocks._layout==='rot'));if(!this.plan)return;
    this.i=0;this.active=true;this.saving=false;this.editId=id;this.readyDone=true;this.startISO=s.session_date;this.t0=Date.now()-((s.duration_min||0)*60000);
-   this.res={done:{},sets:{},logs:{},circ:{},cap:{},rpe_:{},readiness:s.readiness||{},rpe:s.rpe,notes:s.notes,editDate:s.session_date,swapName:{}};
+   this.res={done:{},sets:{},logs:{},circ:{},cap:{},rpe_:{},contrast:{},readiness:s.readiness||{},rpe:s.rpe,notes:s.notes,editDate:s.session_date,swapName:{}};
    const bl=s.blocks||{};
    for(const b of this.plan.blocks){const L=bl[b.key]||{};
      if(L.name&&L.name!==b.name)this.res.swapName[b.key]=L.name;
      if(b.t==='primary'||b.t==='heavy5'||b.t==='sets'){this.res.sets[b.key]=Array.isArray(L.sets)&&L.sets.length?L.sets.map(x=>({reps:+x.reps||0,lb:x.lb===''?'':+x.lb||0,done:!!x.done})):
        (b.t==='sets'?Array.from({length:b.rxObj.sets},()=>({reps:b.rxObj.reps,lb:'',done:false})):[{reps:b.rxObj?b.rxObj.reps:5,lb:'',done:false}]);}
      if(b.t==='circuit')this.res.circ[b.key]=Array.isArray(L.circ)?L.circ.slice():b.items.map(()=>false);
+     if(b.contrast)this.res.contrast[b.key]=(this.res.sets[b.key]||[]).map((_,j)=>b.contrast.map((_,m)=>!!(L.contrast&&L.contrast[j]&&L.contrast[j][m])));
      if(b.t==='check'||b.t==='cond'||b.t==='cap')this.res.done[b.key]=!!L.done;
      if(b.t==='cap')this.res.cap[b.key]=L.cap?{time_sec:+L.cap.time_sec||0,lb:(L.cap.lb||[]).slice()}:{time_sec:0,lb:b.fin.moves.map(()=>'')};
      if(L.log)this.res.logs[b.key]=L.log;if(L.mod)this.res['mod_'+b.key]=L.mod;if(L.rpe)this.res.rpe_[b.key]=+L.rpe;}
@@ -783,7 +799,7 @@ const Wiz={
  finishReady(){const n=$('in-rdynote');if(n)this.res.readiness.note=n.value||'';this.readyDone=true;this.render();},
  close(){this.active=false;$('wiz').classList.remove('on');$('tsheet').classList.remove('on');},
  steps(){return this.plan.blocks.length+1;},
- nav(d){this.capture();this.i=Math.min(this.steps()-1,Math.max(0,this.i+d));this.render();},
+ nav(d){this.capture();const cb=this.plan.blocks[this.i];if(d>0&&cb&&cb.contrast&&!((this.res.contrast||{})[cb.key]||[]).some(r=>r&&r.some(Boolean))&&!confirm('None of the explosive moves are checked off for this lift. Move on anyway?'))return;this.i=Math.min(this.steps()-1,Math.max(0,this.i+d));this.render();},
  capture(){const b=this.plan.blocks[this.i];if(!b)return;
    if(b.t==='primary'||b.t==='heavy5'||b.t==='sets')this.res.sets[b.key].forEach((s,j)=>{const r=$(`in-r${j}`),l=$(`in-l${j}`);if(r)s.reps=+r.value||0;if(l)s.lb=+l.value||0;});
    if(b.t==='acc'){const n=$('in-accnote');if(n)this.res.logs.acc=n.value;}
@@ -821,11 +837,23 @@ const Wiz={
      const vids={belt_squat:VID.belt_squat,trap_bar:VID.trap_bar,press:VID.press,bench:VID.bench};
      const vurl=b.vid||(vids[b.lift]&&!swapName?vids[b.lift]:null);
      if(vurl)html+=`<div style="margin-bottom:10px"><a class="vb" target="_blank" rel="noopener" href="${vurl}">Form</a></div>`;
+     if(b.contrast){this.res.contrast=this.res.contrast||{};const C=this.res.contrast[b.key]=this.res.contrast[b.key]||[];
+       this.res.sets[b.key].forEach((s,j)=>{C[j]=C[j]||b.contrast.map(()=>false);
+         html+=`<div class="round"><div class="rhd">Round ${j+1} of ${this.res.sets[b.key].length}</div>
+           <div class="rstep">1 · Heavy set</div>
+           <div class="setrow"><div class="n">${j+1}</div>
+           <input id="in-r${j}" type="number" inputmode="numeric" value="${s.reps}">
+           <input id="in-l${j}" type="number" inputmode="numeric" value="${s.lb}">
+           <button class="setcirc${s.done?' on':''}" onclick="Wiz.togSet('${b.key}',${j},this)">✓</button></div>
+           <div class="rstep pk">2 · Straight into — no rest</div>`;
+         b.contrast.forEach(([n,r],m)=>{html+=`<div class="circrow ctr${C[j][m]?' on':''}" id="ctr-${b.key}-${j}-${m}"><div class="cl"><span class="cx">${n}</span></div><div class="cr"><b>×${r}</b></div><button class="setcirc${C[j][m]?' on':''}" onclick="Wiz.togCtr('${b.key}',${j},${m},this)">✓</button></div>`;});
+         html+=`<div class="rrest">Then rest 2–3 min</div></div>`;});}
+     else{
      html+=`<div class="sethead"><span>Set</span><span>Reps</span><span>Lb</span><span></span></div>`;
      this.res.sets[b.key].forEach((s,j)=>{html+=`<div class="setrow"><div class="n">${j+1}</div>
        <input id="in-r${j}" type="number" inputmode="numeric" value="${s.reps}">
        <input id="in-l${j}" type="number" inputmode="numeric" value="${s.lb}">
-       <button class="setcirc${s.done?' on':''}" onclick="Wiz.togSet('${b.key}',${j},this)">✓</button></div>`;});
+       <button class="setcirc${s.done?' on':''}" onclick="Wiz.togSet('${b.key}',${j},this)">✓</button></div>`;});}
      if(b.t==='primary'||b.t==='sets')html+=`<div style="display:flex;gap:8px;margin-top:6px"><button class="ghost" style="flex:1;padding:9px" onclick="Wiz.addSet('${b.key}')">+ Set</button><button class="ghost" style="flex:1;padding:9px" onclick="Wiz.rmSet('${b.key}')">− Set</button></div>`;
      if(b.t==='sets'){const cur=this.res.rpe_[b.key];const rirT=RIR_T[this.plan.phase.key]??2;
        html+=`<div class="rpelab">RPE of last set <span style="font-weight:400;text-transform:none;letter-spacing:0">· target ${10-rirT} (${rirT} in reserve)</span></div><div class="rpepick">${RPE_OPTS.map(v=>`<button class="${cur===v?'on':''}" onclick="Wiz.setRpe('${b.key}',${v},this)">${v}</button>`).join('')}</div><div class="rpehint">10 = nothing left · 9 = 1 rep left · 8 = 2 left · 7 = 3 left</div>`;}
@@ -849,6 +877,7 @@ const Wiz={
  setRpe(key,v,el){this.capture();this.res.rpe_[key]=this.res.rpe_[key]===v?null:v;[...el.parentNode.children].forEach(x=>x.classList.toggle('on',+x.textContent===this.res.rpe_[key]));},
  togSet(key,j,el){this.capture();const s=this.res.sets[key][j];s.done=!s.done;el.classList.toggle('on',s.done);},
  togCirc(key,j,el){const d=this.res.circ[key];d[j]=!d[j];el.classList.toggle('on',d[j]);const row=$(`circ-${key}-${j}`);if(row)row.classList.toggle('on',d[j]);},
+ togCtr(key,j,m,el){this.capture();const C=this.res.contrast[key];C[j][m]=!C[j][m];el.classList.toggle('on',C[j][m]);const row=$(`ctr-${key}-${j}-${m}`);if(row)row.classList.toggle('on',C[j][m]);},
  async editMax(lift){this.capture();const cur=MAXES[lift]?.working_max;const v=+prompt(`${LIFTNAME[lift]} — working max (1RM, lb):`,cur?Math.round(cur):'');if(!v)return;
    try{await api('/lift_maxes?lift=eq.'+lift,{method:'POST',headers:{'Prefer':'resolution=merge-duplicates'},body:JSON.stringify({lift,working_max:v,method:'manual',updated_at:new Date().toISOString()})});
      MAXES[lift]={...(MAXES[lift]||{}),lift,working_max:v,method:'manual',updated_at:new Date().toISOString()};
@@ -882,7 +911,7 @@ const Wiz={
    vol+=capLoad;
    const blocksLog={_layout:p.legacy?'legacy':'rot'};for(const b of p.blocks)blocksLog[b.key]={name:(r.swapName&&r.swapName[b.key])||b.name,cap:b.t==='cap'?(r.cap[b.key]||null):undefined,rpe:b.t==='sets'?(r.rpe_[b.key]||null):undefined,
      done:b.t==='circuit'?(r.circ[b.key]||[]).every(Boolean):(b.t==='sets'?(r.sets[b.key]||[]).some(s=>s.done):!!r.done[b.key]),
-     sets:r.sets[b.key]||null,circ:r.circ[b.key]||null,log:r.logs[b.key]||null,mod:r['mod_'+b.key]||null};
+     sets:r.sets[b.key]||null,circ:r.circ[b.key]||null,contrast:b.contrast?(((r.contrast||{})[b.key])||[]).slice(0,(r.sets[b.key]||[]).length):undefined,log:r.logs[b.key]||null,mod:r['mod_'+b.key]||null};
    const payload={session_date:chosenDate,program_week:p.week,day_dow:p.dow,title:p.focus,phase:p.phase.key,blocks:blocksLog,volume_lb:vol,reps,duration_min:dur,rpe:r.rpe,notes:r.notes,readiness:(r.readiness&&Object.keys(r.readiness).length)?r.readiness:null};
    try{
      if(this.editId)await api('/lift_sessions?id=eq.'+this.editId,{method:'PATCH',body:JSON.stringify(payload)});
