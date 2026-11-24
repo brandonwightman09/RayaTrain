@@ -519,6 +519,36 @@ const FINISH={
 // Finishers rotate by week so the same one only comes back every 3-4 weeks. Weeks 1-3 keep the original (as logged); rotation starts week 4.
 const FIN_ROT_START=4;
 function finFor(slot,week){const a=FINISH[slot];if(!a)return null;return a[week<FIN_ROT_START?0:(week-FIN_ROT_START+1)%a.length];}
+// PHASE 2 (11/23): lift-day finishers by lift type. Four kinds rotate - sandbag complex / sprint-tempo / carry / benchmark (bm).
+// Lower days walk FIN2.lower (8), upper days FIN2.upper (5): each comes back roughly once a month. Saturday keeps FINISH.sat.
+const FIN_SB={name:'Sprint + Bike',rx:'6 rounds: 40 yd sprint / 10 cal bike / rest 60 sec',rounds:6,
+   moves:[{n:'Sprint',reps:1,unit:'40 yd',load:0},{n:'Echo Bike',reps:10,unit:'10 cal',load:0}]};
+const FIN2={
+ lower:[{name:'Shoulder & Go',rx:'5 rounds: 5 sandbag ground-to-shoulder per side / 20 yd sandbag walking lunge / 40 yd bear-hug carry',rounds:5,
+   moves:[{n:'Sandbag Ground-to-Shoulder',reps:10,unit:'5/side',load:1},{n:'Sandbag Walking Lunge',reps:1,unit:'20 yd',load:1},{n:'Bear-Hug Carry',reps:1,unit:'40 yd',load:1}]},
+  {name:'Farmer Ladder',rx:'Farmer carry 40 / 60 / 80 / 60 / 40 yd, with 10 KB swings after each carry',rounds:1,
+   moves:[{n:'Farmer Carry',reps:5,unit:'40/60/80/60/40 yd',load:1},{n:'KB Swing',reps:50,unit:'10 after each carry',load:1}]},
+  {name:'Sled Sprints',rx:'6 × 40 yd heavy sled push, rest 90 sec between. Log total time including rests.',rounds:6,
+   moves:[{n:'Sled Push',reps:1,unit:'40 yd',load:1}]},
+  {name:'Thirty',bm:1,rx:'BENCHMARK — 30 sandbag ground-to-shoulder for time, alternating sides. Target bag: 60% of bodyweight. Race your last time.',rounds:1,
+   moves:[{n:'Sandbag Ground-to-Shoulder',reps:30,unit:'alternate sides',load:1}]},
+  {name:'Zercher Trail',rx:'5 rounds: 8 sandbag cleans / 8 Zercher squats / 40 yd Zercher carry / 40 yd jog back',rounds:5,
+   moves:[{n:'Sandbag Clean',reps:8,load:1},{n:'Zercher Squat',reps:8,load:1},{n:'Zercher Carry',reps:1,unit:'40 yd',load:1},{n:'Jog Back',reps:1,unit:'40 yd',load:0}]},
+  {name:'Drag & Suitcase',rx:'5 rounds: 40 yd backward sled drag / 40 yd suitcase carry per side',rounds:5,
+   moves:[{n:'Backward Sled Drag',reps:1,unit:'40 yd',load:1},{n:'Suitcase Carry',reps:2,unit:'40 yd/side',load:1}]},
+  FIN_SB,
+  {name:'Sled 400',bm:1,rx:'BENCHMARK — 10 × 40 yd sled push for total time. Same sled load every time. Race your last time.',rounds:10,
+   moves:[{n:'Sled Push',reps:1,unit:'40 yd',load:1}]}],
+ upper:[{name:'Tempo 60s',rx:'8 × 60 yd run at about 75% effort, walk back to the start. Smooth, not a sprint.',rounds:8,
+   moves:[{n:'Tempo Run',reps:1,unit:'60 yd @ ~75%',load:0}]},
+  {name:'Over & Press',rx:'4 rounds: 10 sandbag over-shoulder / 10 sandbag push press / 40 yd shoulder carry',rounds:4,
+   moves:[{n:'Sandbag Over-Shoulder',reps:10,load:1},{n:'Sandbag Push Press',reps:10,load:1},{n:'Shoulder Carry',reps:1,unit:'40 yd',load:1}]},
+  {name:'Rack & Slam',rx:'5 rounds: 40 yd double-KB front-rack carry / 10 ball slams / 10 push-ups',rounds:5,
+   moves:[{n:'Front-Rack Carry',reps:1,unit:'40 yd',load:1},{n:'Ball Slam',reps:10,load:1},{n:'Push-Up',reps:10,load:1,bw:1}]},
+  FIN_SB,
+  {name:'Bike Sandwich',bm:1,rx:'BENCHMARK — 50 cal bike / 50 ball slams / 50 cal bike for time. Race your last time.',rounds:1,
+   moves:[{n:'Echo Bike',reps:50,unit:'50 cal',load:0},{n:'Ball Slam',reps:50,load:1},{n:'Echo Bike (second)',reps:50,unit:'50 cal',load:0}]}]};
+function fin2For(week,slot,lift){const k=Math.floor(((week-1)*3+slot)/2),a=LOWER_LIFT[lift]?FIN2.lower:FIN2.upper;return a[k%a.length];}
 // ---- accessory load engine: RIR-based autoregulation (Helms 2016/2018, Graham & Cleather 2019) with APRE reps fallback (Mann 2010) ----
 const LOWER=/deadlift|squat|lunge|nordic|ham/i;
 const BW_ONLY=/pull-up|nordic|ham curl|face pull/i;           // load = added weight, e1RM math not valid → reps rule only
@@ -534,6 +564,7 @@ function accE1(b){ // best RPE-adjusted e1RM from a logged block (needs rpe); nu
 function suggestFor(name,rxObj,phaseKey){
   phaseKey=phaseKey||(STATE?phaseFor(programWeek(),new Date().getDay()).key:'eccentric');const deload=phaseKey==='deload';const rirT=deload?2:(RIR_T[phaseKey]??2),rpeT=10-rirT;
   const L=lastBlock(name);const inc=LOWER.test(name)?10:5;const tr=rxObj?rxObj.reps:8,ts=rxObj?rxObj.sets:3;
+  if(!L&&rxObj&&rxObj.seedLb)return {lb:rxObj.seedLb,why:rxObj.seedWhy};
   if(!L){return BW_ONLY.test(name)?{lb:'',why:'bodyweight first — add load once every rep is clean at 2–3 in reserve, then log RPE'}
     :{lb:'',why:`calibration set — pick a load you can hit for all ${ts}×${tr} with ${rirT} reps in reserve (RPE ${rpeT}), log RPE, engine takes over next time`};}
   const done=L.b.sets.filter(s=>s.done&&+s.reps>0);const lastSet=done[done.length-1]||L.b.sets[L.b.sets.length-1];
@@ -560,7 +591,7 @@ const CONDITION={
 const CONTRAST={belt_squat:[['Box Jump',3],['Broad Jump',3],['20m Sprint',1]],trap_bar:[['KB Swing',5],['Vertical Jump',3]],
   press:[['Explosive Push-Up',3],['Med-Ball Chest Throw',5]],bench:[['Plyo Push-Up',3],['Med-Ball Slam',5]]};
 const ctrText=L=>(CONTRAST[L]||[]).map(([n,r])=>n+' ×'+r).join(' → ');
-function buildDay(week,dow,legacy){
+function buildDay(week,dow,legacy,gen){gen=legacy?1:(gen||2);
   const ph=phaseFor(week,dow);const isPeak=ph.key==='peak',isDeload=ph.key==='deload',isRetest=ph.key==='retest';
   let D;
   if(legacy){D={1:{focus:'Lower Strength',primary:'belt_squat',hip:true},
@@ -594,20 +625,22 @@ function buildDay(week,dow,legacy){
   if(D.primary&&!isPeak&&!isDeload&&!isRetest){
     const acc={belt_squat:[['Romanian Deadlift','3×8 @ RPE 7',VID.rdl],['Walking Lunge','3×10/leg',VID.lunge]],
       trap_bar:[['Belt Squat (secondary)','3×8 @ RPE 7',VID.belt_squat],['Nordic / Ham Curl','3×8',VID.nordic]],
-      press:[['Weighted Pull-Up','4×6',VID.pullup],['DB Incline Press','3×10',VID.incdb],['Curl + Face Pull','3×12 ea',yts('face pull')]],
-      bench:[['Bent-Over Row','4×8',VID.row],['DB Shoulder Press','3×10',yts('dumbbell shoulder press')]]}[D.primary];
-    acc.forEach(([n,r,u],i)=>{const m=r.match(/(\d+)×(\d+)/);
-      blocks.push({t:'sets',key:'acc'+i,cat:'Strength · Accessory',name:n,rx:r,vid:u,week,dow,rxObj:{sets:m?+m[1]:3,reps:m?+m[2]:8}});});
+      press:gen>=2?[['Weighted Pull-Up','4×6',VID.pullup],['Close-Grip Bench Press','3×8',yts('close grip bench press')],['Overhead Triceps Extension','3×12 · superset 15 face pulls',yts('overhead triceps extension')]]
+        :[['Weighted Pull-Up','4×6',VID.pullup],['DB Incline Press','3×10',VID.incdb],['Curl + Face Pull','3×12 ea',yts('face pull')]],
+      bench:gen>=2?[['Paused Strict Press','4×5 · 1-sec pause on the collarbone',VID.press,['press',70]],['Bent-Over Row','4×8',VID.row],['Barbell Curl','3×10',yts('barbell curl')]]
+        :[['Bent-Over Row','4×8',VID.row],['DB Shoulder Press','3×10',yts('dumbbell shoulder press')]]}[D.primary];
+    acc.forEach(([n,r,u,seed],i)=>{const m=r.match(/(\d+)×(\d+)/);const sl=seed?wtFromMax(MAXES[seed[0]]?.working_max,seed[1]):null;
+      blocks.push({t:'sets',key:'acc'+i,cat:'Strength · Accessory',name:n,rx:r,vid:u,week,dow,rxObj:{sets:m?+m[1]:3,reps:m?+m[2]:8,seedLb:sl,seedWhy:seed?`starting point: ${seed[1]}% of your ${LIFTNAME[seed[0]]} max — adjust, log RPE, and the engine takes over next time`:null}});});
   }
-  if((D.primary&&!isDeload&&!isPeak&&!isRetest)||D.fin){const f=finFor(D.fin||{1:'mon',3:'wed',5:'fri'}[dow],week);
-    if(f)blocks.push({t:'cap',key:'finish',cat:'Capacity',name:f.name+' Finisher',rx:'for time',fin:f,html:`<div class="rxtext" style="margin:0 0 4px">${f.rx}</div>`});}
+  if((D.primary&&!isDeload&&!isPeak&&!isRetest)||D.fin){const f=(gen>=2&&D.primary)?fin2For(week,{1:0,3:1,5:2}[dow],D.primary):finFor(D.fin||{1:'mon',3:'wed',5:'fri'}[dow],week);
+    if(f)blocks.push({t:'cap',key:'finish',cat:f.bm?'Capacity · Benchmark':'Capacity',name:f.name+' Finisher',rx:'for time',fin:f,html:`<div class="rxtext" style="margin:0 0 4px">${f.rx}</div>`});}
   if(D.cond){const c=CONDITION[D.cond];
     blocks.push({t:'cond',key:'cond',cat:'Conditioning',name:c.name,swap:'conditioning',mod:c.mod,rx:'log result',html:`<div class="rxtext" style="margin:0 0 8px">${c.rx}</div>`});}
   if(D.run)blocks.push({t:'cond',key:'run',cat:'Conditioning · Run'+(D.optional?' (optional)':''),name:'Run',swap:'conditioning',mod:'Run',rx:'log result',html:`<div class="rxtext" style="margin:0 0 8px">${D.optional?'If you want it: 3–4 miles easy. Skip it if the week was heavy — this day is about walking in Monday fresh.':'3–4 miles moderate, OR 6×400m if legs are fresh.'}</div>`});
   if(D.iron)blocks.push({t:'circuit',key:'iron',cat:'Shoulder',name:'Iron Scap',rx:'7 movements · after',
     html:`<span class="ct">Controlled tempo · ATYT fast</span><div style="margin-top:6px"><a class="vb" target="_blank" rel="noopener" href="${VID_IRON}">Protocol demo</a></div>`,
     items:IRON.map(([n,r])=>[n,`<b>${r}</b>`,VID_IRON])});
-  return {focus:D.focus,dow,week,phase:ph,blocks,hasStrength:!!D.primary,optional:!!D.optional,legacy:!!legacy};
+  return {focus:D.focus,dow,week,phase:ph,blocks,hasStrength:!!D.primary,optional:!!D.optional,legacy:!!legacy,gen};
 }
 function peakHtml(lift){const c={belt_squat:'Belt Squat 3×2 @85% → Box Jump ×3 → Broad Jump ×3 → 20m sprint · 4 rounds',
    trap_bar:'Trap-Bar 3×2 @85% → KB Swing ×5 → Vertical Jump ×3 · 4 rounds',
@@ -635,7 +668,7 @@ const quoteFor=iso=>{const n=iso.split('-').reduce((a,b)=>a+ +b,0);return QUOTES
 const CAL={y:null,m:null,sel:null,hist:{},histRange:null};
 function programDay(iso){ // returns {week,dow} if iso falls inside the 8-week program on a training day
   if(!STATE)return null;const s=mondayOf(new Date(STATE.start_date+'T12:00')),d=new Date(iso+'T12:00');
-  const w=Math.floor((mondayOf(d)-s)/(7*864e5))+1;if(w<1||w>WEEKS)return null;const dow=d.getDay();if(dow===0)return null;return {week:w,dow};}
+  let w=Math.floor((mondayOf(d)-s)/(7*864e5))+1;if(w<1)return null;w=((w-1)%WEEKS)+1;const dow=d.getDay();if(dow===0)return null;return {week:w,dow};}
 async function renderCalendar(){
   const now=new Date();if(CAL.y===null){CAL.y=now.getFullYear();CAL.m=now.getMonth();CAL.sel=localISO(now);}
   const body=$('calBody');const first=new Date(CAL.y,CAL.m,1),last=new Date(CAL.y,CAL.m+1,0);
@@ -698,7 +731,7 @@ const fmtN=n=>n>=1e6?(n/1e6).toFixed(2)+'M':n>=1e4?Math.round(n/1e3)+'K':Math.ro
 const fmtD=s=>new Date(s+'T12:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'2-digit'});
 const mondayOf=d=>{const m=new Date(d);m.setHours(12,0,0,0);m.setDate(m.getDate()-((m.getDay()+6)%7));return m;};
 function programWeek(){const s=mondayOf(new Date(STATE.start_date+'T12:00')),n=mondayOf(new Date());
-  const w=Math.floor((n-s)/(7*864e5));return Math.min(WEEKS,Math.max(1,w+1));}
+  const w=Math.floor((n-s)/(7*864e5));return w<0?1:(w%WEEKS)+1;}   // rolls into the next cycle after week 10
 
 async function load(){
   const now=new Date();selDow=now.getDay();
@@ -775,7 +808,7 @@ const Wiz={
      if(b.t==='circuit')res.circ[b.key]=b.items.map(()=>false);}
    return res;},
  // DRAFT 11/23: reopen a session that was saved on this phone when the page closed
- resume(){const d=Draft.get();if(!d)return false;let plan=null;try{plan=buildDay(d.week,d.dow,d.legacy);}catch(e){}
+ resume(){const d=Draft.get();if(!d)return false;let plan=null;try{plan=buildDay(d.week,d.dow,d.legacy,d.gen);}catch(e){}
    if(!plan){Draft.clear();return false;}
    this.plan=plan;const def=this.blank(),sv=d.res||{};this.res=Object.assign({},def,sv);
    ['done','sets','logs','circ','cap','rpe_','readiness','contrast'].forEach(k=>{this.res[k]=Object.assign({},def[k],sv[k]||{});});
@@ -785,7 +818,7 @@ const Wiz={
  captureExtra(){const n=$('in-rdynote');if(n)this.res.readiness.note=n.value||'';
    const r=$('in-rpe'),t=$('in-notes'),dt=$('in-date');if(r)this.res.rpe=+r.value||null;if(t)this.res.notes=t.value||null;if(dt&&dt.value)this.res.editDate=dt.value;},
  openEdit(id){const s=SESS.find(x=>x.id===id);if(!s)return;
-   this.plan=buildDay(s.program_week||programWeek(),s.day_dow,!(s.blocks&&s.blocks._layout==='rot'));if(!this.plan)return;
+   const lay=s.blocks&&s.blocks._layout;this.plan=buildDay(s.program_week||programWeek(),s.day_dow,!(lay==='rot'||lay==='rot2'),lay==='rot2'?2:1);if(!this.plan)return;
    this.i=0;this.active=true;this.saving=false;this.editId=id;this.readyDone=true;this.startISO=s.session_date;this.t0=Date.now()-((s.duration_min||0)*60000);
    this.res={done:{},sets:{},logs:{},circ:{},cap:{},rpe_:{},contrast:{},readiness:s.readiness||{},rpe:s.rpe,notes:s.notes,editDate:s.session_date,swapName:{}};
    const bl=s.blocks||{};
@@ -913,7 +946,7 @@ const Wiz={
      if(c.time_sec||load){const lc=lastCap(b.name);const dt=lc&&lc.cap.time_sec&&c.time_sec?c.time_sec-lc.cap.time_sec:null;
        capLines.push(`${b.name}: <b>${fmtT(c.time_sec)}</b> · ${fmtN(load)} lb${dt!==null?` <span style="color:var(${dt<=0?'--green':'--red'})">(${dt<=0?'−':'+'}${fmtT(Math.abs(dt))} vs last)</span>`:''}`);}}}
    vol+=capLoad;
-   const blocksLog={_layout:p.legacy?'legacy':'rot'};for(const b of p.blocks)blocksLog[b.key]={name:(r.swapName&&r.swapName[b.key])||b.name,cap:b.t==='cap'?(r.cap[b.key]||null):undefined,rpe:b.t==='sets'?(r.rpe_[b.key]||null):undefined,
+   const blocksLog={_layout:p.legacy?'legacy':(p.gen===1?'rot':'rot2')};for(const b of p.blocks)blocksLog[b.key]={name:(r.swapName&&r.swapName[b.key])||b.name,cap:b.t==='cap'?(r.cap[b.key]||null):undefined,rpe:b.t==='sets'?(r.rpe_[b.key]||null):undefined,
      done:b.t==='circuit'?(r.circ[b.key]||[]).every(Boolean):(b.t==='sets'?(r.sets[b.key]||[]).some(s=>s.done):!!r.done[b.key]),
      sets:r.sets[b.key]||null,circ:r.circ[b.key]||null,contrast:b.contrast?(((r.contrast||{})[b.key])||[]).slice(0,(r.sets[b.key]||[]).length):undefined,log:r.logs[b.key]||null,mod:r['mod_'+b.key]||null};
    const payload={session_date:chosenDate,program_week:p.week,day_dow:p.dow,title:p.focus,phase:p.phase.key,blocks:blocksLog,volume_lb:vol,reps,duration_min:dur,rpe:r.rpe,notes:r.notes,readiness:(r.readiness&&Object.keys(r.readiness).length)?r.readiness:null};
@@ -947,7 +980,7 @@ const Draft={
    if(Date.now()-(d.savedAt||0)>4*864e5){this.clear();return null;}return d;}catch(e){return null;}},
  save(extra){if(!Wiz.active||Wiz.saving||!Wiz.plan)return;
    try{Wiz.capture();Wiz.captureExtra();const p=Wiz.plan;
-     localStorage.setItem(DRAFT_KEY,JSON.stringify(Object.assign({v:1,dow:p.dow,week:p.week,legacy:!!p.legacy,title:p.focus,i:Wiz.i,res:Wiz.res,t0:Wiz.t0,
+     localStorage.setItem(DRAFT_KEY,JSON.stringify(Object.assign({v:1,dow:p.dow,week:p.week,legacy:!!p.legacy,gen:p.gen,title:p.focus,i:Wiz.i,res:Wiz.res,t0:Wiz.t0,
        readyDone:Wiz.readyDone,editId:Wiz.editId,startISO:Wiz.startISO||null,savedAt:Date.now()},extra||{})));}catch(e){}},
  soon(ms){clearTimeout(this.t);this.t=setTimeout(()=>this.save(),ms||0);},
  clear(){clearTimeout(this.t);try{localStorage.removeItem(DRAFT_KEY);}catch(e){}},
